@@ -24,7 +24,7 @@ async function login() {
             email: userEmail 
         }
 
-        await fetch("/usuarios/", {
+        await fetch("/users", {
             method: "GET",
             headers: { "ContentType": "application/json" },
             body: JSON.stringify(user)
@@ -33,5 +33,6 @@ async function login() {
     } else {
         res.status(StatusCodes.BAD_REQUEST).send("Dados inválidos!")
     }
-
 }
+
+

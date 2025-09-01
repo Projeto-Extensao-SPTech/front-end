@@ -16,10 +16,21 @@ export function stringFormatter(string) {
     return formatedString
 }
 
-// console.log(stringFormatter("GUSTAVO PEREIRA DE ALMEIDA"))
-// console.log(stringFormatter("vitor hugo"))
 
-export function dateFormatterToClient() {
+// Essa função é utilizada para exibição de datas no front-end
+// YYYY-MM-DD
+export function dateFormatterToClient(date) {
+    const dateArray = date.split("")
+
+    dateArray.map((element) => {
+        if(element === "-"){
+            element = "/"
+        }
+    })
+
+    const year = date.slice(0,4)
+    const month = date.slice(6,7)
+    const day = date.slice(9,10)
 
 }
 
