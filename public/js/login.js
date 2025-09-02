@@ -19,15 +19,19 @@ async function login() {
 
     if (allValid) {
         const user = { 
-            name: stringFormatter(username), 
-            password: userPassword, 
-            email: userEmail 
+            "name": stringFormatter(username), 
+            "password": userPassword, 
+            "email": userEmail 
         }
 
         await fetch("/users", {
             method: "GET",
             headers: { "ContentType": "application/json" },
             body: JSON.stringify(user)
+        }).then((response) => {
+            if(response.ok){
+
+            }
         })
 
     } else {

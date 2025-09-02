@@ -35,8 +35,8 @@ async function signUp() {
             method: "POST",
             headers: { "Content-type": "application/json" },
             body: JSON.stringify(user)
-        }).then((res) => {
-            if (res.ok) {
+        }).then((response) => {
+            if (response.ok) {
                 console.log("Dados cadastrados!")
                 Swal.fire({
                     icon: "success",
