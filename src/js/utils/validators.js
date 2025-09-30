@@ -1,4 +1,4 @@
-import joi, { func } from "joi"
+import joi from "joi"
 
 // Função para proibir o usuário de acessar outras telas sem estar logado
 export async function isLoggedIn() {
