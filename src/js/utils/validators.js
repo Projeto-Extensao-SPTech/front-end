@@ -1,18 +1,30 @@
 import joi from "joi"
 
-// Função para proibir o usuário de acessar outras telas sem estar logado
 export async function isLoggedIn() {
     const name = sessionStorage.getItem("USER_NAME")
     const email = sessionStorage.getItem("USER_EMAIL")
 
     if(!name || !email){
-        window.location = "../html/client-side/home.html"
+        console.error("Usuário não logado, redirecionamento necessário.");
+    }
+}
+
+export function validateUserName(username) {
+    const schema = joi.string().min(3).max(50).required();
+    try {
+        const { error } = schema.validate(username);
+        return {
+            isValid: !error,
+            message: error ? error.details[0].message : "Username validation: Success"
+        };
+    } catch (err) {
+        throw new Error("Username validation: FAILED!", err.message);
     }
 }
 
 
 export function validateEmail(email) {
-    const schema = joi.string().email().min(10).max(30).required()
+    const schema = joi.string().email({ tlds: { allow: false } }).required();
 
     try {
         const { error } = schema.validate(email)
@@ -28,7 +40,7 @@ export function validateEmail(email) {
 
 
 export function validatePassword(password) {
-    const schema = joi.string().min(5).max(12).required().pattern(new RegExp('^[a-zA-Z0-9]{3,20}$'))
+    const schema = joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,20}$')).required();
 
     try {
         const { error } = schema.validate(password)
@@ -45,12 +57,11 @@ export function validatePassword(password) {
 
 
 export function validateCpf(cpf) {
-    cpf.split("").map((element) => element == "-" || element == "." ? "" : element).join("")
-
-    const schema = joi.string().pattern(/^{11\d}$/).required()
+    const cleanedCpf = cpf.replace(/[.-]/g, "");
+    const schema = joi.string().length(11).pattern(/^\d+$/).required();
 
     try {
-        const { error } = schema.validate(cpf)
+        const { error } = schema.validate(cleanedCpf);
 
         return {
             isValid: !error,
@@ -63,7 +74,7 @@ export function validateCpf(cpf) {
 }
 
 export function validatePhoneNumber(phoneNumber) {
-    const schema = joi.string().required(/^\d{10,11}$/)
+    const schema = joi.string().pattern(/^\d{10,11}$/).required();
 
     try {
         const { error } = schema.validate(phoneNumber)
@@ -78,10 +89,13 @@ export function validatePhoneNumber(phoneNumber) {
 
 export function validateAddress(address, number) {
     try {
-        const addressSchema = joi.string().required().address()
-        const numberSchema = joi.number().required().min(1).max(4)
+        const addressSchema = joi.string().min(3).required();
+        const numberSchema = joi.number().integer().min(1).required();
 
-        const { error } = [addressSchema.validade(address), numberSchema.validate(number)]
+        const addressValidation = addressSchema.validate(address);
+        const numberValidation = numberSchema.validate(number);
+
+        const error = addressValidation.error || numberValidation.error;
 
         return {
             isValid: !error,
