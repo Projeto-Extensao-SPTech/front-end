@@ -31,7 +31,7 @@ const NavbarSite = ({ onNavigateToLogin, onNavigateToCadastro }) => {
                     <Link to="home" spy={true} smooth={true} duration={500} className="cursor-pointer border-b-8 border-[#FCAD0B] pb-1 rounded-br-lg hover:scale-105 transition-all duration-300 ease-in-out">SOBRE</Link>
                     <Link to="/" spy={true} smooth={true} duration={500} className="cursor-pointer hover:scale-105 transition-all duration-300 ease-in-out">FEIRAS DE ADOÇÃO</Link>
                     <Link to="/" spy={true} smooth={true} duration={500} className="cursor-pointer hover:scale-105 transition-all duration-300 ease-in-out">DOAÇÃO</Link>
-                    <Link to="/" spy={true} smooth={true} duration={500} className="cursor-pointer hover:scale-105 transition-all duration-300 ease-in-out">VOLUNTARIADO</Link>
+                    <Link to="/voluntariados" spy={true} smooth={true} duration={500} className="cursor-pointer hover:scale-105 transition-all duration-300 ease-in-out">VOLUNTARIADO</Link>
                     <Link to="/" spy={true} smooth={true} duration={500} className="cursor-pointer hover:scale-105 transition-all duration-300 ease-in-out">CRIAR NOTIFICAÇÃO</Link>
                 </nav>
 

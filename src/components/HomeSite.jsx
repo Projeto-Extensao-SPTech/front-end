@@ -6,13 +6,14 @@ import FaleConosco from "./FaleConosco"
 
 // Componente container principal da página Home
 // Agrupa todas as seções do site institucional
-function HomeSite({ onNavigateToLogin, onNavigateToCadastro }) {
+function HomeSite({ onNavigateToLogin, onNavigateToCadastro, onNavigateToVoluntariados}) {
     return (
         <div>
             {/* Navbar com navegação para Login/Cadastro */}
             <NavbarSite
                 onNavigateToLogin={onNavigateToLogin}
                 onNavigateToCadastro={onNavigateToCadastro}
+                onNavigateToVoluntariados={onNavigateToVoluntariados}
             />
             
             {/* Conteúdo principal com seções em ordem de visualização */}

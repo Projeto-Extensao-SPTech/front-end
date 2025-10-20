@@ -3,7 +3,7 @@ import ButtonNav from '../layouts/ButtonNav'
 import { AiOutlineMenu } from 'react-icons/ai'
 import { useState } from 'react'
 
-export function NavBar({ onNavigateToHome }) {
+export function NavBar({ onNavigateToHome, onNavigateToVoluntariados }) {
     // Estado para controlar se o menu mobile está aberto ou fechado
     const [menu, setMenu] = useState(false)
 
@@ -19,7 +19,7 @@ export function NavBar({ onNavigateToHome }) {
 
                 {/* Logo clicável que chama onNavigateToHome */}
                 <div className="flex items-center h-full pl-5">
-                    <div 
+                    <div
                         className="cursor-pointer h-full flex items-center"
                         onClick={onNavigateToHome}
                     >
@@ -29,7 +29,7 @@ export function NavBar({ onNavigateToHome }) {
 
                 {/* Menu desktop (visível em telas grandes) */}
                 <nav className='hidden lg:flex flex-row items-center gap-16 h-full text-lg'>
-                    <div 
+                    <div
                         className="cursor-pointer pb-1 rounded-br-lg hover:scale-105 transition-all duration-300 ease-in-out text-[#052759]"
                         onClick={onNavigateToHome}
                     >
@@ -41,7 +41,9 @@ export function NavBar({ onNavigateToHome }) {
                     <div className="cursor-pointer hover:scale-105 transition-all duration-300 ease-in-out text-[#052759]">
                         DOAÇÃO
                     </div>
-                    <div className="cursor-pointer hover:scale-105 transition-all duration-300 ease-in-out text-[#052759]">
+                    <div className="cursor-pointer hover:scale-105 transition-all duration-300 ease-in-out text-[#052759]"
+                         onClick={onNavigateToVoluntariados}
+                    >
                         VOLUNTARIADO
                     </div>
                     <div className="cursor-pointer hover:scale-105 transition-all duration-300 ease-in-out text-[#052759]">
@@ -80,7 +82,7 @@ export function NavBar({ onNavigateToHome }) {
 
             {/* Menu mobile que aparece ao clicar no hamburguer */}
             <div className={`${menu ? "translate-x-0" : "-translate-x-full"} lg:hidden flex flex-col absolute bg-[#052759] text-white left-0 top-full font-semibold text-2xl text-center pt-6 pb-6 gap-8 w-full h-fit transition-transform duration-300 z-50`}>
-                <div 
+                <div
                     className="cursor-pointer border-b-8 border-[#FCAD0B] pb-1 rounded-br-lg hover:scale-105 transition-all duration-300 ease-in-out"
                     onClick={onNavigateToHome}
                 >
@@ -92,7 +94,9 @@ export function NavBar({ onNavigateToHome }) {
                 <div className="cursor-pointer hover:scale-105 transition-all duration-300 ease-in-out">
                     DOAÇÃO
                 </div>
-                <div className="cursor-pointer hover:scale-105 transition-all duration-300 ease-in-out">
+                <div className="cursor-pointer hover:scale-105 transition-all duration-300 ease-in-out"
+                    onClick={onNavigateToVoluntariados}
+                >
                     VOLUNTARIADO
                 </div>
                 <div className="cursor-pointer hover:scale-105 transition-all duration-300 ease-in-out">
