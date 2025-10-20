@@ -1,72 +1,63 @@
-import { validateCpf, validatePhoneNumber } from "./validators.js"
-
 // Função utilizada para formatar strings (nomes próprios, por exemplo)
 // exemplo: "joao da silva" -> "Joao Da Silva"
 export function stringFormatter(string) {
-    let formatedString = ""
-
-    let stringArray = string.toLowerCase().split("")
-
-    for (let i = 0; i < stringArray.length; i++) {
-
-        if (i === 0) stringArray[i] = stringArray[i].toUpperCase()
-        else if (stringArray[i] === " ") stringArray[i + 1] = stringArray[i + 1].toUpperCase()
-
-        formatedString += stringArray[i]
-    }
-    return formatedString
+    if (!string) return "";
+    
+    return string
+        .toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
 }
 
 
 // Essa função é utilizada para exibição de datas no front-end
 // YYYY-MM-DD -> DD/MM/YYYY
 export function dateFormatterToClient(date) {
+    if (!date || date.length < 10) return "";
     const year = date.slice(0, 4);
     const month = date.slice(5, 7);
     const day = date.slice(8, 10);
 
-    return `${day}/${month}/${year}`
+    return `${day}/${month}/${year}`;
 }
 
 // Função pode ser usada tanto para inserção no banco quanto para exibição no front-end
 // 12345678909 -> 123.456.789-09
-export async function cpfFormatter(cpf) {
-    const cpfValidated = await validateCpf(cpf)
+export function cpfFormatter(cpf) {
+    if (!cpf) return "";
 
-    if (!cpfValidated) return // Se não for validado, para a função
+    const cleanedCpf = cpf.replace(/\D/g, '');
 
-    const cpfNumbers = cpf.split("")
-    return (
-        cpfNumbers.slice(0, 3).join("") + "." +
-        cpfNumbers.slice(3, 6).join("") + "." +
-        cpfNumbers.slice(6, 9).join("") + "-" +
-        cpfNumbers.slice(9, 11).join("")
-    )
+    if (cleanedCpf.length !== 11) {
+        return cpf
+    }
+
+    return cleanedCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 }
 
 // Formata o número de telefone para o padrão brasileiro
 // 11987654321 -> (11) 98765-4321
 // 1187654321 -> (11) 8765-4321
-export async function phoneFormatter(phone) {
+export function phoneFormatter(phone) {
+    if (!phone) return "";
+    const cleanedPhone = phone.replace(/\D/g, '');
 
-    if(validatePhoneNumber(phone)) return // Se não for validado, para a função
-
-    const phoneNumber = phone.split("")
-    if (phoneNumber.length === 11) {
-        return (
-            "(" + phoneNumber.slice(0, 2).join("") + ")" +
-            " " + phoneNumber.slice(2, 7).join("") + "-" +
-            phoneNumber.slice(7, 11).join("")
-        )
-    } else if (phoneNumber.length === 10) {
-        return (
-            "(" + phoneNumber.slice(0, 2).join("") + ")" +
-            " " + phoneNumber.slice(2, 6).join("") + "-" +
-            phoneNumber.slice(6, 10).join("")
-        )
+    if (cleanedPhone.length === 11) {
+        return cleanedPhone.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    } else if (cleanedPhone.length === 10) {
+        return cleanedPhone.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
     }
+    return phone;
 }
 
-export async function priceFormatter(){
-    
+// Função para formatar preços (exemplo de implementação)
+// 1234.5 -> R$ 1.234,50
+export function priceFormatter(value) {
+    if (isNaN(value)) return "";
+
+    return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    }).format(value);
 }
