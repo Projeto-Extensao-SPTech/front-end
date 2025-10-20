@@ -10,7 +10,7 @@ export default function Voluntariados(props) {
         message: ''
     })
 
-  
+
 
     const handleInputChange = (e) => {
         const { name, value } = e.target
@@ -23,12 +23,15 @@ export default function Voluntariados(props) {
             <h2 className="text-2xl font-bold mb-6 flex justify-center ">Faça parte de uma causa muito importante  e ajude um “aumigo” a encontrar um lar!</h2>
 
             <div className="grid lg:grid-cols-2 gap-10 mb-16">
-                <form className="bg-white rounded-2xl shadow-lg p-8">
-                    <h2 className="text-xl font-bold text-[#052759] mb-6 flex justify-start">
-                        Venha fazer um dog feliz conosco!
-                    </h2>
+                <form className="bg-white rounded-2xl shadow-lg p-8 grid lg:grid-flow-col">
 
                     <div className="space-y-4">
+
+                        <h2 className="text-xl font-bold text-[#052759] mb-6 flex justify-start">
+                            Venha fazer um dog feliz conosco!
+                        </h2>
+
+
                         <div className="relative">
                             <input
                                 type="text"
@@ -36,7 +39,7 @@ export default function Voluntariados(props) {
                                 placeholder="Nome"
                                 value={formData.name}
                                 onChange={handleInputChange}
-                                className="w-5/12 pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-blue-900 focus:outline-none placeholder-[#052759]"
+                                className="w-11/12 pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-blue-900 focus:outline-none placeholder-[#052759]"
                             />
                         </div>
 
@@ -47,7 +50,7 @@ export default function Voluntariados(props) {
                                 placeholder="E-mail"
                                 value={formData.email}
                                 onChange={handleInputChange}
-                                className="w-5/12  pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-blue-900 focus:outline-none placeholder-[#052759]"
+                                className="w-11/12  pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-blue-900 focus:outline-none placeholder-[#052759]"
                             />
                         </div>
 
@@ -58,7 +61,7 @@ export default function Voluntariados(props) {
                                 placeholder="Whatsapp"
                                 value={formData.whatsapp}
                                 onChange={handleInputChange}
-                                className="w-5/12 pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-blue-900 focus:outline-none placeholder-[#052759]"
+                                className="w-11/12 pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-blue-900 focus:outline-none placeholder-[#052759]"
                             />
                         </div>
 
@@ -69,7 +72,7 @@ export default function Voluntariados(props) {
                                 placeholder="CPF"
                                 value={formData.cpf}
                                 onChange={handleInputChange}
-                                className="w-5/12 pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-blue-900 focus:outline-none placeholder-[#052759]"
+                                className="w-11/12 pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-blue-900 focus:outline-none placeholder-[#052759]"
                             />
                         </div>
 
@@ -80,41 +83,49 @@ export default function Voluntariados(props) {
                                 value={formData.message}
                                 onChange={handleInputChange}
                                 rows="4"
-                                className="w-5/12 pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-blue-900 focus:outline-none resize-none placeholder-[#052759]"
+                                className="w-11/12 pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-blue-900 focus:outline-none resize-none placeholder-[#052759]"
                             />
                         </div>
 
-                        <div className="w-5/12 rounded-lg p-4 border-2 border-[#052759] text-[#052759]">
+                        
+                    </div>
+
+                    <div>
+
+                        <div className="w-11/12 rounded-lg p-4 border-2 border-[#052759] text-[#052759]">
                             <p className='mb-4'>Qual data você tem disponibilidade para ser voluntário na ONG?</p>
                             <input
                                 type="date"
                                 name="calendar"
                                 placeholder='DD/MM/YY'
                                 className='w-full pl-4 pr-4 py-3 border-2 border-[#052759] text-[#052759] rounded-lg focus:border-blue-900 focus:outline-none resize-none placeholder-[#052759]'
-                                 />
+                            />
                         </div>
-
-                        <button
-                            type="submit"
-                            className="w-5/12 bg-[#052759] text-xl text-white font-bold py-4 rounded-lg hover:bg-[#023582] transition-colors"
-                        >
-                            Enviar formulário
-                        </button>
-
                         
-                    </div>
-              
+                    <button
+                        type="submit"
+                        className="w-11/12 bg-[#052759] text-xl text-white font-bold py-4 rounded-lg hover:bg-[#023582] transition-colors"
+                    >
+                        Enviar formulário
+                    </button>
+                    
 
-                <div className="flex items-center justify-center">
-                    <div className="text-center">            
-                        <p className="text-sm text-gray-600 text-center mt-4">
-                            Ao clicar em Enviar Formulário, você concorda em receber notificações e alertas no seu WhatsApp do número informado.
-                        </p>
+
+
+
+                    <div className="flex items-center justify-center">
+                        <div className="text-center">
+                            <p className="text-sm text-gray-600 text-center mt-4 w-5/12">
+                                Ao clicar em Enviar Formulário, você concorda em receber notificações e alertas no seu WhatsApp do número informado.
+                            </p>
+                        </div></div>
+
                     </div>
-                </div>
-                  </form>
+
+
+                </form>
             </div>
-            
+
         </section>
     )
 }
