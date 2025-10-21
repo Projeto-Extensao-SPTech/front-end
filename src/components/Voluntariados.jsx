@@ -1,131 +1,119 @@
-import React, { useState } from 'react'
-import { Link } from 'react-scroll'
+import React, { useEffect } from 'react'
+import flatpickr from 'flatpickr'
+import 'flatpickr/dist/flatpickr.min.css'
+import { Portuguese } from 'flatpickr/dist/l10n/pt.js'
+import Calendario from '../layouts/Calendario'
 
-export default function Voluntariados(props) {
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        whatsapp: '',
-        cpf: '',
-        message: ''
-    })
+export default function Voluntariados() {
 
-
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target
-        setFormData((s) => ({ ...s, [name]: value }))
-    }
+    useEffect(() => {
+        flatpickr("#calendario", {
+            locale: Portuguese,
+            dateFormat: "d/m/Y",
+            minDate: "today",
+            disableMobile: true,
+        })
+    }, [])
 
     return (
-        <section id="voluntariados" className="px-4 py-8 w-120 mx-auto">
-            <h1 className="text-4xl font-black mb-6 flex justify-center  text-[#052759]">Cadastro de Voluntários</h1>
-            <h2 className="text-2xl font-bold mb-6 flex justify-center ">Faça parte de uma causa muito importante  e ajude um “aumigo” a encontrar um lar!</h2>
+        <section id="voluntariados" className="py-12 max-w-full">
+            <h1 className="text-4xl font-black mb-4 text-center text-[#052759]">
+                Cadastro de Voluntários
+            </h1>
+            <h2 className="text-lg font-bold mb-10 text-center text-black">
+                Faça parte de uma causa muito importante e ajude um “aumigo” a encontrar um lar!
+            </h2>
 
-            <div className="grid lg:grid-cols-2 gap-10 mb-16">
-                <form className="bg-white rounded-2xl shadow-lg p-8 grid lg:grid-flow-col">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
 
-                    <div className="space-y-4">
+                <div className="bg-white ml-16 pb-14 p-12 w-full rounded-2xl shadow-[10px_9px_4px_rgba(0,0,0,0.4)] border border-gray-200">
+                    <h2 className="text-xl font-bold text-[#052759] mb-6">
+                        Venha fazer um dog feliz conosco!
+                    </h2>
 
-                        <h2 className="text-xl font-bold text-[#052759] mb-6 flex justify-start">
-                            Venha fazer um dog feliz conosco!
-                        </h2>
+                    <div className="grid lg:grid-cols-2 gap-10">
 
-
-                        <div className="relative">
+                        <div className="flex flex-col gap-5 space-y-4">
                             <input
                                 type="text"
                                 name="name"
                                 placeholder="Nome"
-                                value={formData.name}
-                                onChange={handleInputChange}
-                                className="w-11/12 pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-blue-900 focus:outline-none placeholder-[#052759]"
+                                className="pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-[#FCAD0B] focus:outline-none placeholder-[#052759]"
                             />
-                        </div>
 
-                        <div className="relative">
                             <input
                                 type="email"
                                 name="email"
                                 placeholder="E-mail"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                className="w-11/12  pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-blue-900 focus:outline-none placeholder-[#052759]"
+                                className="pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-[#FCAD0B] focus:outline-none placeholder-[#052759]"
                             />
-                        </div>
 
-                        <div className="relative">
                             <input
                                 type="tel"
                                 name="whatsapp"
                                 placeholder="Whatsapp"
-                                value={formData.whatsapp}
-                                onChange={handleInputChange}
-                                className="w-11/12 pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-blue-900 focus:outline-none placeholder-[#052759]"
+                                className="pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-[#FCAD0B] focus:outline-none placeholder-[#052759]"
                             />
-                        </div>
 
-                        <div className="relative">
                             <input
                                 type="text"
                                 name="cpf"
                                 placeholder="CPF"
-                                value={formData.cpf}
-                                onChange={handleInputChange}
-                                className="w-11/12 pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-blue-900 focus:outline-none placeholder-[#052759]"
+                                className="pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-[#FCAD0B] focus:outline-none placeholder-[#052759]"
                             />
-                        </div>
 
-                        <div className="relative">
                             <textarea
                                 name="message"
                                 placeholder="Enviar mensagem (opcional):"
-                                value={formData.message}
-                                onChange={handleInputChange}
                                 rows="4"
-                                className="w-11/12 pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-blue-900 focus:outline-none resize-none placeholder-[#052759]"
+                                className="pl-4 pr-4 py-3 border-2 border-[#052759] rounded-lg focus:border-[#FCAD0B] focus:outline-none resize-none placeholder-[#052759]"
                             />
                         </div>
 
-                        
-                    </div>
+                        <div className="flex flex-col items-center gap-6">
+                            <div className="w-full rounded-lg p-4 border-2 border-[#052759] text-[#052759] mb-36">
+                                <p className="mb-5 font-black text-start">
+                                    Qual data você tem disponibilidade para ser voluntário na ONG?
+                                </p>
+                                <input
+                                    id="calendario"
+                                    name="calendario"
+                                    placeholder="DD/MM/AAAA"
+                                    className="w-full pl-4 pr-4 py-3 border-2 border-[#052759] text-[#052759] rounded-lg focus:border-[#FCAD0B] focus:outline-none"
+                                />
+                            </div>
 
-                    <div>
+                            <button
+                                type="submit"
+                                className="w-full bg-[#052759] text-xl text-white font-bold py-4 rounded-lg hover:bg-[#023582] transition-colors"
+                            >
+                                Enviar formulário
+                            </button>
 
-                        <div className="w-11/12 rounded-lg p-4 border-2 border-[#052759] text-[#052759]">
-                            <p className='mb-4'>Qual data você tem disponibilidade para ser voluntário na ONG?</p>
-                            <input
-                                type="date"
-                                name="calendar"
-                                placeholder='DD/MM/YY'
-                                className='w-full pl-4 pr-4 py-3 border-2 border-[#052759] text-[#052759] rounded-lg focus:border-blue-900 focus:outline-none resize-none placeholder-[#052759]'
-                            />
-                        </div>
-                        
-                    <button
-                        type="submit"
-                        className="w-11/12 bg-[#052759] text-xl text-white font-bold py-4 rounded-lg hover:bg-[#023582] transition-colors"
-                    >
-                        Enviar formulário
-                    </button>
-                    
-
-
-
-
-                    <div className="flex items-center justify-center">
-                        <div className="text-center">
-                            <p className="text-sm text-gray-600 text-center mt-4 w-5/12">
-                                Ao clicar em Enviar Formulário, você concorda em receber notificações e alertas no seu WhatsApp do número informado.
+                            <p className="text-sm text-[#052759] text-start italic w-12/12">
+                                Ao clicar em Enviar Formulário, você concorda em receber notificações e alertas no seu número cadastrado por Whatsapp, conforme preenchido no ato de Voluntariado.
                             </p>
-                        </div></div>
+                        </div>
 
                     </div>
+                </div>
 
-
-                </form>
+                <div className="flex flex-col items-center text-start space-y-4">
+                    <p className="text-xl w-9/12 font-bold text-[#052759] leading-relaxed mt-10">
+                        O voluntariado é mais do que doar tempo — é um gesto de empatia que transforma vidas. 
+                        Ao participar dessa causa, você contribui para o bem-estar dos animais e fortalece 
+                        o vínculo entre humanos e seus fiéis companheiros.
+                    </p>
+                    <div className="w-full flex justify-center">
+                        <img
+                            src="../../public/photos/pet-voluntariado.png"
+                            alt="Cachorro voluntariado"
+                            className="w-96"
+                        />
+                    </div>
+                </div>
             </div>
-
+            < Calendario />
         </section>
     )
 }

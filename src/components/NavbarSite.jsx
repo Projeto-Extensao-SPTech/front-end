@@ -15,7 +15,7 @@ const NavbarSite = ({ onNavigateToLogin, onNavigateToCadastro }) => {
     }
 
     return (
-        <div className="drop-shadow-[0_4px_8px_rgba(0,0,0,0.25)] relative z-50">
+        <div className="shadow-[0_4px_4px_rgba(0,0,0,0.3)] relative z-50">
             {/* Barra principal da navbar */}
             <div className="flex flex-row justify-around bg-[#052759] text-white items-center h-24">
                 {/* Logo que usa react-scroll Link para rolar até o topo */}
@@ -38,7 +38,6 @@ const NavbarSite = ({ onNavigateToLogin, onNavigateToCadastro }) => {
                 {/* Botões de ação no desktop */}
                 <div className=' hidden lg:flex flex-row items-center h-full mr-0'>
                     <ButtonNav
-                        bgColor="bg-[#052759]"
                         onClick={() => console.log('notificaçao clicada')}
                         isFirst={true}
                     >
@@ -46,15 +45,21 @@ const NavbarSite = ({ onNavigateToLogin, onNavigateToCadastro }) => {
                     </ButtonNav>
                     <ButtonNav
                         bgColor="bg-[#052759]"
+                        rounded='rounded-l-2xl'
+                        up='hover:scale-105'
+                        mouse='hover:shadow-xl'
                         onClick={onNavigateToCadastro}  
                     >
-                        <img src="/btn-registrar.png" alt="Registrar" className="h-10 w-auto" />
+                        <img src="/btn-registrar.png" alt="Registrar" className="h-10 w-auto mr-3" />
                     </ButtonNav>
                     <ButtonNav
                         bgColor="bg-[#FCAD0B]"
+                        rounded='rounded-r-2xl'
+                        up='hover:scale-105'
+                        mouse='hover:shadow-xl'
                         onClick={onNavigateToLogin}
                     >
-                        <img src="/btn-logar.png" alt="Login" className="h-10 w-auto" />
+                        <img src="/btn-logar.png" alt="Login" className="h-10 w-auto z-10 mr-3" />
                     </ButtonNav>
                 </div>
 
