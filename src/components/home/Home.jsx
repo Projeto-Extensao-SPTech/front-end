@@ -25,7 +25,7 @@ const Home = () => {
                         </h1>
                         
                         {/* Descrição da missão */}
-                        <p className="text-gray-300 text-[#EFEFEF] lg:text-lg max-w-md mx-auto lg:mx-0">
+                        <p className="text-[#EFEFEF] lg:text-lg max-w-md mx-auto lg:mx-0">
                             Transformando vidas de animais abandonados através do amor e cuidado
                         </p>
                         

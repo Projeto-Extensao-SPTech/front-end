@@ -25,7 +25,7 @@ export function Login({ onSuccess }) {
                         type="text"
                         placeholder="Email"
                         id="input_email"
-                        className="w-full h-8 md:h-10 py-2 pl-9 md:pl-10 pr-4 border rounded-lg text-sm md:text-base text-center"
+                        className="w-full h-8 md:h-10 py-2 pl-9 md:pl-10 pr-4 border rounded-lg text-sm md:text-base text-center !text-black"
                     />
                 </div>
 
@@ -40,7 +40,7 @@ export function Login({ onSuccess }) {
                         type={eyeOpen ? "text" : "password"}
                         placeholder="Senha"
                         id="input_senha"
-                        className="w-full h-8 md:h-10 py-2 pl-9 md:pl-10 pr-4 border rounded-lg text-sm md:text-base text-center"
+                        className="w-full h-8 md:h-10 py-2 pl-9 md:pl-10 pr-4 border rounded-lg text-sm md:text-base text-center !text-black"
                     />
 
                     {/* Ícone para alternar entre mostrar e esconder a senha */}

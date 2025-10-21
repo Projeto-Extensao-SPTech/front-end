@@ -80,7 +80,7 @@ export function Cadastro({ onSuccess }) {
                             type={input.type}
                             placeholder={input.placeholder}
                             id={input.id} 
-                            className="w-full h-8 md:h-10 py-2 pl-9 md:pl-10 pr-4 border rounded-lg text-sm md:text-base text-center"
+                            className="w-full h-8 md:h-10 py-2 pl-9 md:pl-10 pr-4 border rounded-lg text-sm md:text-base text-center !text-black"
                             value={formData[input.id]}
                             onChange={handleChange}
                         />
