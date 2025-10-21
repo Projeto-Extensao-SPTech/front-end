@@ -1,6 +1,6 @@
 import { Link } from 'react-scroll'
 import React from 'react'
-import ButtonNav from '../layouts/ButtonNav'
+import ButtonNav from '../../layouts/ButtonNav'
 import { AiOutlineMenu } from 'react-icons/ai'
 import { useState } from 'react'
 

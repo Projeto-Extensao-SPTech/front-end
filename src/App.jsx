@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { AuthenticationCard } from './components/AuthenticationCard'
-import HomeSite from './components/HomeSite'
-import VoluntariadosSite from './components/VoluntariadosSite'
-import Voluntariados from './components/Voluntariados'
+import { AuthenticationCard } from './components/registro/AuthenticationCard'
+import HomeSite from './components/home/HomeSite'
+import VoluntariadosSite from './components/voluntariado/VoluntariadosSite'
+import Voluntariados from './components/voluntariado/Voluntariados'
 
 function App() {
     //     const [currentView, setCurrentView] = useState('login')

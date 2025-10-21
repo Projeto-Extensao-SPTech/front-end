@@ -1,5 +1,5 @@
 import React from "react";
-import NavbarSite from "./NavbarSite";
+import NavbarSite from "../navbar/NavbarSite";
 import Voluntariados from "./Voluntariados";
 
 function VoluntariadosSite({ onNavigateToHome, onNavigateToVoluntariados, onNavigateToLogin, onNavigateToCadastro }) {

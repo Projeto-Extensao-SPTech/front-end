@@ -1,5 +1,5 @@
 import React from 'react'
-import Button from '../layouts/Button'
+import Button from '../../layouts/Button'
 import { Link } from 'react-scroll'
 
 const Home = () => {

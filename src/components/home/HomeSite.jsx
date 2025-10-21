@@ -1,8 +1,8 @@
-import NavbarSite from "./NavbarSite"
+import NavbarSite from "../navbar/NavbarSite"
 import Home from "./Home"
-import Participar from "./Participar"
-import Adotados from "./Adotados"
-import FaleConosco from "./FaleConosco"
+import Participar from "../Participar"
+import Adotados from "./secoes/Adotados"
+import FaleConosco from "./secoes/FaleConosco"
 
 // Componente container principal da página Home
 // Agrupa todas as seções do site institucional
