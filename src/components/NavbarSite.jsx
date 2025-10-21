@@ -4,7 +4,7 @@ import ButtonNav from '../layouts/ButtonNav'
 import { AiOutlineMenu } from 'react-icons/ai'
 import { useState } from 'react'
 
-const NavbarSite = ({ onNavigateToLogin, onNavigateToCadastro }) => {
+const NavbarSite = ({ onNavigateToLogin, onNavigateToCadastro, onNavigateToHome }) => {
 
     // Estado que controla se o menu mobile está aberto ou fechado
     const [menu, setMenu] = useState(false);
@@ -21,7 +21,8 @@ const NavbarSite = ({ onNavigateToLogin, onNavigateToCadastro }) => {
                 {/* Logo que usa react-scroll Link para rolar até o topo */}
                 <div className="flex items-center h-full pl-5">
                     <Link to="/" spy={true} smooth={true} duration={500} className="cursor-pointer h-full flex items-center">
-                        <img src="/logo-bg-yellow.png" className="h-16 w-auto" alt="Logo" />
+                        <img src="/logo-bg-yellow.png" className="h-16 w-auto" alt="Logo" 
+                        onClick={onNavigateToHome}/>
                     </Link>
                 </div>
 
