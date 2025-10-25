@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { Login } from "./Login";
-import { NavBar } from "./NavBar";
-import { Cadastro } from "./Cadastro";
+import { Login } from "./login/Login";
+import { NavBar } from "../navbar/NavBar";
+import { Cadastro } from "./registro/cadastro";
 
 export function AuthenticationCard({ onNavigateToHome, initialMode = 'login' }) {
     // Estado para controlar se está na tela de Login ou Cadastro

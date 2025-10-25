@@ -11,10 +11,14 @@
     body {
         /* Define a fonte padrão do projeto */
         font-family: 'Baloo 2', cursive;
-        font-weight: 650; /* Peso da fonte */
-        margin: 0;        /* Remove margens padrão */
-        padding: 0;       /* Remove padding padrão */
-        background-color: #EFEFEF; /* Cor de fundo clara */
+        font-weight: 650;
+        /* Peso da fonte */
+        margin: 0;
+        /* Remove margens padrão */
+        padding: 0;
+        /* Remove padding padrão */
+        background-color: #EFEFEF;
+        /* Cor de fundo clara */
     }
 
     /* Garante que o container raiz ocupe toda a altura da tela */
