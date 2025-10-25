@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { AuthenticationCard } from './components/registro/AuthenticationCard'
-import HomeSite from './components/home/HomeSite'
-import VoluntariadosSite from './components/voluntariado/VoluntariadosSite'
+import { AuthenticationCard } from './components/AuthenticationCard'
+import HomeSite from './components/HomeSite'
 import { PatrocinadoresSite } from './components/Patrocinadores/PatrocinadoresSite'
 
 function App() {
@@ -35,6 +34,10 @@ function App() {
 
     if (currentView === 'voluntariados') {
         return <VoluntariadosSite onNavigateToHome={goToHome} onNavigateToVoluntariados={goToVoluntariados} onNavigateToLogin={goToLogin} onNavigateToCadastro={goToCadastro} />
+    }
+
+    if(currentView === 'patrocinadores') {
+        return <PatrocinadoresSite onNavigateToLogin={goToLogin} onNavigateToCadastro={goToCadastro}/>
     }
 
     // Renderiza o componente de autenticação para login ou cadastro
