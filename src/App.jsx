@@ -36,9 +36,6 @@ function App() {
         return <VoluntariadosSite onNavigateToHome={goToHome} onNavigateToVoluntariados={goToVoluntariados} onNavigateToLogin={goToLogin} onNavigateToCadastro={goToCadastro} />
     }
 
-    if(currentView === 'patrocinadores') {
-        return <PatrocinadoresSite onNavigateToLogin={goToLogin} onNavigateToCadastro={goToCadastro}/>
-    }
 
     // Renderiza o componente de autenticação para login ou cadastro
     return <AuthenticationCard onNavigateToHome={goToHome} initialMode={authMode} />
