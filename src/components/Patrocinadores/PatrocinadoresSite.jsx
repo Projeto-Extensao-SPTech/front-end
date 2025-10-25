@@ -1,4 +1,4 @@
-import NavbarSite from "../NavbarSite"
+import NavbarSite from "../navbar/NavbarSite"
 import { Apoiar } from "./Apoiar"
 import { Informacoes } from "./Informacoes"
 import { Descricao } from "./Descricao"
