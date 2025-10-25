@@ -4,7 +4,7 @@ import { Informacoes } from "./Informacoes"
 import { Descricao } from "./Descricao"
 import { Agradecimento } from "./Agradecimento"
 import { PatrocinadoresProvider, usePatrocinadores } from "../../contexts/PatrocinadoresContext"
-import { Indicador } from "../patrocinadores/Indicator";
+import { Indicador } from "../Patrocinadores/Indicator";
 
 
 function InnerPatrocinadores() {
