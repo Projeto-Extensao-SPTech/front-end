@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { AuthenticationCard } from './components/AuthenticationCard'
-import HomeSite from './components/HomeSite'
+import { AuthenticationCard } from './components/registro/AuthenticationCard'
+import HomeSite from './components/home/HomeSite'
 import { PatrocinadoresSite } from './components/Patrocinadores/PatrocinadoresSite'
 
 function App() {
