@@ -1,4 +1,7 @@
+import { usePatrocinadores } from "../../contexts/PatrocinadoresContext"
+
 export function Apoiar() {
+    const { setTelaAtual } = usePatrocinadores()
 
     const checkBoxes = [
         { label: "Financeiramente", id: "financeiramente" },
@@ -16,7 +19,7 @@ export function Apoiar() {
             <label key={checkbox.id} className="flex items-center gap-3 cursor-pointer text-lg">
                 <input
                     type="checkbox"
-                    className="appearance-none w-6 h-6 rounded-full border-2 border-white checked:bg-[#FFB114] checked:border-[#FFB114] hover:bg-[#d1ac61] cursor-pointer flex-shrink-0 "
+                    className="appearance-none w-6 h-6 rounded-full border-2 border-white checked:bg-[#FFB114] checked:border-[#FFB114] hover:bg-[#d1ac61] cursor-pointer flex-shrink-0"
                 />
                 <span>{checkbox.label}</span>
             </label>
@@ -31,13 +34,10 @@ export function Apoiar() {
             <div className="grid grid-cols-2 gap-6 mt-6 w-[70%]">
                 {createCheckbox()}
             </div>
-
-            <div className="flex flex-col w-[70%] mt-4">
-                <span className="mb-2">Outro:</span>
-                <input type="text" className="rounded-lg w-full text-black font-normal p-2" />
-            </div>
-
-            <button className="w-[50%] bg-[#FFB114] text-white rounded-lg p-2 mt-6 hover:bg-[#ffd175] transition-colors duration-300">
+            <button
+                onClick={() => setTelaAtual("info")}
+                className="w-[50%] bg-[#FFB114] text-white rounded-lg p-2 mt-6 hover:bg-[#ffd175] transition-colors duration-300"
+            >
                 Avançar
             </button>
         </>
