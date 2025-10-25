@@ -1,10 +1,10 @@
-// src/components/Patrocinadores.js
 import NavbarSite from "../NavbarSite"
 import { Apoiar } from "./Apoiar"
 import { Informacoes } from "./Informacoes"
 import { Descricao } from "./Descricao"
 import { Agradecimento } from "./Agradecimento"
 import { PatrocinadoresProvider, usePatrocinadores } from "../../contexts/PatrocinadoresContext"
+import { Indicador } from "../patrocinadores/Indicator";
 
 
 function InnerPatrocinadores() {
@@ -24,6 +24,10 @@ function InnerPatrocinadores() {
             <NavbarSite />
             <div className="flex flex-1 relative min-h-0">
                 <div className="flex-1 relative">
+                    <div className="absolute left-8 top-16">
+                        <Indicador />
+                    </div>
+
                     <img src="./img-dog.svg" alt="" className="w-1/2 absolute bottom-0 right-3" />
                 </div>
 
