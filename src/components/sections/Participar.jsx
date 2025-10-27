@@ -1,26 +1,21 @@
-import React from 'react'
-import Button from '../layouts/Button'
+import Button from '../ui/Button'
 import { Link } from 'react-scroll'
 
-const Participar = () => {
+export default function Participar() {
     return (
         <>
-            {/* Animação pulse-scale para dar efeito de "pulsar" na imagem */}
             <style>
                 {`@keyframes pulse-scale {
-                        0%, 100% { transform: scale(1); }
-                        50% { transform: scale(1.05); } }`}
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        }`}
             </style>
 
-            {/* Container principal com fundo azul escuro e espaçamento vertical */}
             <div className="min-h-[60vh] flex items-center justify-center bg-[#052759] py-6">
-                {/* Conteúdo centralizado com largura máxima e espaçamento entre colunas no desktop */}
                 <div className="flex flex-col lg:flex-row w-full max-w-screen-2xl mx-auto lg:gap-16 px-4 lg:px-8">
 
-                    {/* Caixa principal com fundo claro, cantos arredondados e sombra */}
                     <div className="lg:w-4/5 bg-[#EFEFEF] rounded-2xl relative overflow-visible p-6 lg:p-8 flex items-center shadow-2xl">
                         <div className="flex flex-col lg:flex-row items-center w-full gap-8">
-                            {/* Texto explicativo e botão, alinhados à esquerda no desktop */}
                             <div className="flex flex-col text-center lg:text-left gap-4 lg:w-1/2 z-10">
                                 <h1 className="font-bold text-3xl lg:text-4xl leading-tight text-[#052759]">
                                     Por que fazer parte?
@@ -29,18 +24,14 @@ const Participar = () => {
                                     Cães e gatos aguardam por um lar em instituições que sobrevivem através de doações e trabalho voluntário, enfrentando desafios como falta de recursos e visibilidade.
                                 </p>
                                 <div className="mt-2">
-                                    {/* Botão com link que faz scroll suave para a seção "voluntariado" */}
                                     <Link to="voluntariado" spy={true} smooth={true} duration={500}>
-                                        <Button
-                                            title="Quero participar"
-                                            backgroundColor="bg-[#FCAD0B]"
-                                            className="shadow-[inset_0_6px_12px_0_rgba(0,0,0,0.8)] !text-white"
-                                        />
+                                        <Button className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.3)] bg-[#FCAD0B] hover:bg-[#052759] hover:text-white">
+                                            Quero participar
+                                        </Button>
                                     </Link>
                                 </div>
                             </div>
 
-                            {/* Imagem com efeito de pulsar para chamar atenção */}
                             <div className="flex justify-center lg:justify-end lg:w-1/2">
                                 <img
                                     src="/img-adotar.png"
@@ -54,10 +45,9 @@ const Participar = () => {
                         </div>
                     </div>
 
-                    {/* Caixa secundária com ícones e textos explicativos */}
                     <div className="lg:w-2/5 bg-[#EFEFEF] rounded-2xl flex items-center justify-center p-6 relative overflow-visible shadow-2xl">
                         <div className="w-full space-y-5 flex flex-col items-center">
-                            {/* Cada item mostra um ícone e uma breve descrição */}
+
                             <div className="flex flex-row gap-4 items-center w-full max-w-xs">
                                 <div className="w-14 flex-shrink-0">
                                     <img src="/img-participar-1.png" alt="Adoção" className="w-full h-auto" />
@@ -69,6 +59,7 @@ const Participar = () => {
                                     </p>
                                 </div>
                             </div>
+
                             <div className="flex flex-row gap-4 items-center w-full max-w-xs">
                                 <div className="w-14 flex-shrink-0">
                                     <img src="/img-participar-2.png" alt="Doação" className="w-full h-auto" />
@@ -80,6 +71,7 @@ const Participar = () => {
                                     </p>
                                 </div>
                             </div>
+
                             <div className="flex flex-row gap-4 items-center w-full max-w-xs">
                                 <div className="w-14 flex-shrink-0">
                                     <img src="/img-participar-3.png" alt="Compartilhar" className="w-full h-auto" />
@@ -98,5 +90,3 @@ const Participar = () => {
         </>
     )
 }
-
-export default Participar

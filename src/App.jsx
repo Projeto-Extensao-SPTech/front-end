@@ -1,38 +1,47 @@
-import { useState } from 'react'
-import { AuthenticationCard } from './components/registro/AuthenticationCard'
-import HomeSite from './components/home/HomeSite'
-import VoluntariadosSite from './components/voluntariado/VoluntariadosSite'
-import Voluntariados from './components/voluntariado/Voluntariados'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+import Navbar from './layouts/Navbar';
+import Home from './pages/Home';
+import Auth from './pages/Auth';
+import Voluntariados from './pages/Voluntariados';
+import Patrocinadores from './pages/Patrocinadores';
 
-function App() {
-    //     const [currentView, setCurrentView] = useState('login')
-    //     const [authMode, setAuthMode] = useState('login')
+function AppContent() {
+    const location = useLocation();
+    const isAuthPage = location.pathname === '/auth';
 
-    //     const goToHome = () => setCurrentView('home')
-    //     const goToLogin = () => {
-    //         setAuthMode('login')
-    //         setCurrentView('login')
-    //     }
-    //     const goToCadastro = () => {
-    //         setAuthMode('cadastro')
-    //         setCurrentView('login')
-    //     }
-    //     const goToVoluntariados = () => setCurrentView('voluntariados')
+    useEffect(() => {
+        if (isAuthPage) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+    }, [isAuthPage]);
 
-    //     // Renderização principal (fora das funções)
-    //     if (currentView === 'home') {
-    //         return <HomeSite onNavigateToLogin={goToLogin} onNavigateToCadastro={goToCadastro} onNavigateToVoluntariados={goToVoluntariados} />
-    //     }
-
-    //     if (currentView === 'voluntariados') {
-    //         return <VoluntariadosSite onNavigateToHome={goToHome} onNavigateToVoluntariados={goToVoluntariados} onNavigateToLogin={goToLogin} onNavigateToCadastro={goToCadastro} />
-    //     }
-
-    //     return <AuthenticationCard onNavigateToHome={goToHome} initialMode={authMode} />
-    // }
     return (
-        <VoluntariadosSite />
-    )
+        <>
+            <div className="sticky top-0 z-50">
+                <Navbar variant={isAuthPage ? "white" : "blue"} />
+            </div>
+
+            <div className={location.pathname === '/patrocinadores' ? "h-[calc(100vh-96px)] overflow-hidden" : ""}>
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/voluntariados" element={<Voluntariados />} />
+                    <Route path="/patrocinadores" element={<Patrocinadores />} />
+                    <Route path="/auth" element={<Auth />} />
+                </Routes>
+            </div>
+        </>
+    );
 }
 
-export default App
+function App() {
+    return (
+        <BrowserRouter>
+            <AppContent />
+        </BrowserRouter>
+    );
+}
+
+export default App;
