@@ -1,29 +1,26 @@
-/* Importa a fonte Baloo 2 do Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&display=swap');
 
-/* Importa as diretivas base, components e utilities do Tailwind */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Estilos base personalizados */
 @layer base {
     body {
-        /* Define a fonte padrão do projeto */
         font-family: 'Baloo 2', cursive;
         font-weight: 650;
-        /* Peso da fonte */
         margin: 0;
-        /* Remove margens padrão */
         padding: 0;
-        /* Remove padding padrão */
         background-color: #EFEFEF;
-        /* Cor de fundo clara */
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 
-    /* Garante que o container raiz ocupe toda a altura da tela */
     #root {
         min-height: 100vh;
         width: 100%;
+    }
+
+    html {
+        scroll-behavior: smooth;
     }
 }
