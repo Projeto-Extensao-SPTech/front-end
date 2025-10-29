@@ -1,4 +1,4 @@
-import Hero from '../components/sections/Hero'
+import Sobre from '../components/sections/Sobre'
 import Participar from '../components/sections/Participar'
 import Adotados from '../components/sections/Adotados'
 import FaleConosco from '../components/sections/FaleConosco'
@@ -6,7 +6,7 @@ import FaleConosco from '../components/sections/FaleConosco'
 export default function Home() {
     return (
         <div>
-            <Hero />
+            <Sobre />
             <Participar />
             <Adotados />
             <FaleConosco />
