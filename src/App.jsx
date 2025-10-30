@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Auth from './pages/Auth';
 import Voluntariados from './pages/Voluntariados';
 import Patrocinadores from './pages/Patrocinadores';
+import DoacaoLivre from './pages/DoacaoLivre';
 
 function AppContent() {
     const location = useLocation();
@@ -29,6 +30,7 @@ function AppContent() {
                     <Route path="/" element={<Home />} />
                     <Route path="/voluntariados" element={<Voluntariados />} />
                     <Route path="/patrocinadores" element={<Patrocinadores />} />
+                    <Route path="/doacao-livre" element={<DoacaoLivre />} />
                     <Route path="/auth" element={<Auth />} />
                 </Routes>
             </div>
