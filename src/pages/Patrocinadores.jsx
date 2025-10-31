@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { sendSponsor } from '../js/sponsors'
+import * as validators from "../js/utils/validators"
 
-function Apoiar({ onNext }) {
-    const [areasApoio, setAreasApoio] = useState([])
-
+function Apoiar({ areasApoio, toggleArea, onNext }) {
     const checkBoxes = [
         { label: "Financeiramente", id: "financeiramente" },
         { label: "Alimentos", id: "alimentos" },
@@ -14,14 +14,6 @@ function Apoiar({ onNext }) {
         { label: "Transporte", id: "transporte" },
         { label: "Higiene", id: "higiene" }
     ]
-
-    const toggleArea = (area) => {
-        setAreasApoio(prev =>
-            prev.includes(area)
-                ? prev.filter(a => a !== area)
-                : [...prev, area]
-        )
-    }
 
     return (
         <div className="text-center space-y-6 w-full">
@@ -43,7 +35,13 @@ function Apoiar({ onNext }) {
             </div>
 
             <button
-                onClick={onNext}
+                onClick={()=> {
+                    if(areasApoio.length > 0) {
+                        onNext();
+                    } else {
+                        alert("Por favor, selecione ao menos uma área de apoio para continuar.");
+                    }
+                }}
                 className="w-64 bg-[#FFB114] text-white rounded-lg py-2 mt-6 hover:bg-[#ffd175] transition-colors duration-300 font-bold"
             >
                 Avançar
@@ -52,16 +50,7 @@ function Apoiar({ onNext }) {
     )
 }
 
-function Informacoes({ onNext }) {
-    const [formData, setFormData] = useState({
-        nome: "", email: "", telefone: "", cpf: "", dataNascimento: ""
-    })
-
-    const handleChange = (e) => {
-        const { name, value } = e.target
-        setFormData(prev => ({ ...prev, [name]: value }))
-    }
-
+function Informacoes({ formInfo, setFormField, onNext }) {
     const inputs = [
         { label: 'Nome', type: 'text', name: 'nome' },
         { label: 'Email', type: 'email', name: 'email' },
@@ -70,33 +59,117 @@ function Informacoes({ onNext }) {
         { label: 'Data de Nascimento', type: 'date', name: 'dataNascimento' },
     ]
 
+    const [errors, setErrors] = useState({})
+
+    const getFriendlyMessage = (name, rawValue, validatorResult) => {
+        const value = (rawValue || '').toString().trim()
+        if (!value) return 'Campo obrigatório'
+
+        switch (name) {
+            case 'nome':
+                return 'Informe seu nome completo (mínimo 3 caracteres).'
+            case 'email':
+                return 'Informe um email válido (ex: usuario@exemplo.com).'
+            case 'telefone':
+                return 'Informe um telefone com DDD — 10 ou 11 dígitos (somente números).'
+            case 'cpf':
+                return 'Informe um CPF válido com 11 dígitos (somente números).'
+            default:
+                return validatorResult && validatorResult.message
+                    ? validatorResult.message
+                    : 'Valor inválido'
+        }
+    }
+
+    const validateField = (name, value) => {
+        let result = { isValid: true, message: '' }
+
+        switch (name) {
+            case 'nome':
+                result = validators.validateUserName(value || '')
+                break
+            case 'email':
+                result = validators.validateEmail(value || '')
+                break
+            case 'telefone': {
+                const digits = (value || '').replace(/\D/g, '')
+                result = validators.validatePhoneNumber(digits)
+                break
+            }
+            case 'cpf': {
+                const digits = (value || '').replace(/\D/g, '')
+                result = validators.validateCpf(digits)
+                break
+            }
+            default:
+                result = { isValid: true, message: '' }
+        }
+
+        if (!result.isValid) {
+            const friendly = getFriendlyMessage(name, value, result)
+            setErrors(prev => ({ ...prev, [name]: friendly }))
+            return false
+        }
+
+        setErrors(prev => ({ ...prev, [name]: null }))
+        return true
+    }
+
+    const handleChange = (e) => {
+        const { name, value } = e.target
+        setFormField(name, value)
+        validateField(name, value)
+    }
+
+    const handleNextClick = () => {
+        const required = ['nome', 'email', 'telefone', 'cpf']
+        const allValid = required.every((field) => validateField(field, formInfo[field]))
+        if (allValid) {
+            onNext()
+        } else {
+            const firstErrorField = required.find(f => errors[f])
+            if (firstErrorField) {
+                const el = document.getElementById(firstErrorField)
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            }
+        }
+    }
+
     return (
         <div className="text-center space-y-6 w-full">
             <h2 className="text-2xl text-white font-bold">Seja um Patrocinador</h2>
             <h3 className="text-lg text-white/80 font-normal">Preencha suas informações</h3>
 
-            <form className="flex flex-col w-full gap-4">
-                {inputs.map((input) => (
-                    <div key={input.name} className="flex flex-col text-left">
-                        <label htmlFor={input.name} className="text-white mb-1 font-medium text-sm">{input.label}:</label>
-                        <input
-                            id={input.name}
-                            name={input.name}
-                            type={input.type}
-                            value={formData[input.name]}
-                            onChange={handleChange}
-                            className="rounded-lg w-full text-black font-normal p-2 border border-gray-300 focus:border-[#FFB114] focus:outline-none text-sm"
-                            placeholder={
-                                input.name === "telefone" ? "(xx) xxxxx-xxxx" :
-                                    input.name === "cpf" ? "000.000.000-00" : ""
-                            }
-                        />
-                    </div>
-                ))}
+            <form className="flex flex-col w-full gap-4" onSubmit={(e) => e.preventDefault()}>
+                {inputs.map((input) => {
+                    const fieldError = errors[input.name]
+                    const errorClasses = fieldError
+                        ? "border-red-500 bg-red-50 focus:border-red-500"
+                        : "border border-gray-300 focus:border-[#FFB114]"
+
+                    return (
+                        <div key={input.name} className="flex flex-col text-left">
+                            <label htmlFor={input.name} className="text-white mb-1 font-medium text-sm">{input.label}:</label>
+                            <input
+                                id={input.name}
+                                name={input.name}
+                                type={input.type}
+                                value={formInfo[input.name] || ""}
+                                onChange={handleChange}
+                                className={`rounded-lg w-full text-black font-normal p-2 ${errorClasses} focus:outline-none text-sm`}
+                                placeholder={
+                                    input.name === "telefone" ? "(xx) xxxxx-xxxx" :
+                                        input.name === "cpf" ? "000.000.000-00" : ""
+                                }
+                            />
+                            {fieldError && <p className="text-sm text-red-500 mt-1 text-left">{fieldError}</p>}
+                        </div>
+                    )
+                })}
             </form>
 
             <button
-                onClick={onNext}
+                onClick={handleNextClick}
                 className="w-64 bg-[#FFB114] text-white rounded-lg py-2 mt-4 hover:bg-[#ffd175] transition-colors duration-300 font-bold"
             >
                 Avançar
@@ -105,9 +178,7 @@ function Informacoes({ onNext }) {
     )
 }
 
-function Descricao({ onNext }) {
-    const [descricao, setDescricao] = useState('')
-
+function Descricao({ descricao, setDescricao, onNext }) {
     return (
         <div className="text-center space-y-6 w-full">
             <h2 className="text-2xl text-white font-bold">Seja um Patrocinador</h2>
@@ -175,8 +246,8 @@ function Indicador({ currentStep }) {
                         <div className="flex flex-col items-center">
                             <div
                                 className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors duration-200 border-2 ${done || active
-                                        ? "bg-[#052759] border-[#052759] text-white"
-                                        : "bg-white border-gray-400 text-gray-400"
+                                    ? "bg-[#052759] border-[#052759] text-white"
+                                    : "bg-white border-gray-400 text-gray-400"
                                     }`}
                             />
                             {i < steps.length - 1 && (
@@ -189,7 +260,7 @@ function Indicador({ currentStep }) {
                         </div>
 
                         <span className={`text-sm ${active ? "text-[#052759] font-semibold" :
-                                done ? "text-[#052759] font-medium" : "text-gray-600"
+                            done ? "text-[#052759] font-medium" : "text-gray-600"
                             }`}>
                             {step.label}
                         </span>
@@ -203,10 +274,34 @@ function Indicador({ currentStep }) {
 export default function Patrocinadores() {
     const [currentStep, setCurrentStep] = useState('apoio')
 
+    // estados elevados (agregam dados de todos os passos)
+    const [areasApoio, setAreasApoio] = useState([])
+    const [formInfo, setFormInfo] = useState({ nome: "", email: "", telefone: "", cpf: "", dataNascimento: "" })
+    const [descricao, setDescricao] = useState("")
+
+    const toggleArea = (area) => {
+        setAreasApoio(prev =>
+            prev.includes(area) ? prev.filter(a => a !== area) : [...prev, area]
+        )
+    }
+
+    const setFormField = (name, value) => {
+        setFormInfo(prev => ({ ...prev, [name]: value }))
+    }
+
+    const steps = ['apoio', 'info', 'descricao', 'agradecimento']
     const handleNext = () => {
-        const steps = ['apoio', 'info', 'descricao', 'agradecimento']
         const currentIndex = steps.indexOf(currentStep)
         if (currentIndex < steps.length - 1) {
+            // se está finalizando a descrição (próximo é agradecimento), você pode consolidar os dados aqui
+            if (steps[currentIndex + 1] === 'agradecimento') {
+                const aggregated = {
+                    areasApoio,
+                    ...formInfo,
+                    descricao
+                }
+                sendSponsor(aggregated)
+            }
             setCurrentStep(steps[currentIndex + 1])
         }
     }
@@ -214,21 +309,20 @@ export default function Patrocinadores() {
     const renderStep = () => {
         switch (currentStep) {
             case 'apoio':
-                return <Apoiar onNext={handleNext} />
+                return <Apoiar areasApoio={areasApoio} toggleArea={toggleArea} onNext={handleNext} />
             case 'info':
-                return <Informacoes onNext={handleNext} />
+                return <Informacoes formInfo={formInfo} setFormField={setFormField} onNext={handleNext} />
             case 'descricao':
-                return <Descricao onNext={handleNext} />
+                return <Descricao descricao={descricao} setDescricao={setDescricao} onNext={handleNext} />
             case 'agradecimento':
                 return <Agradecimento />
             default:
-                return <Apoiar onNext={handleNext} />
+                return <Apoiar areasApoio={areasApoio} toggleArea={toggleArea} onNext={handleNext} />
         }
     }
 
     return (
         <div className="flex h-full overflow-hidden">
-
             <div className="flex-1 relative bg-[#EFEFEF] flex items-center">
                 <div className="absolute left-8 top-1/2 transform -translate-y-1/2">
                     <Indicador currentStep={currentStep} />
@@ -246,7 +340,6 @@ export default function Patrocinadores() {
                     {renderStep()}
                 </div>
             </div>
-
         </div>
     )
 }
