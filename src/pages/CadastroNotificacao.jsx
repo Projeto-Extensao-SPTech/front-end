@@ -88,16 +88,18 @@ function CalendarioStyles() {
         background-color: #052759;
         border-radius: 8px 8px 0 0;
         padding: 6px 0;
-        color: white;
         display: flex; 
         justify-content: space-between;
         align-items: center;
+      }
+      .flatpickr-current-month,
+      .flatpickr-current-month span {
+        color: white !important;
       }
       .flatpickr-day {
         color: #052759;
         font-weight: 600;
         padding: 0;
-      
       }
       .flatpickr-day:hover, .flatpickr-day:focus {
         background: #FCAD0B;
@@ -202,7 +204,7 @@ export default function CadastroFeiraAdocao() {
         <h1 className="text-3xl font-black mb-3 text-center text-[#052759]">
           Cadastrar Feira de Adoção
         </h1>
-        <h2 className="text-base font-bold mb-6 text-center text-[#113975]">
+        <h2 className="text-base font-bold mb-6 text-center text-[#0c3779]">
           Cadastre aqui as Feiras de Adoção que irão ocorrer nos próximos dias!
         </h2>
       </div>
