@@ -1,13 +1,72 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+function InputField({ field, value, onChange }) {
+    return (
+        <div className={`flex flex-col text-left ${field.fullWidth ? "w-full" : "w-[48%]"}`}>
+            <label htmlFor={field.name} className="text-white mb-1 font-medium text-sm">
+                {field.label}:
+            </label>
+
+            {field.component === "select" ? (
+                <select
+                    id={field.name}
+                    name={field.name}
+                    value={value}
+                    onChange={onChange}
+                    className="rounded-lg w-full text-black font-normal p-2 border border-gray-300 focus:border-[#FFB114] focus:outline-none text-sm"
+                >
+                    <option value="">Selecione...</option>
+                    {field.options.map((opt) => (
+                        <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                </select>
+            ) : field.component === "textarea" ? (
+                <textarea
+                    id={field.name}
+                    name={field.name}
+                    value={value}
+                    onChange={onChange}
+                    className="rounded-lg w-full h-16 text-black font-normal p-2 border border-gray-300 focus:border-[#FFB114] focus:outline-none text-sm resize-none"
+                    placeholder="Descreva brevemente o item"
+                />
+            ) : (
+                <input
+                    id={field.name}
+                    name={field.name}
+                    type={field.type}
+                    value={value}
+                    onChange={onChange}
+                    className="rounded-lg w-full text-black font-normal p-2 border border-gray-300 focus:border-[#FFB114] focus:outline-none text-sm"
+                />
+            )}
+        </div>
+    );
+}
+
+function FormButton({ children, onClick }) {
+    return (
+        <button
+            onClick={onClick}
+            className="w-64 bg-[#FFB114] text-white rounded-lg py-2 mt-4 hover:bg-[#ffd175] transition-colors duration-300 font-bold"
+        >
+            {children}
+        </button>
+    );
+}
+
+function RadioOption({ id, checked, onChange, label }) {
+    return (
+        <div className="flex gap-2 items-center">
+            <input type="radio" name="envio" id={id} checked={checked} onChange={onChange} />
+            <label htmlFor={id} className="text-white">{label}</label>
+        </div>
+    );
+}
+
 function Informacoes({ onNext }) {
     const [formData, setFormData] = useState({
-        nomeProduto: "",
-        quantidade: "",
-        categoria: "",
-        estado: "",
-        descricao: ""
+        nomeProduto: "", quantidade: "", categoria: "", estado: "", descricao: ""
     });
 
     const fields = [
@@ -18,10 +77,7 @@ function Informacoes({ onNext }) {
         { label: "Descrição", type: "text", name: "descricao", component: "textarea", fullWidth: true }
     ];
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
+    const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
     return (
         <div className="text-center space-y-6 w-full">
@@ -29,59 +85,14 @@ function Informacoes({ onNext }) {
             <h3 className="text-lg text-white/80 font-normal">Preencha as informações do item que deseja doar</h3>
 
             <form className="flex flex-wrap w-full gap-4 justify-between">
-                {fields.map((field) => (
-                    <div
-                        key={field.name}
-                        className={`flex flex-col text-left ${field.fullWidth ? "w-full" : "w-[48%]"}`}
-                    >
-                        <label htmlFor={field.name} className="text-white mb-1 font-medium text-sm">
-                            {field.label}:
-                        </label>
-
-                        {field.component === "select" ? (
-                            <select
-                                id={field.name}
-                                name={field.name}
-                                value={formData[field.name]}
-                                onChange={handleChange}
-                                className="rounded-lg w-full text-black font-normal p-2 border border-gray-300 focus:border-[#FFB114] focus:outline-none text-sm"
-                            >
-                                <option value="">Selecione...</option>
-                                {field.options.map((opt) => (
-                                    <option key={opt} value={opt}>{opt}</option>
-                                ))}
-                            </select>
-                        ) : field.component === "textarea" ? (
-                            <textarea
-                                id={field.name}
-                                name={field.name}
-                                value={formData[field.name]}
-                                onChange={handleChange}
-                                className="rounded-lg w-full h-16 text-black font-normal p-2 border border-gray-300 focus:border-[#FFB114] focus:outline-none text-sm resize-none"
-                                placeholder="Descreva brevemente o item"
-                            />
-                        ) : (
-                            <input
-                                id={field.name}
-                                name={field.name}
-                                type={field.type}
-                                value={formData[field.name]}
-                                onChange={handleChange}
-                                className="rounded-lg w-full text-black font-normal p-2 border border-gray-300 focus:border-[#FFB114] focus:outline-none text-sm"
-                            />
-                        )}
-                    </div>
+                {fields.map(f => (
+                    <InputField key={f.name} field={f} value={formData[f.name]} onChange={handleChange} />
                 ))}
             </form>
 
-            <button
-                onClick={(e) => { e.preventDefault(); onNext(); }}
-                className="w-64 bg-[#FFB114] text-white rounded-lg py-2 mt-4 hover:bg-[#ffd175] transition-colors duration-300 font-bold"
-            >
-                Avançar
-            </button>
+            <FormButton onClick={e => { e.preventDefault(); onNext(); }}>Avançar</FormButton>
         </div>
-    )
+    );
 }
 
 function EnviarFoto({ onNext }) {
@@ -91,87 +102,114 @@ function EnviarFoto({ onNext }) {
     return (
         <div className="text-center space-y-6 w-full">
             <h2 className="text-2xl text-white font-bold">Doação Livre</h2>
-            <h3 className="text-lg text-white/80 font-normal">
-                Agora, envie uma foto do item
-            </h3>
+            <h3 className="text-lg text-white/80 font-normal">Agora, envie uma foto do item</h3>
 
             <div className="flex flex-col items-center justify-center w-full mt-4">
-                <label
-                    htmlFor="foto"
-                    className="cursor-pointer w-72 h-64 bg-gray-200 rounded-2xl flex flex-col items-center justify-center hover:bg-gray-300 transition"
-                >
+                <label htmlFor="foto" className="cursor-pointer w-72 h-64 bg-gray-200 rounded-2xl flex flex-col items-center justify-center hover:bg-gray-300 transition">
                     {foto ? (
-                        <img
-                            src={URL.createObjectURL(foto)}
-                            alt="Pré-visualização"
-                            className="w-full h-full object-contain rounded-2xl"
-                        />
+                        <img src={URL.createObjectURL(foto)} alt="Pré-visualização" className="w-full h-full object-contain rounded-2xl" />
                     ) : (
                         <>
-                            <img
-                                src="/img-doacao-livre-upload-photo.png"
-                                alt="Ícone de câmera"
-                                className="w-24 h-24 mb-10"
-                            />
-                            <span className="text-[#052759] font-bold">
-                                Clique aqui para selecionar
-                            </span>
+                            <img src="/img-doacao-livre-upload-photo.png" alt="Ícone de câmera" className="w-24 h-24 mb-10" />
+                            <span className="text-[#052759] font-bold">Clique aqui para selecionar</span>
                         </>
                     )}
                 </label>
-
-                <input
-                    id="foto"
-                    name="foto"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                />
+                <input id="foto" name="foto" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
             </div>
 
-            <p className="text-sm text-white/80 font-normal">*Essa é apenas uma pré-visualização, o tamanho e a proporção originais serão mantidos</p>
+            <p className="text-lg text-white/80 font-normal">*Essa é apenas uma pré-visualização, o tamanho e a proporção originais serão mantidos</p>
 
-            <button
-                onClick={(e) => {
-                    e.preventDefault();
-                    if (!foto) return alert("Por favor, selecione uma foto antes de avançar!");
-                    onNext();
-                }}
-                className="w-64 bg-[#FFB114] text-white rounded-lg py-2 mt-4 hover:bg-[#ffd175] transition-colors duration-300 font-bold"
-            >
-                Avançar
-            </button>
+            <FormButton onClick={e => {
+                e.preventDefault();
+                if (!foto) return alert("Por favor, selecione uma foto antes de avançar!");
+                onNext();
+            }}>Avançar</FormButton>
         </div>
     );
 }
 
-
 function Envio({ onNext }) {
+    const [sendType, setSendType] = useState("");
+    const [collectionPointSelected, setCollectionPointSelected] = useState();
+    const [formData, setFormData] = useState({ cep_origem: "", cep_destino: "13580-000" });
+
+    const fields = [
+        { label: "CEP de Origem", type: "text", name: "cep_origem", component: "input", fullWidth: true },
+        { label: "CEP de Destino", type: "text", name: "cep_destino", component: "input", fullWidth: true }
+    ];
+
+    const [collectionPoints] = useState([
+        { id: 1, formattedAddress: "Rua XV de Novembro, 120 - Centro, São Paulo - SP", name: "Associação Esperança" },
+        { id: 2, formattedAddress: "Avenida Santo Amaro, 3450 - Brooklin, São Paulo - SP", name: "Instituto Cuidar Bem" },
+        { id: 3, formattedAddress: "Rua Itaquera, 980 - Vila Carmosina, São Paulo - SP", name: "Abrigo São Francisco" },
+        { id: 4, formattedAddress: "Rua da Consolação, 500 - Consolação, São Paulo - SP", name: "Lar dos Amigos" },
+        { id: 5, formattedAddress: "Av. Paulista, 1578 - Bela Vista, São Paulo - SP", name: "Instituto Vida Nova" }
+    ]);
+
+    const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const handleRadioChange = (value) => setSendType(prev => (prev === value ? "" : value));
+
     return (
         <div className="text-center space-y-6 w-full">
-            <h2 className="text-2xl text-white font-bold">Envio da Doação</h2>
-            <p className="text-white/80">Informe como a doação será entregue à instituição.</p>
+            <h2 className="text-2xl text-white font-bold">Doação Livre</h2>
+            <p className="text-lg text-white/80 font-normal">Selecione um método de envio para que possamos receber a sua doação</p>
 
             <form className="flex flex-col w-full gap-4">
-                <div className="flex flex-col text-left">
-                    <label className="text-white mb-1 font-medium text-sm">Método de envio:</label>
-                    <select className="rounded-lg w-full text-black font-normal p-2 border border-gray-300 focus:border-[#FFB114] focus:outline-none text-sm">
-                        <option value="">Selecione...</option>
-                        <option value="entrega">Entrega pessoalmente</option>
-                        <option value="retirada">Solicitar retirada</option>
-                    </select>
+                <div className="flex items-center justify-center text-left gap-4">
+                    <RadioOption id="pontoColeta" checked={sendType === "ponto de coleta"} onChange={() => handleRadioChange("ponto de coleta")} label="Levar ao ponto de coleta" />
+                    <RadioOption id="envio" checked={sendType === "envio"} onChange={() => handleRadioChange("envio")} label="Enviar para o abrigo" />
                 </div>
-            </form>
 
-            <button
-                onClick={(e) => { e.preventDefault(); onNext(); }}
-                className="w-64 bg-[#FFB114] text-white rounded-lg py-2 mt-4 hover:bg-[#ffd175] transition-colors duration-300 font-bold"
-            >
-                Continuar
-            </button>
+                {sendType === "envio" && (
+                    <>
+                        <div className="flex flex-wrap gap-4 mt-4">
+                            {fields.map(f => (
+                                <InputField key={f.name} field={f} value={formData[f.name]} onChange={handleChange} />
+                            ))}
+                            <p className="text-sm text-white/80 font-normal">
+                                *Esse CEP se refere ao local onde se encontra o abrigo Dog Feliz
+                            </p>
+                        </div>
+                        <div className="flex flex-col justify-center items-start gap-1 bg-[#D9D9D9] rounded-2xl p-4">
+                            <p className="text-[#052759]">Prazo de entrega: </p>
+                            <p className="text-[#052759]">Preço base para envio: </p>
+                            <p className="text-[#052759] font-normal">*Cálculo realizado por meio da API Oficial dos Correios</p>
+                        </div>
+
+                        <div className="flex justify-center mt-4">
+                            <FormButton onClick={e => { e.preventDefault(); onNext(); }}>Avançar</FormButton>
+                        </div>
+                    </>
+                )}
+
+                {sendType === "ponto de coleta" && (
+                    <>
+                        <div className="flex justify-center flex-col items-center mt-4 w-full">
+                            <p className="text-lg text-white/80 font-normal mb-2">Escolha um ponto de coleta</p>
+                            <div className="flex flex-col gap-2 w-full max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-[#FFB114] scrollbar-track-[#E5E7EB] rounded-md p-2">
+                                {collectionPoints.map(p => (
+                                    <div
+                                        key={p.id}
+                                        onClick={() => setCollectionPointSelected(p.id)}
+                                        className={`flex flex-col items-start rounded-md p-3 w-full transition-colors duration-200 ${collectionPointSelected === p.id ? "bg-white border-2 border-[#FFB114]" : "bg-[#d9d9d9] hover:bg-white"}`}
+                                    >
+                                        <p className="text-[#052759] font-bold">{p.name}</p>
+                                        <p className="text-[#052759] font-normal text-sm">{p.formattedAddress}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="flex justify-center mt-4">
+                            <FormButton onClick={e => { e.preventDefault(); onNext(); }}>Avançar</FormButton>
+                        </div>
+                    </>
+                )}
+
+            </form>
         </div>
-    )
+    );
 }
 
 function Agradecimento() {
@@ -180,22 +218,13 @@ function Agradecimento() {
     return (
         <div className="text-center space-y-6 w-full">
             <img src="/icons/verified1-icon.svg" alt="Ícone de verificação" className="w-12 h-12 mx-auto" />
-            <h2 className="text-xl text-white font-bold">
-                Muito obrigado por contribuir com sua doação!
-            </h2>
-            <img src="/photos/dog-agradecimento-photo.svg" alt="Cachorro agradecendo" className="w-24 mx-auto" />
-            <h4 className="text-sm text-white/80">
-                Entraremos em contato com você pelo nosso Whatsapp, fique atento!
-            </h4>
+            <h2 className="text-xl text-white font-bold">Muito obrigado por contribuir como doador da instituição!</h2>
+            <img src="/img-doacao-livre-cat-2.png" alt="Cachorro agradecendo" className="w-48 mx-auto" />
+            <h4 className="text-lg text-white/80 font-normal">Entraremos em contato com você pelo nosso Whatsapp, fique atento!</h4>
 
-            <button
-                onClick={() => navigate('/')}
-                className="w-64 bg-[#FFB114] text-white rounded-lg py-2 hover:bg-[#ffd175] transition-colors duration-300 font-bold"
-            >
-                Finalizar
-            </button>
+            <FormButton onClick={() => navigate('/')}>Retornar para a home</FormButton>
         </div>
-    )
+    );
 }
 
 function Identificador({ steps, currentIndex }) {
@@ -208,31 +237,10 @@ function Identificador({ steps, currentIndex }) {
                 return (
                     <div key={step.key} className="flex items-start gap-3 z-10">
                         <div className="flex flex-col items-center">
-                            <div
-                                className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors duration-200 border-2 ${done || active
-                                    ? "bg-[#052759] border-[#052759] text-white"
-                                    : "bg-white border-gray-400 text-gray-400"
-                                    }`}
-                            />
-                            {i < steps.length - 1 && (
-                                <div
-                                    className={`w-[2px] mt-1 transition-colors duration-200 ${i < currentIndex ? "bg-[#052759]" : "bg-gray-300"
-                                        }`}
-                                    style={{ height: "1.5rem" }}
-                                />
-                            )}
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors duration-200 border-2 ${done || active ? "bg-[#052759] border-[#052759] text-white" : "bg-white border-gray-400 text-gray-400"}`} />
+                            {i < steps.length - 1 && <div className={`w-[2px] mt-1 transition-colors duration-200 ${i < currentIndex ? "bg-[#052759]" : "bg-gray-300"}`} style={{ height: "1.5rem" }} />}
                         </div>
-
-                        <span
-                            className={`text-sm ${active
-                                ? "text-[#052759] font-semibold"
-                                : done
-                                    ? "text-[#052759] font-medium"
-                                    : "text-gray-600"
-                                }`}
-                        >
-                            {step.label}
-                        </span>
+                        <span className={`text-sm ${active ? "text-[#052759] font-semibold" : done ? "text-[#052759] font-medium" : "text-gray-600"}`}>{step.label}</span>
                     </div>
                 );
             })}
@@ -242,8 +250,7 @@ function Identificador({ steps, currentIndex }) {
 
 export default function DoacaoLivre() {
     const [step, setStep] = useState(0);
-
-    const nextStep = () => setStep((prev) => Math.min(prev + 1, 3));
+    const nextStep = () => setStep(prev => Math.min(prev + 1, 3));
 
     const steps = [
         { key: "sobre", label: "Sobre a doação" },
@@ -267,12 +274,8 @@ export default function DoacaoLivre() {
                 <div className="absolute left-8 top-1/2 transform -translate-y-1/2">
                     <Identificador steps={steps} currentIndex={step} />
                 </div>
-                <img
-                    src="/img-doacao-livre-cat.png"
-                    alt="Gato"
-                    className="w-2/3 absolute bottom-0 right-0 opacity-90"
-                />
+                <img src="/img-doacao-livre-cat.png" alt="Gato" className="w-2/3 absolute bottom-0 right-0 opacity-90" />
             </div>
         </div>
-    )
+    );
 }
