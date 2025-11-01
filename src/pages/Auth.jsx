@@ -7,22 +7,53 @@ export default function Auth() {
     const initialMode = searchParams.get('mode') || 'login';
 
     const [isLogin, setIsLogin] = useState(initialMode === 'login');
+    const [cadastroStep, setCadastroStep] = useState(1);
     const [eyeOpen, setEyeOpen] = useState(false);
-    const [formData, setFormData] = useState({ nome: '', email: '', senha: '', cpf: '', telefone: '' });
+    const [formData, setFormData] = useState({
+        nome: '',
+        email: '',
+        senha: '',
+        cpf: '',
+        telefone: '',
+        cep: '',
+        estado: '',
+        municipio: '',
+        rua: '',
+        numero: '',
+        complemento: ''
+    });
 
     useEffect(() => {
         setIsLogin(initialMode === 'login');
+        setCadastroStep(1); 
     }, [initialMode]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('Dados do formulário:', formData);
+        if (!isLogin && cadastroStep === 1) {
+            setCadastroStep(2);
+            return;
+        }
+        console.log('Dados do formulário completo:', formData);
         navigate('/');
     };
 
     const switchMode = (mode) => {
         setIsLogin(mode === 'login');
-        setFormData({ nome: '', email: '', senha: '', cpf: '', telefone: '' });
+        setCadastroStep(1);
+        setFormData({
+            nome: '',
+            email: '',
+            senha: '',
+            cpf: '',
+            telefone: '',
+            cep: '',
+            estado: '',
+            municipio: '',
+            rua: '',
+            numero: '',
+            complemento: ''
+        });
         navigate(`/auth?mode=${mode}`);
     };
 
@@ -50,20 +81,47 @@ export default function Auth() {
                         </button>
                     </div>
 
+                    {!isLogin && (
+                        <div className="flex justify-center mb-4 w-full">
+                            <div className="flex items-center space-x-2">
+                                <div className={`w-3 h-3 rounded-full ${cadastroStep === 1 ? 'bg-[#052759]' : 'bg-gray-300'}`}></div>
+                                <div className={`w-3 h-3 rounded-full ${cadastroStep === 2 ? 'bg-[#052759]' : 'bg-gray-300'}`}></div>
+                            </div>
+                        </div>
+                    )}
+
                     <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 items-center">
-                        {!isLogin && (
-                            <Input name="nome" placeholder="Nome" icon="/icons/user-icon.svg" value={formData.nome} onChange={handleInputChange} />
-                        )}
-                        <Input name="email" placeholder="Email" icon="/icons/email-icon.svg" type="email" value={formData.email} onChange={handleInputChange} />
-                        <PasswordInput name="senha" placeholder="Senha" value={formData.senha} onChange={handleInputChange} eyeOpen={eyeOpen} setEyeOpen={setEyeOpen} />
-                        {!isLogin && (
+
+                        {!isLogin && cadastroStep === 1 && (
                             <>
+                                <Input name="nome" placeholder="Nome completo" icon="/icons/user-icon.svg" value={formData.nome} onChange={handleInputChange} />
+                                <Input name="email" placeholder="Email" icon="/icons/email-icon.svg" type="email" value={formData.email} onChange={handleInputChange} />
+                                <PasswordInput name="senha" placeholder="Senha" value={formData.senha} onChange={handleInputChange} eyeOpen={eyeOpen} setEyeOpen={setEyeOpen} />
                                 <Input name="cpf" placeholder="CPF" icon="/icons/cpf-icon.svg" value={formData.cpf} onChange={handleInputChange} />
                                 <Input name="telefone" placeholder="Telefone" icon="/icons/phone-icon.svg" value={formData.telefone} onChange={handleInputChange} />
                             </>
                         )}
+
+                        {!isLogin && cadastroStep === 2 && (
+                            <>
+                                <Input name="cep" placeholder="CEP" value={formData.cep} onChange={handleInputChange} />
+                                <Input name="estado" placeholder="Estado" value={formData.estado} onChange={handleInputChange} />
+                                <Input name="municipio" placeholder="Município" value={formData.municipio} onChange={handleInputChange} />
+                                <Input name="rua" placeholder="Rua" value={formData.rua} onChange={handleInputChange} />
+                                <Input name="numero" placeholder="Número" value={formData.numero} onChange={handleInputChange} />
+                                <Input name="complemento" placeholder="Complemento" value={formData.complemento} onChange={handleInputChange} />
+                            </>
+                        )}
+
+                        {isLogin && (
+                            <>
+                                <Input name="email" placeholder="Email" icon="/icons/email-icon.svg" type="email" value={formData.email} onChange={handleInputChange} />
+                                <PasswordInput name="senha" placeholder="Senha" value={formData.senha} onChange={handleInputChange} eyeOpen={eyeOpen} setEyeOpen={setEyeOpen} />
+                            </>
+                        )}
+
                         <button type="submit" className="w-full max-w-xs h-10 bg-[#052759] text-[#FCAD0B] rounded-xl hover:text-[#052759] hover:bg-[#FCAD0B] transition font-bold">
-                            {isLogin ? "Entrar" : "Cadastrar"}
+                            {isLogin ? "Entrar" : cadastroStep === 1 ? "Continuar" : "Finalizar Cadastro"}
                         </button>
                     </form>
 
@@ -81,12 +139,12 @@ export default function Auth() {
 function Input({ name, placeholder, icon, value, onChange, type = "text" }) {
     return (
         <div className="relative w-full max-w-xs">
-            <img src={icon} alt="icon" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 opacity-40" />
+            {icon && <img src={icon} alt="icon" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 opacity-40" />}
             <input
                 type={type}
                 name={name}
                 placeholder={placeholder}
-                className="w-full h-10 py-2 pl-10 pr-4 border rounded-lg text-base text-center text-black"
+                className={`w-full h-10 py-2 border rounded-lg text-base text-center text-black ${icon ? 'pl-10 pr-4' : 'px-4'}`}
                 value={value}
                 onChange={onChange}
                 required

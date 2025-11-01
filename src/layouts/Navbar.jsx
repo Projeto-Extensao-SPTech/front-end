@@ -14,20 +14,18 @@ export default function Navbar({ variant = 'blue' }) {
             bgColor: 'bg-[#052759]',
             textColor: 'text-white',
             hoverColor: 'hover:text-yellow-400',
-            borderColor: 'border-[#FCAD0B]',
         },
         white: {
             bgColor: 'bg-white',
             textColor: 'text-[#052759]',
             hoverColor: 'hover:text-[#FCAD0B]',
-            borderColor: 'border-[#052759]',
         },
     };
 
     const s = styles[variant];
 
     return (
-        <div className="drop-shadow-[0_4px_8px_rgba(0,0,0,0.25)] relative z-50 w-full">
+        <div className="drop-shadow-[0_4px_8px_rgba(0,0,0,0.25)] relative z-50 w-full" style={{ fontFamily: 'Inter, sans-serif' }}>
             {/* NAVBAR CONTAINER */}
             <div
                 className={`flex flex-row justify-around ${s.bgColor} ${s.textColor} items-center`}
@@ -44,46 +42,48 @@ export default function Navbar({ variant = 'blue' }) {
                 </div>
 
                 {/* MENU DESKTOP */}
-                <nav className="hidden lg:flex flex-row items-center gap-16 h-full text-lg">
+                <nav className="hidden lg:flex flex-row items-center gap-14 h-full text-[14px] font-bold tracking-tightest leading-tight">
                     <Link
                         to="/"
-                        className={`cursor-pointer pb-1 rounded-br-lg hover:scale-105 transition-all duration-300 ease-in-out ${
-                            location.pathname === '/' ? `border-b-8 ${s.borderColor}` : ''
-                        } ${s.textColor} ${s.hoverColor}`}
+                        className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
                     >
                         SOBRE
+                        {location.pathname === '/' && (
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                        )}
                     </Link>
                     <Link
-                        to="/"
-                        className={`cursor-pointer hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor}`}
+                        to="/feirasdeadocao"
+                        className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
                     >
                         FEIRAS DE ADOÇÃO
+                        {location.pathname === '/feirasdeadocao' && (
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                        )}
                     </Link>
                     <Link
                         to="/"
-                        className={`cursor-pointer hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor}`}
+                        className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
                     >
                         DOAÇÃO
                     </Link>
                     <Link
                         to="/voluntariados"
-                        className={`cursor-pointer pb-1 rounded-br-lg hover:scale-105 transition-all duration-300 ease-in-out ${
-                            location.pathname === '/voluntariados'
-                                ? `border-b-8 ${s.borderColor}`
-                                : ''
-                        } ${s.textColor} ${s.hoverColor}`}
+                        className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
                     >
                         VOLUNTARIADO
+                        {location.pathname === '/voluntariados' && (
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                        )}
                     </Link>
                     <Link
                         to="/patrocinadores"
-                        className={`cursor-pointer pb-1 rounded-br-lg hover:scale-105 transition-all duration-300 ease-in-out ${
-                            location.pathname === '/patrocinadores'
-                                ? `border-b-8 ${s.borderColor}`
-                                : ''
-                        } ${s.textColor} ${s.hoverColor}`}
+                        className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
                     >
                         PATROCINADORES
+                        {location.pathname === '/patrocinadores' && (
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                        )}
                     </Link>
                 </nav>
 
@@ -91,7 +91,7 @@ export default function Navbar({ variant = 'blue' }) {
                 <div className="hidden lg:flex flex-row items-center h-full mr-0">
                     {/* SININHO */}
                     <button
-                        className="h-32 cursor-pointer px-4 bg-[#052759] hover:brightness-110 hover:scale-105 transition-all duration-300 ease-in-out flex items-center justify-center"
+                        className="h-32 cursor-pointer px-4 bg-[#052759] hover:brightness-110 hover:scale-105 transition-all duration-300 ease-in-out flex items-center justify-center rounded-l-xl shadow-xl"
                         onClick={() => console.log('notificação clicada')}
                     >
                         <img src="/btn-sininho.png" alt="VerNotificacao" className="h-8 w-auto" />
@@ -99,7 +99,7 @@ export default function Navbar({ variant = 'blue' }) {
 
                     {/* CADASTRAR */}
                     <button
-                        className="h-32 cursor-pointer px-4 bg-[#052759] hover:brightness-110 hover:scale-105 transition-all duration-300 ease-in-out flex items-center justify-center"
+                        className="h-32 cursor-pointer px-4 bg-[#052759] hover:brightness-110 hover:scale-105 transition-all duration-300 ease-in-out flex items-center justify-center shadow-xl"
                         onClick={() => navigate('/auth?mode=cadastro')}
                     >
                         <img
@@ -111,7 +111,7 @@ export default function Navbar({ variant = 'blue' }) {
 
                     {/* LOGIN */}
                     <button
-                        className="h-32 cursor-pointer px-4 bg-[#FCAD0B] hover:brightness-110 hover:scale-105 transition-all duration-300 ease-in-out flex items-center justify-center"
+                        className="h-32 cursor-pointer px-4 bg-[#FCAD0B] hover:brightness-110 hover:scale-105 transition-all duration-300 ease-in-out flex items-center justify-center rounded-r-xl shadow-xl"
                         onClick={() => navigate('/auth?mode=login')}
                     >
                         <img src="/btn-logar.png" alt="Login" className="h-10 w-auto" />
@@ -132,44 +132,55 @@ export default function Navbar({ variant = 'blue' }) {
 
             {/* MENU MOBILE DROPDOWN */}
             <div
-                className={`${
-                    menu ? 'translate-x-0' : '-translate-x-full'
-                } lg:hidden flex flex-col absolute bg-[#052759] text-white left-0 top-full font-semibold text-2xl text-center pt-6 pb-6 gap-8 w-full h-fit transition-transform duration-300 z-50`}
+                className={`${menu ? 'translate-x-0' : '-translate-x-full'
+                    } lg:hidden flex flex-col absolute bg-[#052759] text-white left-0 top-full font-bold text-xl text-center pt-6 pb-6 gap-6 w-full h-fit transition-transform duration-300 z-50`}
             >
                 <Link
                     to="/"
                     onClick={() => setMenu(false)}
-                    className="hover:scale-105 transition-all duration-300"
+                    className="hover:scale-105 transition-all duration-300 font-bold relative"
                 >
                     SOBRE
+                    {location.pathname === '/' && (
+                        <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                    )}
                 </Link>
                 <Link
-                    to="/"
+                    to="/feirasdeadocao"
                     onClick={() => setMenu(false)}
-                    className="hover:scale-105 transition-all duration-300"
+                    className="hover:scale-105 transition-all duration-300 font-bold relative"
                 >
                     FEIRAS DE ADOÇÃO
+                    {location.pathname === '/feirasdeadocao' && (
+                        <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                    )}
                 </Link>
                 <Link
                     to="/"
                     onClick={() => setMenu(false)}
-                    className="hover:scale-105 transition-all duration-300"
+                    className="hover:scale-105 transition-all duration-300 font-bold"
                 >
                     DOAÇÃO
                 </Link>
                 <Link
                     to="/voluntariados"
                     onClick={() => setMenu(false)}
-                    className="hover:scale-105 transition-all duration-300"
+                    className="hover:scale-105 transition-all duration-300 font-bold relative"
                 >
                     VOLUNTARIADO
+                    {location.pathname === '/voluntariados' && (
+                        <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                    )}
                 </Link>
                 <Link
                     to="/patrocinadores"
                     onClick={() => setMenu(false)}
-                    className="hover:scale-105 transition-all duration-300"
+                    className="hover:scale-105 transition-all duration-300 font-bold relative"
                 >
                     PATROCINADORES
+                    {location.pathname === '/patrocinadores' && (
+                        <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                    )}
                 </Link>
 
                 {/* Botões no menu mobile */}
