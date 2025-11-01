@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import axios from 'axios';
 
 export default function Auth() {
     const navigate = useNavigate();
@@ -25,7 +26,7 @@ export default function Auth() {
 
     useEffect(() => {
         setIsLogin(initialMode === 'login');
-        setCadastroStep(1); 
+        setCadastroStep(1);
     }, [initialMode]);
 
     const handleSubmit = (e) => {
@@ -60,6 +61,8 @@ export default function Auth() {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+
+        console.log(formData)
     };
 
     return (
@@ -120,7 +123,7 @@ export default function Auth() {
                             </>
                         )}
 
-                        <button type="submit" className="w-full max-w-xs h-10 bg-[#052759] text-[#FCAD0B] rounded-xl hover:text-[#052759] hover:bg-[#FCAD0B] transition font-bold">
+                        <button type="submit" onClick={isLogin ? () => loginUser(formData) : cadastroStep === 1 ? null : () => cadastroUser(formData)} className="w-full max-w-xs h-10 bg-[#052759] text-[#FCAD0B] rounded-xl hover:text-[#052759] hover:bg-[#FCAD0B] transition font-bold">
                             {isLogin ? "Entrar" : cadastroStep === 1 ? "Continuar" : "Finalizar Cadastro"}
                         </button>
                     </form>
@@ -134,6 +137,23 @@ export default function Auth() {
             </div>
         </div>
     );
+}
+
+function cadastroUser(formData) {
+    axios.post('http://localhost:7000/auth/register', formData)
+        .then(response => {
+            console.log('Dados recebidos:', response.data);
+        })
+        .catch(error => {
+            console.error('Erro ao buscar dados:', error);
+        });
+}
+
+function loginUser(formData) {
+    axios.post('http://localhost:7000/auth/login', {
+        email: formData.email,
+        senha: formData.senha
+    })
 }
 
 function Input({ name, placeholder, icon, value, onChange, type = "text" }) {
