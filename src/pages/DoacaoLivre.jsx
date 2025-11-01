@@ -90,7 +90,19 @@ function Informacoes({ onNext }) {
                 ))}
             </form>
 
-            <FormButton onClick={e => { e.preventDefault(); onNext(); }}>Avançar</FormButton>
+            <FormButton onClick={e => {
+                e.preventDefault();
+
+                for (const key in formData) {
+                    if (key !== "descricao" && !formData[key]) {
+                        return alert(`Por favor, preencha o campo "${key}"`);
+                    }
+                }
+
+                onNext();
+            }}>Avançar</FormButton>
+
+
         </div>
     );
 }
@@ -202,7 +214,21 @@ function Envio({ onNext }) {
                         </div>
 
                         <div className="flex justify-center mt-4">
-                            <FormButton onClick={e => { e.preventDefault(); onNext(); }}>Avançar</FormButton>
+                            <FormButton onClick={e => {
+                                e.preventDefault();
+                                if (!sendType) return alert("Por favor, selecione um método de envio.");
+
+                                if (sendType === "envio") {
+                                    if (!formData.cep_origem) return alert("Por favor, preencha o CEP de Origem.");
+                                    if (!formData.cep_destino) return alert("Por favor, preencha o CEP de Destino.");
+                                }
+
+                                if (sendType === "ponto de coleta" && !collectionPointSelected) {
+                                    return alert("Por favor, selecione um ponto de coleta.");
+                                }
+
+                                onNext();
+                            }}>Avançar</FormButton>
                         </div>
                     </>
                 )}
