@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Informacoes({ onNext }) {
     const [formData, setFormData] = useState({
@@ -83,6 +83,69 @@ function Informacoes({ onNext }) {
         </div>
     )
 }
+
+function EnviarFoto({ onNext }) {
+    const [foto, setFoto] = useState(null);
+    const handleFileChange = (e) => setFoto(e.target.files[0]);
+
+    return (
+        <div className="text-center space-y-6 w-full">
+            <h2 className="text-2xl text-white font-bold">Doação Livre</h2>
+            <h3 className="text-lg text-white/80 font-normal">
+                Agora, envie uma foto do item
+            </h3>
+
+            <div className="flex flex-col items-center justify-center w-full mt-4">
+                <label
+                    htmlFor="foto"
+                    className="cursor-pointer w-72 h-64 bg-gray-200 rounded-2xl flex flex-col items-center justify-center hover:bg-gray-300 transition"
+                >
+                    {foto ? (
+                        <img
+                            src={URL.createObjectURL(foto)}
+                            alt="Pré-visualização"
+                            className="w-full h-full object-contain rounded-2xl"
+                        />
+                    ) : (
+                        <>
+                            <img
+                                src="/img-doacao-livre-upload-photo.png"
+                                alt="Ícone de câmera"
+                                className="w-24 h-24 mb-10"
+                            />
+                            <span className="text-[#052759] font-bold">
+                                Clique aqui para selecionar
+                            </span>
+                        </>
+                    )}
+                </label>
+
+                <input
+                    id="foto"
+                    name="foto"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                />
+            </div>
+
+            <p className="text-sm text-white/80 font-normal">*Essa é apenas uma pré-visualização, o tamanho e a proporção originais serão mantidos</p>
+
+            <button
+                onClick={(e) => {
+                    e.preventDefault();
+                    if (!foto) return alert("Por favor, selecione uma foto antes de avançar!");
+                    onNext();
+                }}
+                className="w-64 bg-[#FFB114] text-white rounded-lg py-2 mt-4 hover:bg-[#ffd175] transition-colors duration-300 font-bold"
+            >
+                Avançar
+            </button>
+        </div>
+    );
+}
+
 
 function Envio({ onNext }) {
     return (
@@ -180,21 +243,23 @@ function Identificador({ steps, currentIndex }) {
 export default function DoacaoLivre() {
     const [step, setStep] = useState(0);
 
-    const nextStep = () => setStep((prev) => Math.min(prev + 1, 2));
+    const nextStep = () => setStep((prev) => Math.min(prev + 1, 3));
 
     const steps = [
-        { key: "info", label: "Informações" },
-        { key: "envio", label: "Envio" },
-        { key: "agradecimento", label: "Agradecimento" }
+        { key: "sobre", label: "Sobre a doação" },
+        { key: "foto", label: "Foto do item" },
+        { key: "entrega", label: "Entrega" },
+        { key: "finalizacao", label: "Finalização" },
     ];
 
     return (
-        <div className="flex h-screen overflow-hidden">
+        <div className="flex min-h-screen overflow-hidden">
             <div className="flex flex-col w-1/2 bg-[#052759] text-white border-l rounded-r-3xl items-center justify-center p-8 gap-6">
                 <div className="w-full max-w-md">
                     {step === 0 && <Informacoes onNext={nextStep} />}
-                    {step === 1 && <Envio onNext={nextStep} />}
-                    {step === 2 && <Agradecimento />}
+                    {step === 1 && <EnviarFoto onNext={nextStep} />}
+                    {step === 2 && <Envio onNext={nextStep} />}
+                    {step === 3 && <Agradecimento />}
                 </div>
             </div>
 
@@ -202,7 +267,11 @@ export default function DoacaoLivre() {
                 <div className="absolute left-8 top-1/2 transform -translate-y-1/2">
                     <Identificador steps={steps} currentIndex={step} />
                 </div>
-                <img src="/img-doacao-livre-cat.png" alt="Cachorro" className="w-1/2 absolute bottom-0 right-0 opacity-90" />
+                <img
+                    src="/img-doacao-livre-cat.png"
+                    alt="Gato"
+                    className="w-2/3 absolute bottom-0 right-0 opacity-90"
+                />
             </div>
         </div>
     )
