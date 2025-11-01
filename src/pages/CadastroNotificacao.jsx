@@ -6,7 +6,7 @@ import { FaRegClock, FaCalendarAlt, FaMapMarkerAlt, FaEnvelope } from 'react-ico
 import { FaRegBell, FaUser, FaSignInAlt, FaHeart } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 
-// --- 1. COMPONENTE DE NAVEGAÇÃO (HEADER) ---
+
 const Header = () => {
   const primaryBlue = '#052759';
   const primaryYellow = '#FCAD0B';
@@ -25,14 +25,14 @@ const Header = () => {
     <header className="bg-white sticky top-0 z-50 shadow-md">
       <div className="flex justify-between items-center h-20 px-4 lg:px-12" style={{ backgroundColor: primaryBlue }}>
 
-        {/* Logo */}
+       
         <div className="flex items-center space-x-2">
           <div className="p-2 rounded-full" style={{ backgroundColor: primaryYellow }}>
             <FaHeart className="text-xl" style={{ color: primaryBlue }} />
           </div>
         </div>
 
-        {/* Menu */}
+       
         <nav className="hidden md:flex flex-grow justify-start ml-12 space-x-8 h-full items-center">
           {navItems.map((item) => (
             <a
@@ -48,7 +48,7 @@ const Header = () => {
           ))}
         </nav>
 
-        {/* Ícones */}
+       
         <div className="flex items-center space-x-4">
           <button className="text-white p-2 rounded-full hover:bg-white/10 transition-colors">
             <FaRegBell className="text-xl" />
@@ -68,7 +68,7 @@ const Header = () => {
   );
 };
 
-// --- 2. ESTILOS DO CALENDÁRIO ---
+
 function CalendarioStyles() {
   return (
     <style>{`
@@ -120,7 +120,7 @@ function CalendarioStyles() {
   );
 }
 
-// --- 3. COMPONENTE DE INPUT COM ÍCONE ---
+
 const IconInput = ({ icon: Icon, placeholder, value, onChange, type = 'text', rows = 1, id }) => {
   const primaryBlue = '#052759';
 
@@ -133,7 +133,7 @@ const IconInput = ({ icon: Icon, placeholder, value, onChange, type = 'text', ro
       {rows > 1 ? (
         <textarea
           id={id}
-          name={id}  // ✅ agora o name bate com o formData
+          name={id}  
           placeholder={placeholder}
           rows={rows}
           className={`w-full h-full pr-3 py-3 text-sm text-[${primaryBlue}] rounded-r-lg focus:outline-none resize-none placeholder-[${primaryBlue}] font-medium pl-3`}
@@ -144,7 +144,7 @@ const IconInput = ({ icon: Icon, placeholder, value, onChange, type = 'text', ro
         <input
           id={id}
           type={type}
-          name={id}  // ✅ idem aqui
+          name={id} 
           placeholder={placeholder}
           className={`w-full pr-3 py-3 text-sm text-[${primaryBlue}] rounded-r-lg focus:outline-none placeholder-[${primaryBlue}] font-medium pl-3`}
           value={value}
@@ -155,7 +155,7 @@ const IconInput = ({ icon: Icon, placeholder, value, onChange, type = 'text', ro
   );
 };
 
-// --- 4. COMPONENTE PRINCIPAL ---
+
 export default function CadastroFeiraAdocao() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -202,7 +202,7 @@ export default function CadastroFeiraAdocao() {
         <h1 className="text-3xl font-black mb-3 text-center text-[#052759]">
           Cadastrar Feira de Adoção
         </h1>
-        <h2 className="text-base font-bold mb-6 text-center text-[#062e69]">
+        <h2 className="text-base font-bold mb-6 text-center text-[#113975]">
           Cadastre aqui as Feiras de Adoção que irão ocorrer nos próximos dias!
         </h2>
       </div>
@@ -210,7 +210,7 @@ export default function CadastroFeiraAdocao() {
 
 <div
   className="w-11/12 max-w-5xl p-8 lg:p-12 bg-white rounded-xl shadow-md border border-gray-100 relative z-10"
-  style={{ paddingBottom: '10rem'}} // <-- aumenta o espaço inferior
+  style={{ paddingBottom: '10rem'}} 
 >        
         <h2 className="text-2xl font-bold text-[#052759] mb-8 text-center">
           Informações sobre a Feira de Adoção
