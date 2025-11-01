@@ -62,10 +62,13 @@ export default function Navbar({ variant = 'blue' }) {
                         )}
                     </Link>
                     <Link
-                        to="/"
+                        to="/doacao"
                         className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
                     >
                         DOAÇÃO
+                        {location.pathname === '/doacao' && (
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                        )}
                     </Link>
                     <Link
                         to="/voluntariados"

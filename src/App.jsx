@@ -6,6 +6,7 @@ import Auth from './pages/Auth';
 import Voluntariados from './pages/Voluntariados';
 import Patrocinadores from './pages/Patrocinadores';
 import FeirasDeAdocao from './pages/FeirasDeAdocao';
+import {Doacao} from './pages/Doacao';
 
 function AppContent() {
     const location = useLocation();
@@ -32,8 +33,11 @@ function AppContent() {
                     <Route path="/patrocinadores" element={<Patrocinadores />} />
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/feirasdeadocao" element={<FeirasDeAdocao />} />
+                    <Route path="/doacao" element={<Doacao />} />
                 </Routes>
             </div>
+        
+
         </>
     );
 }
@@ -43,6 +47,7 @@ function App() {
         <BrowserRouter>
             <AppContent />
         </BrowserRouter>
+
     );
 }
 
