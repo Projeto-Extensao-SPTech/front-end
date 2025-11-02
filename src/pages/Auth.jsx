@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import Swal from 'sweetalert2'
 import axios from 'axios';
 
 export default function Auth() {
@@ -16,44 +17,57 @@ export default function Auth() {
         senha: '',
         cpf: '',
         telefone: '',
-        cep: '',
-        estado: '',
-        municipio: '',
-        rua: '',
-        numero: '',
-        complemento: ''
+        zipCode: ''
     });
+
+    const [errorMessage, setErrorMessage] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         setIsLogin(initialMode === 'login');
         setCadastroStep(1);
     }, [initialMode]);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setErrorMessage('');
+        setSuccessMessage('');
+
         if (!isLogin && cadastroStep === 1) {
             setCadastroStep(2);
             return;
         }
-        console.log('Dados do formulário completo:', formData);
-        navigate('/');
+
+        setIsLoading(true);
+
+        try {
+            if (isLogin) {
+                await loginUser(formData);
+                setSuccessMessage('Login realizado com sucesso!');
+                navigate('/');
+            } else {
+                await cadastroUser(formData);
+                setSuccessMessage('Cadastro realizado com sucesso!');
+                navigate('/');
+            }
+        } catch (error) {
+            setErrorMessage(error.message || 'Ocorreu um erro. Tente novamente.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const switchMode = (mode) => {
         setIsLogin(mode === 'login');
         setCadastroStep(1);
         setFormData({
-            nome: '',
+            name: '',
             email: '',
-            senha: '',
+            password: '',
             cpf: '',
-            telefone: '',
-            cep: '',
-            estado: '',
-            municipio: '',
-            rua: '',
-            numero: '',
-            complemento: ''
+            phone: '',
+            zipCode: ''
         });
         navigate(`/auth?mode=${mode}`);
     };
@@ -139,21 +153,85 @@ export default function Auth() {
     );
 }
 
-function cadastroUser(formData) {
-    axios.post('http://localhost:7000/auth/register', formData)
-        .then(response => {
-            console.log('Dados recebidos:', response.data);
-        })
-        .catch(error => {
-            console.error('Erro ao buscar dados:', error);
+async function cadastroUser(formData) {
+    try {
+        Swal.fire({
+            title: "Cadastrando usuário...",
+            text: "Aguarde um momento",
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
         });
+
+        const response = await axios.post('http://localhost:7000/auth/register', formData);
+
+        Swal.close();
+
+        await Swal.fire({
+            title: "Cadastro realizado!",
+            text: "Usuário criado com sucesso!",
+            icon: "success",
+            confirmButtonText: "Voltar para o cadastro"
+        });
+
+
+        return response.data;
+
+    } catch (error) {
+        Swal.close();
+        console.error('Erro no cadastro:', error.response?.data || error.message);
+
+        Swal.fire({
+            title: "Erro ao cadastrar!",
+            text: error.response?.data?.message || "Verifique os dados e tente novamente.",
+            icon: "error",
+            confirmButtonText: "OK"
+        });
+        throw new Error(console.log('Erro no login:', error.response?.data || error.message)
+        )
+    }
 }
 
-function loginUser(formData) {
-    axios.post('http://localhost:7000/auth/login', {
-        email: formData.email,
-        senha: formData.senha
-    })
+async function loginUser(formData) {
+    try {
+        Swal.fire({
+            title: "Carregando...",
+            text: "Carregando suas informações.",
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+        });
+        const response = await axios.post('http://localhost:7000/auth/login', {
+            email: formData.email,
+            senha: formData.senha
+        });
+
+        Swal.close();
+
+        Swal.fire({
+            title: 'Login realizado com sucesso!',
+            text: 'Bem vindo ao abrigo dog feliz 🐶',
+            icon: 'success',
+            confirmButtonText: 'Continuar'
+        })
+        console.log('Login OK:', response.data);
+        return response.data;
+
+
+    } catch (error) {
+        Swal.close();
+
+        Swal.fire({
+            title: 'Tentativa de login falhou!',
+            text: 'Email ou senha estão incorretos, tente novamente!',
+            icon: 'error',
+            confirmButtonText: 'Continuar'
+        })
+
+        throw new Error(console.log('Erro no login:', error.response?.data || error.message))
+    }
 }
 
 function Input({ name, placeholder, icon, value, onChange, type = "text" }) {
