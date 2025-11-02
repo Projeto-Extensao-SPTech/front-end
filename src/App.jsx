@@ -35,6 +35,7 @@ function AppContent() {
                     <Route path="/" element={<Home />} />
                     <Route path="/voluntariados" element={<Voluntariados />} />
                     <Route path="/patrocinadores" element={<Patrocinadores />} />
+                    <Route path="/doacao-livre" element={<DoacaoLivre />} />
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/feiras-de-adocao" element={<FeirasDeAdocao />} />
                     <Route path="/cadastro-notificacao" element={<CadastroNotificacao />} />
