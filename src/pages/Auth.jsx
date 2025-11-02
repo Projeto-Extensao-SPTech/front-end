@@ -36,29 +36,24 @@ export default function Auth() {
     const [cepErro, setCepErro] = useState(null);
 
     useEffect(() => {
-        const cepLimpo = formData.cep.replace(/\D/g, ''); // Remove caracteres não-numéricos
+        const cepLimpo = formData.cep.replace(/\D/g, ''); 
 
         if (cepLimpo.length === 8) {
             const buscaEndereco = async () => {
                 setCepCarregando(true);
                 setCepErro(null);
                 try {
-                    // Chama sua função da API
-                    const data = await buscarCep(cepLimpo); 
+                     const data = await buscarCep(cepLimpo); 
 
-                    // Preenche o formulário com os dados
                     setFormData(prev => ({
                         ...prev,
                         rua: data.logradouro,
                         municipio: data.localidade,
-                        estado: data.uf,
-                        // Você pode adicionar 'bairro' ao seu formData se quiser
-                        // bairro: data.bairro 
+                        estado: data.uf
                     }));
 
                 } catch (error) {
-                    setCepErro(error.message); // Ex: "CEP não encontrado."
-                    // Limpa os campos em caso de erro
+                    setCepErro(error.message); 
                     setFormData(prev => ({
                         ...prev,
                         rua: '',
@@ -72,7 +67,6 @@ export default function Auth() {
 
             buscaEndereco();
         } else {
-            // Se o usuário apagar o CEP, limpa o erro
             setCepErro(null);
         }
 
