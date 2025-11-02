@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
+import { buscarCep } from "../js/api/cepAPI"
+
+
 export default function Auth() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -27,6 +30,54 @@ export default function Auth() {
         setIsLogin(initialMode === 'login');
         setCadastroStep(1); 
     }, [initialMode]);
+
+
+    const [cepCarregando, setCepCarregando] = useState(false);
+    const [cepErro, setCepErro] = useState(null);
+
+    useEffect(() => {
+        const cepLimpo = formData.cep.replace(/\D/g, ''); // Remove caracteres não-numéricos
+
+        if (cepLimpo.length === 8) {
+            const buscaEndereco = async () => {
+                setCepCarregando(true);
+                setCepErro(null);
+                try {
+                    // Chama sua função da API
+                    const data = await buscarCep(cepLimpo); 
+
+                    // Preenche o formulário com os dados
+                    setFormData(prev => ({
+                        ...prev,
+                        rua: data.logradouro,
+                        municipio: data.localidade,
+                        estado: data.uf,
+                        // Você pode adicionar 'bairro' ao seu formData se quiser
+                        // bairro: data.bairro 
+                    }));
+
+                } catch (error) {
+                    setCepErro(error.message); // Ex: "CEP não encontrado."
+                    // Limpa os campos em caso de erro
+                    setFormData(prev => ({
+                        ...prev,
+                        rua: '',
+                        municipio: '',
+                        estado: ''
+                    }));
+                } finally {
+                    setCepCarregando(false);
+                }
+            };
+
+            buscaEndereco();
+        } else {
+            // Se o usuário apagar o CEP, limpa o erro
+            setCepErro(null);
+        }
+
+    }, [formData.cep]);
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -104,6 +155,10 @@ export default function Auth() {
 
                         {!isLogin && cadastroStep === 2 && (
                             <>
+                                 <div className="w-full max-w-xs h-4 text-center -mt-2">
+                                    {cepCarregando && <span className="text-sm text-gray-500">Buscando CEP...</span>}
+                                    {cepErro && <span className="text-sm text-red-500">{cepErro}</span>}
+                                </div>
                                 <Input name="cep" placeholder="CEP" value={formData.cep} onChange={handleInputChange} />
                                 <Input name="estado" placeholder="Estado" value={formData.estado} onChange={handleInputChange} />
                                 <Input name="municipio" placeholder="Município" value={formData.municipio} onChange={handleInputChange} />

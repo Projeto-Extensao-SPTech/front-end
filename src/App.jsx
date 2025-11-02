@@ -8,6 +8,10 @@ import Patrocinadores from './pages/Patrocinadores';
 import FeirasDeAdocao from './pages/FeirasDeAdocao';
 import CadastroNotificacao from './pages/CadastroNotificacao';
 
+import {Doacao} from './pages/Doacao';
+
+
+
 function AppContent() {
     const location = useLocation();
     const isAuthPage = location.pathname === '/auth';
@@ -34,6 +38,9 @@ function AppContent() {
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/feiras-de-adocao" element={<FeirasDeAdocao />} />
                     <Route path="/cadastro-notificacao" element={<CadastroNotificacao />} />
+
+                    <Route path="/doacao" element={<Doacao />} />
+                    
                 </Routes>
             </div>
         
