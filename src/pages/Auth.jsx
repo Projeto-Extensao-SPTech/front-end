@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { AlertUtils } from "../js/utils/alertUtils";
-import Swal from 'sweetalert2'
 import axios from 'axios';
 
 export default function Auth() {
@@ -12,17 +11,21 @@ export default function Auth() {
     const [isLogin, setIsLogin] = useState(initialMode === 'login');
     const [cadastroStep, setCadastroStep] = useState(1);
     const [eyeOpen, setEyeOpen] = useState(false);
+
     const [formData, setFormData] = useState({
         nome: '',
         email: '',
         senha: '',
         cpf: '',
         telefone: '',
-        zipCode: ''
+        cep: '',
+        estado: '',
+        municipio: '',
+        rua: '',
+        numero: '',
+        complemento: ''
     });
 
-    const [errorMessage, setErrorMessage] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
@@ -30,14 +33,62 @@ export default function Auth() {
         setCadastroStep(1);
     }, [initialMode]);
 
+    const validarCampos = () => {
+        if (formData.nome.length < 8 || formData.nome.length > 40) {
+            return { campo: "nome", mensagem: "O nome deve ter entre 8 e 40 caracteres." };
+        }
+
+        const cpfRegex = /^\d{11}$/;
+        if (!cpfRegex.test(formData.cpf)) {
+            return { campo: "cpf", mensagem: "O CPF deve conter exatamente 11 números." };
+        }
+
+        const telefoneRegex = /^\(?\d{2}\)?\s?9?\d{4}-?\d{4}$/;
+        if (!telefoneRegex.test(formData.telefone)) {
+            return { campo: "telefone", mensagem: "O telefone deve seguir o formato válido, ex: (11) 91234-5678." };
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailValido = emailRegex.test(formData.email) && formData.email.length >= 8 && formData.email.length <= 100;
+        if (!emailValido) {
+            return { campo: "email", mensagem: "O e-mail deve ter formato válido e entre 8 e 100 caracteres." };
+        }
+
+        if (formData.senha.length < 8) {
+            return { campo: "senha", mensagem: "A senha deve ter pelo menos 8 caracteres." };
+        }
+
+        const obrigatoriosEndereco = ['cep', 'estado', 'municipio', 'rua', 'numero'];
+        const faltandoEndereco = obrigatoriosEndereco.filter(campo => !formData[campo]);
+        if (faltandoEndereco.length > 0) {
+            return { campo: "endereco", mensagem: `Preencha todos os campos de endereço: ${faltandoEndereco.join(', ')}` };
+        }
+
+        return null;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setErrorMessage('');
-        setSuccessMessage('');
 
         if (!isLogin && cadastroStep === 1) {
+            const erro = validarCampos();
+            if (erro && ["nome", "email", "senha", "cpf", "telefone"].includes(erro.campo)) {
+                console.log(`Erro no campo ${erro.campo}: ${erro.mensagem}`);
+                AlertUtils.error(`Erro no campo ${erro.campo}`, erro.mensagem);
+                return;
+            }
+
             setCadastroStep(2);
             return;
+        }
+
+        if (!isLogin && cadastroStep === 2) {
+            const erro = validarCampos();
+            if (erro) {
+                console.log(`Erro no campo ${erro.campo}: ${erro.mensagem}`);
+                AlertUtils.error(`Erro no campo ${erro.campo}`, erro.mensagem);
+                return;
+            }
         }
 
         setIsLoading(true);
@@ -45,30 +96,34 @@ export default function Auth() {
         try {
             if (isLogin) {
                 await loginUser(formData);
-                setSuccessMessage('Login realizado com sucesso!');
                 navigate('/');
             } else {
                 await cadastroUser(formData);
-                setSuccessMessage('Cadastro realizado com sucesso!');
-                navigate('/');
+                navigate('/auth?mode=login');
             }
         } catch (error) {
-            setErrorMessage(error.message || 'Ocorreu um erro. Tente novamente.');
+            AlertUtils.error("Erro!", error.message || "Ocorreu um erro. Tente novamente.");
         } finally {
             setIsLoading(false);
         }
     };
 
+
     const switchMode = (mode) => {
         setIsLogin(mode === 'login');
         setCadastroStep(1);
         setFormData({
-            name: '',
+            nome: '',
             email: '',
-            password: '',
+            senha: '',
             cpf: '',
-            phone: '',
-            zipCode: ''
+            telefone: '',
+            cep: '',
+            estado: '',
+            municipio: '',
+            rua: '',
+            numero: '',
+            complemento: ''
         });
         navigate(`/auth?mode=${mode}`);
     };
@@ -76,8 +131,6 @@ export default function Auth() {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
-
-        console.log(formData)
     };
 
     return (
@@ -109,7 +162,6 @@ export default function Auth() {
                     )}
 
                     <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 items-center">
-
                         {!isLogin && cadastroStep === 1 && (
                             <>
                                 <Input name="nome" placeholder="Nome completo" icon="/icons/user-icon.svg" value={formData.nome} onChange={handleInputChange} />
@@ -138,16 +190,13 @@ export default function Auth() {
                             </>
                         )}
 
-                        <button type="submit" onClick={isLogin ? () => loginUser(formData) : cadastroStep === 1 ? null : () => cadastroUser(formData)} className="w-full max-w-xs h-10 bg-[#052759] text-[#FCAD0B] rounded-xl hover:text-[#052759] hover:bg-[#FCAD0B] transition font-bold">
+                        <button
+                            type="submit"
+                            className="w-full max-w-xs h-10 bg-[#052759] text-[#FCAD0B] rounded-xl hover:text-[#052759] hover:bg-[#FCAD0B] transition font-bold"
+                        >
                             {isLogin ? "Entrar" : cadastroStep === 1 ? "Continuar" : "Finalizar Cadastro"}
                         </button>
                     </form>
-
-                    {isLogin && (
-                        <span className="border-b border-b-black text-xs text-gray-400 hover:text-black self-end cursor-pointer transition mt-4">
-                            Esqueci minha senha
-                        </span>
-                    )}
                 </div>
             </div>
         </div>
@@ -155,52 +204,53 @@ export default function Auth() {
 }
 
 async function cadastroUser(formData) {
+    AlertUtils.loading("Cadastrando usuário...", "Aguarde um momento");
     try {
+        const requestBody = {
+            name: formData.nome,
+            document: formData.cpf,
+            phone: formData.telefone,
+            address: {
+                zipCode: formData.cep,
+                state: formData.estado,
+                city: formData.municipio,
+                street: formData.rua,
+                complement: formData.complemento,
+                number: formData.numero,
+                country: "Brasil"
+            },
+            email: formData.email,
+            password: formData.senha
+        };
 
-        AlertUtils.loading("Cadastrando usuário...", "Aguarde um momento");
+        console.log("Dados envviados: ", JSON.stringify(requestBody))
 
-        const response = await axios.post('http://localhost:7000/auth/register', formData);
-
+        const response = await axios.post('http://localhost:7000/auth/register', requestBody);
         AlertUtils.close();
-
-        await AlertUtils.success("Cadastro realizado com sucesso!", "Bem vindo ao abrigo dog feliz 🐶");
-
+        await AlertUtils.success("Cadastro realizado com sucesso!", "Bem-vindo ao abrigo dog feliz 🐶");
         return response.data;
-
     } catch (error) {
         AlertUtils.close();
-
         await AlertUtils.error("Tentativa de cadastro falhou!", "Verifique os dados informados e tente novamente.");
-
-        throw new Error(console.log('Erro no cadastro:', error.response?.data || error.message)
-        )
+        throw new Error(error.message);
     }
 }
 
 async function loginUser(formData) {
+    AlertUtils.loading("Realizando login...", "Aguarde um momento");
     try {
-        AlertUtils.loading("Realizando login...", "Aguarde um momento");
-
         const response = await axios.post('http://localhost:7000/auth/login', {
             email: formData.email,
-            senha: formData.senha
+            password: formData.senha
         });
 
         AlertUtils.close();
-
-        AlertUtils.success("Login realizado com sucesso!", "Bem vindo de volta ao abrigo dog feliz 🐶");
-
-        console.log('Login OK:', response.data);
-
+        AlertUtils.success("Login realizado com sucesso!", "Bem vindo de volta 🐾");
         return response.data;
-
-
     } catch (error) {
         AlertUtils.close();
-
         await AlertUtils.error("Falha no login!", "Verifique suas credenciais e tente novamente.");
-
-        throw new Error(console.log('Erro no login:', error.response?.data || error.message))
+        throw new Error(error.message);
     }
 }
 
