@@ -105,3 +105,39 @@ export function validateAddress(address, number) {
         throw new Error("Address validation: FAILED!", err.message)
     }
 }
+
+
+export function validateVoluntariadoForm(formData) {
+    const nameValidation = validateUserName(formData.name);
+    const emailValidation = validateEmail(formData.email);
+    const cpfValidation = validateCpf(formData.cpf);
+    const phoneValidation = validatePhoneNumber(formData.whatsapp);
+
+    return {
+        isValid: nameValidation.isValid && emailValidation.isValid && cpfValidation.isValid && phoneValidation.isValid,
+        errors: [
+            ...(!nameValidation.isValid ? [nameValidation.message] : []),
+            ...(!emailValidation.isValid ? [emailValidation.message] : []),
+            ...(!cpfValidation.isValid ? [cpfValidation.message] : []),
+            ...(!phoneValidation.isValid ? [phoneValidation.message] : [])
+        ]
+    };
+}
+
+
+export function validateSponsorForm(formData) {
+    const nameValidation = validateUserName(formData.name);
+    const cpfValidation = validateCpf(formData.cpf);
+    const phoneValidation = validatePhoneNumber(formData.telefone);
+    const emailValidation = validateEmail(formData.email);
+
+    return {
+        isValid: nameValidation.isValid && cpfValidation.isValid && phoneValidation.isValid && emailValidation.isValid,
+        errors: [
+            ...(!nameValidation.isValid ? [nameValidation.message] : []),
+            ...(!cpfValidation.isValid ? [cpfValidation.message] : []),
+            ...(!phoneValidation.isValid ? [phoneValidation.message] : []),
+            ...(!emailValidation.isValid ? [emailValidation.message] : [])
+        ]
+    };
+}

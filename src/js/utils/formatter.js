@@ -10,7 +10,6 @@ export function stringFormatter(string) {
         .join(' ');
 }
 
-
 // Essa função é utilizada para exibição de datas no front-end
 // YYYY-MM-DD -> DD/MM/YYYY
 export function dateFormatterToClient(date) {
