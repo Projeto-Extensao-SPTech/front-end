@@ -2,6 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { AlertUtils } from "../js/utils/alertUtils";
 import axios from 'axios';
+import { buscarCep } from "../js/api/cepAPI"
+import {CardRecuperarSenha} from "../components/sections/CardRecuperarSenha"
+import {CardNovaSenha} from "../components/sections/CardNovaSenha"
+import {CardSenhaRedefinida} from "../components/sections/CardSenhaRedefinida"
+import {CardVerificarCodigo} from "../components/sections/CardVerificarCodigo"
 
 export default function Auth() {
     const navigate = useNavigate();
@@ -27,6 +32,61 @@ export default function Auth() {
     });
 
     const [isLoading, setIsLoading] = useState(false);
+
+    const [etapaRecuperarSenha, setEtapaRecuperarSenha] = useState(0);
+    const [codigoVerificacao, setCodigoVerificacao] = useState('');
+
+    const recuperacaoSenhaEnviar = async () => {
+        const codigo = Math.floor(1000 + Math.random() * 9000).toString();
+        setCodigoVerificacao(codigo);
+        const telefoneLimpo = formData.telefone.replace(/\D/g, '');
+        const numeroFormatado = `55${telefoneLimpo}`;
+
+        const requestBody ={
+            number: numeroFormatado,
+            text: `Abrigo Dog Feliz: Seu código de verificação é: ${codigo}`
+        }
+        try{
+            const response = await fetch('http://localhost:7000/message/sendText/default', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (response.ok) {
+                console.log("Mensagem enviada com sucesso!");
+                setEtapaRecuperarSenha(2);
+            } else {
+                const errorText = await response.text();
+                alert(`Erro ao enviar mensagem: ${errorText}`);
+            }
+        }
+        catch (error) {
+            console.error("Erro ao enviar mensagem:", error);
+            alert("Erro ao enviar mensagem. Tente novamente mais tarde.");
+        }
+    }
+
+    const recuperacaoSenhaVerificarCodigo = (codigoDigitado) => {
+        if (codigoDigitado === codigoVerificacao) {
+            setCodigoVerificacao('');
+            setEtapaRecuperarSenha(3)
+        } else {
+            console.error("Código de verificação inválido.");
+            alert("Código de verificação inválido. Tente novamente.");
+        }
+    }
+
+    const recuperacaoSenhaAtualizar = (novaSenha) =>{
+        console.log("Senha atualizada para:", novaSenha, "para o telefone:", formData.telefone);
+        setEtapaRecuperarSenha(4);
+    }
+
+    const recuperacaoSenhaVoltarAoLogin = () => {
+        setEtapaRecuperarSenha(0);
+        setFormData(prev => ({ ...prev, telefone: '' , senha: '',email: ''}));
+        switchMode('login');
+    }
 
     useEffect(() => {
         setIsLogin(initialMode === 'login');
@@ -68,6 +128,49 @@ export default function Auth() {
     };
 
     const handleSubmit = async (e) => {
+
+    const [cepCarregando, setCepCarregando] = useState(false);
+    const [cepErro, setCepErro] = useState(null);
+
+    useEffect(() => {
+        const cepLimpo = formData.cep.replace(/\D/g, '');
+
+        if (cepLimpo.length === 8) {
+            const buscaEndereco = async () => {
+                setCepCarregando(true);
+                setCepErro(null);
+                try {
+                     const data = await buscarCep(cepLimpo);
+
+                    setFormData(prev => ({
+                        ...prev,
+                        rua: data.logradouro,
+                        municipio: data.localidade,
+                        estado: data.uf
+                    }));
+
+                } catch (error) {
+                    setCepErro(error.message);
+                    setFormData(prev => ({
+                        ...prev,
+                        rua: '',
+                        municipio: '',
+                        estado: ''
+                    }));
+                } finally {
+                    setCepCarregando(false);
+                }
+            };
+
+            buscaEndereco();
+        } else {
+            setCepErro(null);
+        }
+
+    }, [formData.cep]);
+
+
+    const handleSubmit = (e) => {
         e.preventDefault();
 
         if (!isLogin && cadastroStep === 1) {
@@ -143,14 +246,17 @@ export default function Auth() {
 
                 <div className="w-full max-w-sm md:max-w-md lg:w-96 min-h-[450px] bg-white rounded-lg shadow-md flex flex-col items-center p-6 z-30 relative mx-4 border border-gray-200">
 
-                    <div className="flex justify-center mb-8 w-full">
-                        <button className={`${isLogin ? 'bg-[#052759] text-[#FCAD0B]' : 'bg-[#FCAD0B] text-[#052759] opacity-70'} cursor-pointer w-24 h-10 rounded-l-xl text-base hover:opacity-90 font-bold`} onClick={() => switchMode('login')}>
-                            Login
-                        </button>
-                        <button className={`${isLogin ? 'bg-[#FCAD0B] text-[#052759] opacity-70' : 'bg-[#052759] text-[#FCAD0B]'} cursor-pointer w-24 h-10 rounded-r-xl text-base hover:opacity-90 font-bold`} onClick={() => switchMode('cadastro')}>
-                            Cadastro
-                        </button>
-                    </div>
+                    {etapaRecuperarSenha === 0 ? (
+                        <>
+
+                            <div className="flex justify-center mb-8 w-full">
+                                <button className={`${isLogin ? 'bg-[#052759] text-[#FCAD0B]' : 'bg-[#FCAD0B] text-[#052759] opacity-70'} cursor-pointer w-24 h-10 rounded-l-xl text-base hover:opacity-90 font-bold`} onClick={() => switchMode('login')}>
+                                    Login
+                                </button>
+                                <button className={`${isLogin ? 'bg-[#FCAD0B] text-[#052759] opacity-70' : 'bg-[#052759] text-[#FCAD0B]'} cursor-pointer w-24 h-10 rounded-r-xl text-base hover:opacity-90 font-bold`} onClick={() => switchMode('cadastro')}>
+                                    Cadastro
+                                </button>
+                            </div>
 
                     {!isLogin && (
                         <div className="flex justify-center mb-4 w-full">
@@ -161,42 +267,78 @@ export default function Auth() {
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 items-center">
-                        {!isLogin && cadastroStep === 1 && (
-                            <>
-                                <Input name="nome" placeholder="Nome completo" icon="/icons/user-icon.svg" value={formData.nome} onChange={handleInputChange} />
-                                <Input name="email" placeholder="Email" icon="/icons/email-icon.svg" type="email" value={formData.email} onChange={handleInputChange} />
-                                <PasswordInput name="senha" placeholder="Senha" value={formData.senha} onChange={handleInputChange} eyeOpen={eyeOpen} setEyeOpen={setEyeOpen} />
-                                <Input name="cpf" placeholder="CPF" icon="/icons/cpf-icon.svg" value={formData.cpf} onChange={handleInputChange} />
-                                <Input name="telefone" placeholder="Telefone" icon="/icons/phone-icon.svg" value={formData.telefone} onChange={handleInputChange} />
-                            </>
-                        )}
+                            <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 items-center">
+                                {!isLogin && cadastroStep === 1 && (
+                                    <>
+                                        <Input name="nome" placeholder="Nome completo" icon="/icons/user-icon.svg" value={formData.nome} onChange={handleInputChange} />
+                                        <Input name="email" placeholder="Email" icon="/icons/email-icon.svg" type="email" value={formData.email} onChange={handleInputChange} />
+                                        <PasswordInput name="senha" placeholder="Senha" value={formData.senha} onChange={handleInputChange} eyeOpen={eyeOpen} setEyeOpen={setEyeOpen} />
+                                        <Input name="cpf" placeholder="CPF" icon="/icons/cpf-icon.svg" value={formData.cpf} onChange={handleInputChange} />
+                                        <Input name="telefone" placeholder="Telefone" icon="/icons/phone-icon.svg" value={formData.telefone} onChange={handleInputChange} />
+                                    </>
+                                )}
+                                {!isLogin && cadastroStep === 2 && (
+                                    <>
 
-                        {!isLogin && cadastroStep === 2 && (
-                            <>
-                                <Input name="cep" placeholder="CEP" value={formData.cep} onChange={handleInputChange} />
-                                <Input name="estado" placeholder="Estado" value={formData.estado} onChange={handleInputChange} />
-                                <Input name="municipio" placeholder="Município" value={formData.municipio} onChange={handleInputChange} />
-                                <Input name="rua" placeholder="Rua" value={formData.rua} onChange={handleInputChange} />
-                                <Input name="numero" placeholder="Número" value={formData.numero} onChange={handleInputChange} />
-                                <Input name="complemento" placeholder="Complemento" value={formData.complemento} onChange={handleInputChange} />
-                            </>
-                        )}
+                                        <div className="w-full max-w-xs h-4 text-center -mt-2">
+                                            {cepCarregando && <span className="text-sm text-gray-500">Buscando CEP...</span>}
+                                            {cepErro && <span className="text-sm text-red-500">{cepErro}</span>}
+                                        </div>
+                                        <Input name="cep" placeholder="CEP" value={formData.cep} onChange={handleInputChange} />
+                                        <Input name="estado" placeholder="Estado" value={formData.estado} onChange={handleInputChange} />
+                                        <Input name="municipio" placeholder="Município" value={formData.municipio} onChange={handleInputChange} />
+                                        <Input name="rua" placeholder="Rua" value={formData.rua} onChange={handleInputChange} />
+                                        <Input name="numero" placeholder="Número" value={formData.numero} onChange={handleInputChange} />
+                                        <Input name="complemento" placeholder="Complemento" value={formData.complemento} onChange={handleInputChange} />
+                                    </>
+                                )}
+                                {isLogin && (
+                                    <>
+                                        <Input name="email" placeholder="Email" icon="/icons/email-icon.svg" type="email" value={formData.email} onChange={handleInputChange} />
+                                        <PasswordInput name="senha" placeholder="Senha" value={formData.senha} onChange={handleInputChange} eyeOpen={eyeOpen} setEyeOpen={setEyeOpen} />
+                                    </>
+                                )}
 
-                        {isLogin && (
-                            <>
-                                <Input name="email" placeholder="Email" icon="/icons/email-icon.svg" type="email" value={formData.email} onChange={handleInputChange} />
-                                <PasswordInput name="senha" placeholder="Senha" value={formData.senha} onChange={handleInputChange} eyeOpen={eyeOpen} setEyeOpen={setEyeOpen} />
-                            </>
-                        )}
+                                <button type="submit" className="w-full max-w-xs h-10 bg-[#052759] text-[#FCAD0B] rounded-xl hover:text-[#052759] hover:bg-[#FCAD0B] transition font-bold">
+                                    {isLogin ? "Entrar" : cadastroStep === 1 ? "Continuar" : "Finalizar Cadastro"}
+                                </button>
+                            </form>
 
-                        <button
-                            type="submit"
-                            className="w-full max-w-xs h-10 bg-[#052759] text-[#FCAD0B] rounded-xl hover:text-[#052759] hover:bg-[#FCAD0B] transition font-bold"
-                        >
-                            {isLogin ? "Entrar" : cadastroStep === 1 ? "Continuar" : "Finalizar Cadastro"}
-                        </button>
-                    </form>
+                            {isLogin && (
+                                <span onClick={()=>setEtapaRecuperarSenha(1)}
+                                className="border-b border-b-black text-xs text-gray-400 hover:text-black self-end cursor-pointer transition mt-4">
+                                    Esqueci minha senha
+                                </span>
+                            )}
+                        </>
+
+                    ) : (
+
+                        <> {/* Este lado já estava correto */}
+                            {etapaRecuperarSenha === 1 && (
+                                <CardRecuperarSenha
+                                    telefone={formData.telefone}
+                                    onTelefoneChange={(val) => handleInputChange({ target: { name: 'telefone', value: val } })}
+                                    onSubmit={recuperacaoSenhaEnviar}
+                                />
+                            )}
+                            {etapaRecuperarSenha === 2 && (
+                                <CardVerificarCodigo
+                                    onSubmit={recuperacaoSenhaVerificarCodigo}
+                                />
+                            )}
+                            {etapaRecuperarSenha === 3 && (
+                                <CardNovaSenha
+                                    onSubmit={recuperacaoSenhaAtualizar}
+                                />
+                            )}
+                            {etapaRecuperarSenha === 4 && (
+                                <CardSenhaRedefinida
+                                    onIrParaLogin={recuperacaoSenhaVoltarAoLogin}
+                                />
+                            )}
+                        </>
+                    )}
                 </div>
             </div>
         </div>
@@ -254,6 +396,7 @@ async function loginUser(formData) {
     }
 }
 
+    )}
 function Input({ name, placeholder, icon, value, onChange, type = "text" }) {
     return (
         <div className="relative w-full max-w-xs">
