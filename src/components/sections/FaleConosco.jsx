@@ -18,17 +18,17 @@ export default function FaleConosco() {
     }
 
     return (
-        <div className="flex items-center justify-center bg-[#052759] py-12 w-full">
-            <div className="flex flex-col lg:flex-row w-full max-w-7xl gap-8 px-8 items-center">
+        <div className="flex items-center justify-center bg-[#052759] py-8 w-full">
+            <div className="flex flex-col lg:flex-row w-full max-w-6xl gap-6 px-6 items-center">
 
-                <div className="lg:w-3/5 bg-[#EFEFEF] rounded-2xl p-6 shadow-2xl">
-                    <h2 className="text-2xl font-black text-[#052759] mb-4 text-center">
+                <div className="lg:w-3/5 bg-[#EFEFEF] rounded-xl p-5 shadow-xl">
+                    <h2 className="text-xl font-black text-[#052759] mb-3 text-center">
                         Fale Conosco
                     </h2>
                     
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-3">
                         <div>
-                            <label htmlFor="nome" className="block text-[#052759] font-bold mb-1 text-sm">
+                            <label htmlFor="nome" className="block text-[#052759] font-bold mb-1 text-xs">
                                 Nome
                             </label>
                             <input
@@ -38,13 +38,13 @@ export default function FaleConosco() {
                                 value={formData.nome}
                                 onChange={handleChange}
                                 placeholder="Seu nome completo"
-                                className="w-full px-3 py-2 text-sm border-2 border-[#052759] rounded-lg focus:border-[#FCAD0B] focus:outline-none placeholder-gray-400"
+                                className="w-full px-3 py-2 text-xs border-2 rounded-lg focus:border-[#FCAD0B] focus:outline-none placeholder-gray-400"
                                 required
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="email" className="block text-[#052759] font-bold mb-1 text-sm">
+                            <label htmlFor="email" className="block text-[#052759] font-bold mb-1 text-xs">
                                 E-mail
                             </label>
                             <input
@@ -54,13 +54,13 @@ export default function FaleConosco() {
                                 value={formData.email}
                                 onChange={handleChange}
                                 placeholder="seu@email.com"
-                                className="w-full px-3 py-2 text-sm border-2 border-[#052759] rounded-lg focus:border-[#FCAD0B] focus:outline-none placeholder-gray-400"
+                                className="w-full px-3 py-2 text-xs border-2 rounded-lg focus:border-[#FCAD0B] focus:outline-none placeholder-gray-400"
                                 required
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="mensagem" className="block text-[#052759] font-bold mb-1 text-sm">
+                            <label htmlFor="mensagem" className="block text-[#052759] font-bold mb-1 text-xs">
                                 Mensagem
                             </label>
                             <textarea
@@ -69,51 +69,51 @@ export default function FaleConosco() {
                                 value={formData.mensagem}
                                 onChange={handleChange}
                                 placeholder="Deixe sua mensagem..."
-                                rows="4"
-                                className="w-full px-3 py-2 text-sm border-2 border-[#052759] rounded-lg focus:border-[#FCAD0B] focus:outline-none placeholder-gray-400 resize-none"
+                                rows="3"
+                                className="w-full px-3 py-2 text-xs border-2 rounded-lg focus:border-[#FCAD0B] focus:outline-none placeholder-gray-400 resize-none"
                                 required
                             />
                         </div>
 
                         <button
                             type="submit"
-                            className="w-full bg-[#052759] text-white font-bold py-2.5 rounded-lg hover:bg-[#023582] transition-colors text-base"
+                            className="w-full bg-[#052759] text-white font-bold py-2 rounded-lg hover:bg-[#023582] transition-colors text-sm"
                         >
                             Enviar Mensagem
                         </button>
                     </form>
                 </div>
 
-                <div className="lg:w-2/5 flex flex-col items-center justify-center text-center space-y-6">
-                    <h3 className="text-2xl font-bold text-white">ou nos encontre em...</h3>
+                <div className="lg:w-2/5 flex flex-col items-center justify-center text-center space-y-4">
+                    <h3 className="text-xl font-bold text-white">ou nos encontre em...</h3>
 
-                    <div className="flex gap-8 justify-center items-center">
+                    <div className="flex gap-6 justify-center items-center">
                         <a
                             href="https://instagram.com/abrigodogfeliz"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex flex-col items-center gap-2 hover:scale-110 transition-transform"
+                            className="flex flex-col items-center gap-1 hover:scale-110 transition-transform"
                         >
                             <img 
                                 src="/img-ig.png" 
                                 alt="Instagram" 
-                                className="w-36 h-36 object-contain" 
+                                className="w-28 h-28 object-contain" 
                             />
-                            <span className="text-white font-bold text-lg">Instagram</span>
+                            <span className="text-white font-bold text-base">Instagram</span>
                         </a>
 
                         <a
                             href="https://wa.me/5511999999999"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex flex-col items-center gap-2 hover:scale-110 transition-transform"
+                            className="flex flex-col items-center gap-1 hover:scale-110 transition-transform"
                         >
                             <img 
                                 src="/img-wpp.png" 
                                 alt="WhatsApp" 
-                                className="w-36 h-36 object-contain" 
+                                className="w-28 h-28 object-contain" 
                             />
-                            <span className="text-white font-bold text-lg">WhatsApp</span>
+                            <span className="text-white font-bold text-base">WhatsApp</span>
                         </a>
                     </div>
                 </div>
