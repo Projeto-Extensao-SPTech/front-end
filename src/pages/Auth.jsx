@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { AlertUtils } from "../js/utils/alertUtils";
 import Swal from 'sweetalert2'
 import axios from 'axios';
 
@@ -155,80 +156,49 @@ export default function Auth() {
 
 async function cadastroUser(formData) {
     try {
-        Swal.fire({
-            title: "Cadastrando usuário...",
-            text: "Aguarde um momento",
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            },
-        });
+
+        AlertUtils.loading("Cadastrando usuário...", "Aguarde um momento");
 
         const response = await axios.post('http://localhost:7000/auth/register', formData);
 
-        Swal.close();
+        AlertUtils.close();
 
-        await Swal.fire({
-            title: "Cadastro realizado!",
-            text: "Usuário criado com sucesso!",
-            icon: "success",
-            confirmButtonText: "Voltar para o cadastro"
-        });
-
+        await AlertUtils.success("Cadastro realizado com sucesso!", "Bem vindo ao abrigo dog feliz 🐶");
 
         return response.data;
 
     } catch (error) {
-        Swal.close();
-        console.error('Erro no cadastro:', error.response?.data || error.message);
+        AlertUtils.close();
 
-        Swal.fire({
-            title: "Erro ao cadastrar!",
-            text: error.response?.data?.message || "Verifique os dados e tente novamente.",
-            icon: "error",
-            confirmButtonText: "OK"
-        });
-        throw new Error(console.log('Erro no login:', error.response?.data || error.message)
+        await AlertUtils.error("Tentativa de cadastro falhou!", "Verifique os dados informados e tente novamente.");
+
+        throw new Error(console.log('Erro no cadastro:', error.response?.data || error.message)
         )
     }
 }
 
 async function loginUser(formData) {
     try {
-        Swal.fire({
-            title: "Carregando...",
-            text: "Carregando suas informações.",
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            },
-        });
+        AlertUtils.loading("Realizando login...", "Aguarde um momento");
+
         const response = await axios.post('http://localhost:7000/auth/login', {
             email: formData.email,
             senha: formData.senha
         });
 
-        Swal.close();
+        AlertUtils.close();
 
-        Swal.fire({
-            title: 'Login realizado com sucesso!',
-            text: 'Bem vindo ao abrigo dog feliz 🐶',
-            icon: 'success',
-            confirmButtonText: 'Continuar'
-        })
+        AlertUtils.success("Login realizado com sucesso!", "Bem vindo de volta ao abrigo dog feliz 🐶");
+
         console.log('Login OK:', response.data);
+
         return response.data;
 
 
     } catch (error) {
-        Swal.close();
+        AlertUtils.close();
 
-        Swal.fire({
-            title: 'Tentativa de login falhou!',
-            text: 'Email ou senha estão incorretos, tente novamente!',
-            icon: 'error',
-            confirmButtonText: 'Continuar'
-        })
+        await AlertUtils.error("Falha no login!", "Verifique suas credenciais e tente novamente.");
 
         throw new Error(console.log('Erro no login:', error.response?.data || error.message))
     }
