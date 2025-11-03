@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-
+import { AlertUtils } from "../js/utils/alertUtils";
+import axios from 'axios';
 import { buscarCep } from "../js/api/cepAPI"
-
-import {CardRecuperarSenha} from "../components/sections/CardRecuperarSenha"
-import {CardNovaSenha} from "../components/sections/CardNovaSenha"
-import {CardSenhaRedefinida} from "../components/sections/CardSenhaRedefinida"
-import {CardVerificarCodigo} from "../components/sections/CardVerificarCodigo"
+import { CardRecuperarSenha } from "../components/sections/CardRecuperarSenha"
+import { CardNovaSenha } from "../components/sections/CardNovaSenha"
+import { CardSenhaRedefinida } from "../components/sections/CardSenhaRedefinida"
+import { CardVerificarCodigo } from "../components/sections/CardVerificarCodigo"
 
 export default function Auth() {
+
+    const [cepCarregando, setCepCarregando] = useState(false);
+    const [cepErro, setCepErro] = useState(null);
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const initialMode = searchParams.get('mode') || 'login';
@@ -16,6 +19,7 @@ export default function Auth() {
     const [isLogin, setIsLogin] = useState(initialMode === 'login');
     const [cadastroStep, setCadastroStep] = useState(1);
     const [eyeOpen, setEyeOpen] = useState(false);
+
     const [formData, setFormData] = useState({
         nome: '',
         email: '',
@@ -30,20 +34,22 @@ export default function Auth() {
         complemento: ''
     });
 
-    const [etapaRecuperarSenha, setEtapaRecuperarSenha] = useState(0); 
+    const [isLoading, setIsLoading] = useState(false);
+
+    const [etapaRecuperarSenha, setEtapaRecuperarSenha] = useState(0);
     const [codigoVerificacao, setCodigoVerificacao] = useState('');
 
     const recuperacaoSenhaEnviar = async () => {
         const codigo = Math.floor(1000 + Math.random() * 9000).toString();
         setCodigoVerificacao(codigo);
-        const telefoneLimpo = formData.telefone.replace(/\D/g, ''); 
+        const telefoneLimpo = formData.telefone.replace(/\D/g, '');
         const numeroFormatado = `55${telefoneLimpo}`;
 
-        const requestBody ={
+        const requestBody = {
             number: numeroFormatado,
             text: `Abrigo Dog Feliz: Seu código de verificação é: ${codigo}`
         }
-        try{
+        try {
             const response = await fetch('http://localhost:7000/message/sendText/default', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -52,7 +58,7 @@ export default function Auth() {
 
             if (response.ok) {
                 console.log("Mensagem enviada com sucesso!");
-                setEtapaRecuperarSenha(2); 
+                setEtapaRecuperarSenha(2);
             } else {
                 const errorText = await response.text();
                 alert(`Erro ao enviar mensagem: ${errorText}`);
@@ -74,35 +80,25 @@ export default function Auth() {
         }
     }
 
-    const recuperacaoSenhaAtualizar = (novaSenha) =>{
+    const recuperacaoSenhaAtualizar = (novaSenha) => {
         console.log("Senha atualizada para:", novaSenha, "para o telefone:", formData.telefone);
         setEtapaRecuperarSenha(4);
     }
 
     const recuperacaoSenhaVoltarAoLogin = () => {
         setEtapaRecuperarSenha(0);
-        setFormData(prev => ({ ...prev, telefone: '' , senha: '',email: ''}));
+        setFormData(prev => ({ ...prev, telefone: '', senha: '', email: '' }));
         switchMode('login');
     }
 
     useEffect(() => {
-        setIsLogin(initialMode === 'login');
-        setCadastroStep(1); 
-    }, [initialMode]);
-
-
-    const [cepCarregando, setCepCarregando] = useState(false);
-    const [cepErro, setCepErro] = useState(null);
-
-    useEffect(() => {
-        const cepLimpo = formData.cep.replace(/\D/g, ''); 
-
+        const cepLimpo = formData.cep.replace(/\D/g, '');
         if (cepLimpo.length === 8) {
             const buscaEndereco = async () => {
                 setCepCarregando(true);
                 setCepErro(null);
                 try {
-                     const data = await buscarCep(cepLimpo); 
+                    const data = await buscarCep(cepLimpo);
 
                     setFormData(prev => ({
                         ...prev,
@@ -112,7 +108,7 @@ export default function Auth() {
                     }));
 
                 } catch (error) {
-                    setCepErro(error.message); 
+                    setCepErro(error.message);
                     setFormData(prev => ({
                         ...prev,
                         rua: '',
@@ -131,16 +127,86 @@ export default function Auth() {
 
     }, [formData.cep]);
 
+    useEffect(() => {
+        setIsLogin(initialMode === 'login');
+        setCadastroStep(1);
+    }, [initialMode]);
 
-    const handleSubmit = (e) => {
+    const validarCampos = () => {
+        if (formData.nome.length < 8 || formData.nome.length > 40) {
+            return { campo: "nome", mensagem: "O nome deve ter entre 8 e 40 caracteres." };
+        }
+
+        const cpfRegex = /^\d{11}$/;
+        if (!cpfRegex.test(formData.cpf)) {
+            return { campo: "cpf", mensagem: "O CPF deve conter exatamente 11 números." };
+        }
+
+        const telefoneRegex = /^\(?\d{2}\)?\s?9?\d{4}-?\d{4}$/;
+        if (!telefoneRegex.test(formData.telefone)) {
+            return { campo: "telefone", mensagem: "O telefone deve seguir o formato válido, ex: (11) 91234-5678." };
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailValido = emailRegex.test(formData.email) && formData.email.length >= 8 && formData.email.length <= 100;
+        if (!emailValido) {
+            return { campo: "email", mensagem: "O e-mail deve ter formato válido e entre 8 e 100 caracteres." };
+        }
+
+        if (formData.senha.length < 8) {
+            return { campo: "senha", mensagem: "A senha deve ter pelo menos 8 caracteres." };
+        }
+
+        const obrigatoriosEndereco = ['cep', 'estado', 'municipio', 'rua', 'numero'];
+        const faltandoEndereco = obrigatoriosEndereco.filter(campo => !formData[campo]);
+        if (faltandoEndereco.length > 0) {
+            return { campo: "endereco", mensagem: `Preencha todos os campos de endereço: ${faltandoEndereco.join(', ')}` };
+        }
+
+        return null;
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (!isLogin && cadastroStep === 1) {
+            const erro = validarCampos();
+            if (erro && ["nome", "email", "senha", "cpf", "telefone"].includes(erro.campo)) {
+                console.log(`Erro no campo ${erro.campo}: ${erro.mensagem}`);
+                AlertUtils.error(`Erro no campo ${erro.campo}`, erro.mensagem);
+                return;
+            }
+
             setCadastroStep(2);
             return;
         }
-        console.log('Dados do formulário completo:', formData);
-        navigate('/');
+
+        if (!isLogin && cadastroStep === 2) {
+            const erro = validarCampos();
+            if (erro) {
+                console.log(`Erro no campo ${erro.campo}: ${erro.mensagem}`);
+                AlertUtils.error(`Erro no campo ${erro.campo}`, erro.mensagem);
+                return;
+            }
+        }
+
+        setIsLoading(true);
+
+        try {
+            if (isLogin) {
+                await loginUser(formData);
+                navigate('/');
+            } else {
+                await cadastroUser(formData);
+                navigate('/auth?mode=login');
+            }
+        } catch (error) {
+            AlertUtils.error("Erro!", error.message || "Ocorreu um erro. Tente novamente.");
+        } finally {
+            setIsLoading(false);
+        }
     };
+
 
     const switchMode = (mode) => {
         setIsLogin(mode === 'login');
@@ -165,7 +231,7 @@ export default function Auth() {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
-    
+
     return (
         <div className="w-full h-[calc(100vh-96px)] flex flex-col bg-white overflow-hidden">
             <div className="flex-1 flex items-center justify-center relative overflow-hidden">
@@ -177,8 +243,8 @@ export default function Auth() {
                 <div className="w-full max-w-sm md:max-w-md lg:w-96 min-h-[450px] bg-white rounded-lg shadow-md flex flex-col items-center p-6 z-30 relative mx-4 border border-gray-200">
 
                     {etapaRecuperarSenha === 0 ? (
-                        <> 
-                            
+                        <>
+
                             <div className="flex justify-center mb-8 w-full">
                                 <button className={`${isLogin ? 'bg-[#052759] text-[#FCAD0B]' : 'bg-[#FCAD0B] text-[#052759] opacity-70'} cursor-pointer w-24 h-10 rounded-l-xl text-base hover:opacity-90 font-bold`} onClick={() => switchMode('login')}>
                                     Login
@@ -198,8 +264,6 @@ export default function Auth() {
                             )}
 
                             <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 items-center">
-
-                               
                                 {!isLogin && cadastroStep === 1 && (
                                     <>
                                         <Input name="nome" placeholder="Nome completo" icon="/icons/user-icon.svg" value={formData.nome} onChange={handleInputChange} />
@@ -211,7 +275,7 @@ export default function Auth() {
                                 )}
                                 {!isLogin && cadastroStep === 2 && (
                                     <>
-                                       
+
                                         <div className="w-full max-w-xs h-4 text-center -mt-2">
                                             {cepCarregando && <span className="text-sm text-gray-500">Buscando CEP...</span>}
                                             {cepErro && <span className="text-sm text-red-500">{cepErro}</span>}
@@ -230,22 +294,22 @@ export default function Auth() {
                                         <PasswordInput name="senha" placeholder="Senha" value={formData.senha} onChange={handleInputChange} eyeOpen={eyeOpen} setEyeOpen={setEyeOpen} />
                                     </>
                                 )}
-                               
+
                                 <button type="submit" className="w-full max-w-xs h-10 bg-[#052759] text-[#FCAD0B] rounded-xl hover:text-[#052759] hover:bg-[#FCAD0B] transition font-bold">
                                     {isLogin ? "Entrar" : cadastroStep === 1 ? "Continuar" : "Finalizar Cadastro"}
                                 </button>
                             </form>
 
                             {isLogin && (
-                                <span onClick={()=>setEtapaRecuperarSenha(1)}
-                                className="border-b border-b-black text-xs text-gray-400 hover:text-black self-end cursor-pointer transition mt-4">
+                                <span onClick={() => setEtapaRecuperarSenha(1)}
+                                    className="border-b border-b-black text-xs text-gray-400 hover:text-black self-end cursor-pointer transition mt-4">
                                     Esqueci minha senha
                                 </span>
                             )}
                         </>
 
                     ) : (
-                        
+
                         <> {/* Este lado já estava correto */}
                             {etapaRecuperarSenha === 1 && (
                                 <CardRecuperarSenha
@@ -274,7 +338,61 @@ export default function Auth() {
                 </div>
             </div>
         </div>
-    )}
+    );
+}
+
+async function cadastroUser(formData) {
+    AlertUtils.loading("Cadastrando usuário...", "Aguarde um momento");
+    try {
+        const requestBody = {
+            name: formData.nome,
+            document: formData.cpf,
+            phone: formData.telefone,
+            address: {
+                zipCode: formData.cep,
+                state: formData.estado,
+                city: formData.municipio,
+                street: formData.rua,
+                complement: formData.complemento,
+                number: formData.numero,
+                country: "Brasil"
+            },
+            email: formData.email,
+            password: formData.senha
+        };
+
+        console.log("Dados envviados: ", JSON.stringify(requestBody))
+
+        const response = await axios.post('http://localhost:7000/auth/register', requestBody);
+        AlertUtils.close();
+        await AlertUtils.success("Cadastro realizado com sucesso!", "Bem-vindo ao abrigo dog feliz 🐶");
+        return response.data;
+    } catch (error) {
+        AlertUtils.close();
+        await AlertUtils.error("Tentativa de cadastro falhou!", "Verifique os dados informados e tente novamente.");
+        throw new Error(error.message);
+    }
+}
+
+async function loginUser(formData) {
+    AlertUtils.loading("Realizando login...", "Aguarde um momento");
+    try {
+        const response = await axios.post('http://localhost:7000/auth/login', {
+            email: formData.email,
+            password: formData.senha
+        });
+
+        AlertUtils.close();
+        AlertUtils.success("Login realizado com sucesso!", "Bem vindo de volta 🐾");
+        return response.data;
+    } catch (error) {
+        AlertUtils.close();
+        await AlertUtils.error("Falha no login!", "Verifique suas credenciais e tente novamente.");
+        throw new Error(error.message);
+    }
+}
+
+
 function Input({ name, placeholder, icon, value, onChange, type = "text" }) {
     return (
         <div className="relative w-full max-w-xs">

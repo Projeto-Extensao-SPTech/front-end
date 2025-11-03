@@ -204,7 +204,7 @@ export default function CadastroFeiraAdocao() {
         <h1 className="text-3xl font-black mb-3 text-center text-[#052759]">
           Cadastrar Feira de Adoção
         </h1>
-        <h2 className="text-base font-bold mb-6 text-center text-[#0c3779]">
+        <h2 className="font-bold mb-6 text-center text-[#052759]">
           Cadastre aqui as Feiras de Adoção que irão ocorrer nos próximos dias!
         </h2>
       </div>

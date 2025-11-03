@@ -24,3 +24,7 @@
         scroll-behavior: smooth;
     }
 }
+
+.no-native-eye::-webkit-textfield-decoration-container {
+  display: none !important;
+}
