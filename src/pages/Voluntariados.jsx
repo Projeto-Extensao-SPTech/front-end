@@ -102,7 +102,7 @@ export default function Voluntariados() {
     return (
         <div className='mb-12'>
             {/* botão de preenchimento rápido para testes */}
-            <div className="max-w-7xl mx-auto px-8 mb-4">
+            {/* <div className="max-w-7xl mx-auto px-8 mb-4">
                 <button
                     type="button"
                     onClick={fillExample}
@@ -110,14 +110,14 @@ export default function Voluntariados() {
                 >
                     Preencher exemplo
                 </button>
-            </div>
+            </div> */}
             <section id="voluntariados" className="py-8 max-w-full">
                 <CalendarioStyles />
 
                 <h1 className="text-3xl font-black mb-3 text-center text-[#052759]">
                     Cadastro de Voluntários
                 </h1>
-                <h2 className="text-base font-bold mb-6 text-center text-black">
+                <h2 className="font-bold mb-6 text-center text-[#052759]">
                     Faça parte de uma causa muito importante e ajude um "aumigo" a encontrar um lar!
                 </h2>
 

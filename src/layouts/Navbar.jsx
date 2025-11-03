@@ -53,11 +53,11 @@ export default function Navbar({ variant = 'blue' }) {
                         )}
                     </Link>
                     <Link
-                        to="/feirasdeadocao"
+                        to="/feiras-de-adocao"
                         className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
                     >
                         FEIRAS DE ADOÇÃO
-                        {location.pathname === '/feirasdeadocao' && (
+                        {location.pathname === '/feiras-de-adocao' && (
                             <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
                         )}
                     </Link>
@@ -80,13 +80,13 @@ export default function Navbar({ variant = 'blue' }) {
                         )}
                     </Link>
                     <Link
-                        to="/patrocinadores"
-                        className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
+                        to="/cadastro-notificacao"
+                        className={`bg-[#FCAD0B] cursor-pointer relative p-2 rounded-md hover:scale-105 transition-all duration-300 ease-in-out text-[#052759] font-bold`}
                     >
-                        PATROCINADORES
-                        {location.pathname === '/patrocinadores' && (
+                        CADASTROS
+                        {/* {location.pathname === '/cadastro-notificacao' && (
                             <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
-                        )}
+                        )} */}
                     </Link>
                 </nav>
 
@@ -149,21 +149,24 @@ export default function Navbar({ variant = 'blue' }) {
                     )}
                 </Link>
                 <Link
-                    to="/feirasdeadocao"
+                    to="/feiras-de-adocao"
                     onClick={() => setMenu(false)}
                     className="hover:scale-105 transition-all duration-300 font-bold relative"
                 >
                     FEIRAS DE ADOÇÃO
-                    {location.pathname === '/feirasdeadocao' && (
+                    {location.pathname === '/feiras-de-adocao' && (
                         <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
                     )}
                 </Link>
                 <Link
-                    to="/"
+                    to="/doacao"
                     onClick={() => setMenu(false)}
                     className="hover:scale-105 transition-all duration-300 font-bold"
                 >
                     DOAÇÃO
+                    {location.pathname === '/doacao' && (
+                        <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                    )}
                 </Link>
                 <Link
                     to="/voluntariados"
@@ -176,12 +179,12 @@ export default function Navbar({ variant = 'blue' }) {
                     )}
                 </Link>
                 <Link
-                    to="/patrocinadores"
+                    to="/cadastro-notificacao"
                     onClick={() => setMenu(false)}
                     className="hover:scale-105 transition-all duration-300 font-bold relative"
                 >
-                    PATROCINADORES
-                    {location.pathname === '/patrocinadores' && (
+                    CADASTROS
+                    {location.pathname === '/cadastro-notificacao' && (
                         <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
                     )}
                 </Link>

@@ -3,12 +3,15 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { AlertUtils } from "../js/utils/alertUtils";
 import axios from 'axios';
 import { buscarCep } from "../js/api/cepAPI"
-import {CardRecuperarSenha} from "../components/sections/CardRecuperarSenha"
-import {CardNovaSenha} from "../components/sections/CardNovaSenha"
-import {CardSenhaRedefinida} from "../components/sections/CardSenhaRedefinida"
-import {CardVerificarCodigo} from "../components/sections/CardVerificarCodigo"
+import { CardRecuperarSenha } from "../components/sections/CardRecuperarSenha"
+import { CardNovaSenha } from "../components/sections/CardNovaSenha"
+import { CardSenhaRedefinida } from "../components/sections/CardSenhaRedefinida"
+import { CardVerificarCodigo } from "../components/sections/CardVerificarCodigo"
 
 export default function Auth() {
+
+    const [cepCarregando, setCepCarregando] = useState(false);
+    const [cepErro, setCepErro] = useState(null);
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const initialMode = searchParams.get('mode') || 'login';
@@ -42,11 +45,11 @@ export default function Auth() {
         const telefoneLimpo = formData.telefone.replace(/\D/g, '');
         const numeroFormatado = `55${telefoneLimpo}`;
 
-        const requestBody ={
+        const requestBody = {
             number: numeroFormatado,
             text: `Abrigo Dog Feliz: Seu código de verificação é: ${codigo}`
         }
-        try{
+        try {
             const response = await fetch('http://localhost:7000/message/sendText/default', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -77,16 +80,52 @@ export default function Auth() {
         }
     }
 
-    const recuperacaoSenhaAtualizar = (novaSenha) =>{
+    const recuperacaoSenhaAtualizar = (novaSenha) => {
         console.log("Senha atualizada para:", novaSenha, "para o telefone:", formData.telefone);
         setEtapaRecuperarSenha(4);
     }
 
     const recuperacaoSenhaVoltarAoLogin = () => {
         setEtapaRecuperarSenha(0);
-        setFormData(prev => ({ ...prev, telefone: '' , senha: '',email: ''}));
+        setFormData(prev => ({ ...prev, telefone: '', senha: '', email: '' }));
         switchMode('login');
     }
+
+    useEffect(() => {
+        const cepLimpo = formData.cep.replace(/\D/g, '');
+        if (cepLimpo.length === 8) {
+            const buscaEndereco = async () => {
+                setCepCarregando(true);
+                setCepErro(null);
+                try {
+                    const data = await buscarCep(cepLimpo);
+
+                    setFormData(prev => ({
+                        ...prev,
+                        rua: data.logradouro,
+                        municipio: data.localidade,
+                        estado: data.uf
+                    }));
+
+                } catch (error) {
+                    setCepErro(error.message);
+                    setFormData(prev => ({
+                        ...prev,
+                        rua: '',
+                        municipio: '',
+                        estado: ''
+                    }));
+                } finally {
+                    setCepCarregando(false);
+                }
+            };
+
+            buscaEndereco();
+        } else {
+            setCepErro(null);
+        }
+
+    }, [formData.cep]);
 
     useEffect(() => {
         setIsLogin(initialMode === 'login');
@@ -128,49 +167,6 @@ export default function Auth() {
     };
 
     const handleSubmit = async (e) => {
-
-    const [cepCarregando, setCepCarregando] = useState(false);
-    const [cepErro, setCepErro] = useState(null);
-
-    useEffect(() => {
-        const cepLimpo = formData.cep.replace(/\D/g, '');
-
-        if (cepLimpo.length === 8) {
-            const buscaEndereco = async () => {
-                setCepCarregando(true);
-                setCepErro(null);
-                try {
-                     const data = await buscarCep(cepLimpo);
-
-                    setFormData(prev => ({
-                        ...prev,
-                        rua: data.logradouro,
-                        municipio: data.localidade,
-                        estado: data.uf
-                    }));
-
-                } catch (error) {
-                    setCepErro(error.message);
-                    setFormData(prev => ({
-                        ...prev,
-                        rua: '',
-                        municipio: '',
-                        estado: ''
-                    }));
-                } finally {
-                    setCepCarregando(false);
-                }
-            };
-
-            buscaEndereco();
-        } else {
-            setCepErro(null);
-        }
-
-    }, [formData.cep]);
-
-
-    const handleSubmit = (e) => {
         e.preventDefault();
 
         if (!isLogin && cadastroStep === 1) {
@@ -258,14 +254,14 @@ export default function Auth() {
                                 </button>
                             </div>
 
-                    {!isLogin && (
-                        <div className="flex justify-center mb-4 w-full">
-                            <div className="flex items-center space-x-2">
-                                <div className={`w-3 h-3 rounded-full ${cadastroStep === 1 ? 'bg-[#052759]' : 'bg-gray-300'}`}></div>
-                                <div className={`w-3 h-3 rounded-full ${cadastroStep === 2 ? 'bg-[#052759]' : 'bg-gray-300'}`}></div>
-                            </div>
-                        </div>
-                    )}
+                            {!isLogin && (
+                                <div className="flex justify-center mb-4 w-full">
+                                    <div className="flex items-center space-x-2">
+                                        <div className={`w-3 h-3 rounded-full ${cadastroStep === 1 ? 'bg-[#052759]' : 'bg-gray-300'}`}></div>
+                                        <div className={`w-3 h-3 rounded-full ${cadastroStep === 2 ? 'bg-[#052759]' : 'bg-gray-300'}`}></div>
+                                    </div>
+                                </div>
+                            )}
 
                             <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 items-center">
                                 {!isLogin && cadastroStep === 1 && (
@@ -305,8 +301,8 @@ export default function Auth() {
                             </form>
 
                             {isLogin && (
-                                <span onClick={()=>setEtapaRecuperarSenha(1)}
-                                className="border-b border-b-black text-xs text-gray-400 hover:text-black self-end cursor-pointer transition mt-4">
+                                <span onClick={() => setEtapaRecuperarSenha(1)}
+                                    className="border-b border-b-black text-xs text-gray-400 hover:text-black self-end cursor-pointer transition mt-4">
                                     Esqueci minha senha
                                 </span>
                             )}
@@ -396,7 +392,7 @@ async function loginUser(formData) {
     }
 }
 
-    )}
+
 function Input({ name, placeholder, icon, value, onChange, type = "text" }) {
     return (
         <div className="relative w-full max-w-xs">

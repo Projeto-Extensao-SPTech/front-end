@@ -1,8 +1,8 @@
-import NavbarSite from '../layouts/Navbar'
-
-// export function Doacao({ onNavigateToLogin, onNavigateToCadastro }) {
+import { useNavigate} from "react-router-dom"
 
 export function Doacao() {
+    const navigate = useNavigate()
+
     return (
         // Wrapper principal da página
         <div className="min-h-screen bg-gray-100 text-gray-800">
@@ -17,7 +17,7 @@ export function Doacao() {
                 {/* === Seção 1: Cabeçalho "Doação" === */}
                 <header className="text-center mb-2">
                     <h3 className="text-4xl font-bold text-[#052759] mb-2">Doação</h3>
-                    <p className="text-lg text-gray-600">Realize uma doação para ajudar a instituição com nossos "aumigos"</p>
+                    <p className="text-lg text-[#052759]">Realize uma doação para ajudar a instituição com nossos "aumigos"</p>
                 </header>
 
                 {/* === Seção 2: Card Principal "Quero doar livremente!" === */}
@@ -96,7 +96,7 @@ export function Doacao() {
                                 <p className="text-sm text-gray-600 mb-6 h-24">
                                     Ajude a cuidar de mais de 100 pets que precisam de abrigo, alimento e amor. Sua contribuição garante vacinas, remédios e esperança.
                                 </p>
-                                <button className='bg-[#052759] text-white px-8 py-2 rounded-lg font-semibold hover:bg-blue-800 transition-colors'>
+                                <button onClick={() => navigate('/patrocinadores')} className='bg-[#052759] text-white px-8 py-2 rounded-lg font-semibold hover:bg-blue-800 transition-colors'>
                                     Saiba mais
                                 </button>
                             </div>
@@ -112,7 +112,7 @@ export function Doacao() {
                                 <p className="text-sm text-gray-600 mb-6 h-24">
                                     Cada doação ajuda nossos pets a terem comida, cuidados e um lar seguro. Com pouco, você pode levar muito amor e esperança para quem mais precisa.
                                 </p>
-                                <button className='bg-[#052759] text-white px-8 py-2 rounded-lg font-semibold hover:bg-blue-800 transition-colors'>
+                                <button onClick={() => navigate('/doacao-livre')} className='bg-[#052759] text-white px-8 py-2 rounded-lg font-semibold hover:bg-blue-800 transition-colors'>
                                     Saiba mais
                                 </button>
                             </div>
@@ -128,7 +128,7 @@ export function Doacao() {
                                 <p className="text-sm text-gray-600 mb-6 h-24">
                                     Doe um pouco do seu tempo e o fruto do seu amor aos nossos pets. Ajude com os cuidados, limpeza, eventos e na rotina do abrigo.
                                 </p>
-                                <button className='bg-[#052759] text-white px-8 py-2 rounded-lg font-semibold hover:bg-blue-800 transition-colors'>
+                                <button onClick={() => navigate('/voluntariados')} className='bg-[#052759] text-white px-8 py-2 rounded-lg font-semibold hover:bg-blue-800 transition-colors'>
                                     Saiba mais
                                 </button>
                             </div>
