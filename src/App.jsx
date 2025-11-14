@@ -6,12 +6,10 @@ import Auth from './pages/Auth';
 import Voluntariados from './pages/Voluntariados';
 import Patrocinadores from './pages/Patrocinadores';
 import FeirasDeAdocao from './pages/FeirasDeAdocao';
-import CadastroNotificacao from './pages/CadastroNotificacao';
 import DoacaoLivre from './pages/DoacaoLivre';
-
 import {Doacao} from './pages/Doacao';
-
-
+import CadastroFeiraDeAdocao from './pages/CadastroFeiraDeAdocao';
+import CadastroNotificacao from './pages/CadastroNotificacao';
 
 function AppContent() {
     const location = useLocation();
@@ -39,6 +37,7 @@ function AppContent() {
                     <Route path="/doacao-livre" element={<DoacaoLivre />} />
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/feiras-de-adocao" element={<FeirasDeAdocao />} />
+                    <Route path="/cadastro-feira-de-adocao" element={<CadastroFeiraDeAdocao />} />
                     <Route path="/cadastro-notificacao" element={<CadastroNotificacao />} />
                     <Route path="/doacao" element={<Doacao />} />
                     
