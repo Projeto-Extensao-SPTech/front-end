@@ -1,10 +1,10 @@
 export default function Adotados() {
     const pets = [
-        '/img-adotado1.png',
-        '/img-adotado2.png',
-        '/img-adotado3.png',
-        '/img-adotado4.png',
-        '/img-adotado5.png'
+        '/img-petfeira1.png',
+        '/img-petfeira2.png',
+        '/img-petfeira3.png',
+        '/img-petfeira4.png',
+        '/img-petfeira5.png'
     ]
 
     return (
@@ -17,7 +17,7 @@ export default function Adotados() {
                             key={index}
                             src={pet}
                             alt={`Pet adotado ${index + 1}`}
-                            className={`w-28 h-28 lg:w-32 lg:h-32 object-cover rounded-xl transition-transform hover:scale-110 ${index % 2 === 0 ? 'lg:translate-y-6' : 'lg:-translate-y-6'
+                            className={`w-28 h-28 lg:w-32 lg:h-32 object-cover rounded-xl transition-transform hover:scale-110 shadow-2xl ${index % 2 === 0 ? 'lg:translate-y-8' : 'lg:-translate-y-8'
                                 }`}
                         />
                     ))}
