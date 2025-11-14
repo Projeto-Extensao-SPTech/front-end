@@ -2,115 +2,89 @@ import { useState, useEffect } from 'react';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import { Portuguese } from 'flatpickr/dist/l10n/pt.js';
-import { FaRegClock, FaCalendarAlt, FaMapPin, FaCity, FaHome, FaGlobeAmericas, FaTimes } from 'react-icons/fa';
+import { FaCalendarAlt, FaBell, FaEnvelope, FaClock, FaPlus, FaTrash } from 'react-icons/fa';
 import Button from '../components/ui/Button'
 
 export default function CadastroNotificacao() {
-    const [formData, setFormData] = useState({
-        hora: '',
+    const [form, setForm] = useState({
+        tipo: 'feira-adocao',
         data: '',
-        cep: '',
-        estado: '',
-        cidade: '',
-        rua: '',
-        numero: '',
-        fotos: []
+        mensagem: ''
     });
 
+    const [notificacoes, setNotificacoes] = useState([
+        { id: 1, quantidade: '1', unidade: 'dias' }
+    ]);
 
     useEffect(() => {
-        const fp = flatpickr("#calendario", {
+        const calendario = flatpickr("#data-evento", {
             locale: Portuguese,
             dateFormat: "d/m/Y",
             minDate: "today",
             disableMobile: true,
-            onChange: (dates) => {
-                const dataFormatada = dates.length > 0 ? flatpickr.formatDate(dates[0], "d/m/Y") : '';
-                setFormData(prev => ({ ...prev, data: dataFormatada }));
+            onChange: (datas) => {
+                const dataFormatada = datas.length > 0 ? flatpickr.formatDate(datas[0], "d/m/Y") : '';
+                setForm(prev => ({ ...prev, data: dataFormatada }));
             },
         });
 
-        return () => fp.destroy();
+        return () => calendario.destroy();
     }, []);
 
-    const handleChange = (e) => {
-        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const atualizarForm = (e) => {
+        setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
-    const handleFotos = (e) => {
-        const novasFotos = Array.from(e.target.files);
-        setFormData(prev => ({ ...prev, fotos: [...prev.fotos, ...novasFotos] }));
-        e.target.value = '';
+    const atualizarNotificacao = (id, campo, valor) => {
+        setNotificacoes(prev =>
+            prev.map(notif =>
+                notif.id === id ? { ...notif, [campo]: valor } : notif
+            )
+        );
     };
 
-    const removerFoto = (index) => {
-        setFormData(prev => ({
-            ...prev,
-            fotos: prev.fotos.filter((_, i) => i !== index)
-        }));
+    const adicionarNotificacao = () => {
+        const novoId = Math.max(...notificacoes.map(n => n.id), 0) + 1;
+        setNotificacoes(prev => [...prev, { id: novoId, quantidade: '1', unidade: 'dias' }]);
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        const dadosParaEnviar = {
-            ...formData,
-            fotos: formData.fotos
-        };
-
-        try {
-            const response = await fetch('/api/feiras-adocao', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(dadosParaEnviar)
-            });
-
-            if (response.ok) {
-                alert('Feira cadastrada com sucesso!');
-                setFormData({
-                    hora: '', data: '', cep: '', estado: '', cidade: '', rua: '', numero: '', fotos: []
-                });
-            } else {
-                alert('Erro ao cadastrar feira');
-            }
-        } catch (error) {
-            console.error('Erro:', error);
-            alert('Erro de conexão');
+    const removerNotificacao = (id) => {
+        if (notificacoes.length > 1) {
+            setNotificacoes(prev => prev.filter(notif => notif.id !== id));
         }
     };
 
-    const FotoPreview = ({ foto, index }) => (
-        <div className="relative group">
-            <img
-                src={URL.createObjectURL(foto)}
-                alt={`Preview ${index + 1}`}
-                className="w-12 h-12 object-cover rounded-lg border-2 border-[#052759]"
-            />
-            <button
-                type="button"
-                onClick={() => removerFoto(index)}
-                className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-                <FaTimes className="text-xs" />
-            </button>
-        </div>
-    );
+    const enviarFormulario = async (e) => {
+        e.preventDefault();
 
-    const InputComIcone = ({ icon: Icon, name, placeholder, type = "text" }) => (
-        <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden">
+        const dados = {
+            ...form,
+            notificacoes: notificacoes
+        };
+
+        console.log('Dados para enviar:', dados);
+    };
+
+    const SelectComIcone = ({ icone: Icone, nome, opcoes, valor, onChange }) => (
+        <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden relative">
             <span className="p-3 text-[#052759]">
-                <Icon className="text-lg" />
+                <Icone className="text-lg" />
             </span>
-            <input
-                type={type}
-                name={name}
-                placeholder={placeholder}
-                className="w-full pr-3 py-2 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white"
-                value={formData[name]}
-                onChange={handleChange}
-            />
+            <select
+                name={nome}
+                className="w-full pr-10 py-3 text-sm text-[#052759] focus:outline-none font-medium pl-3 bg-white appearance-none cursor-pointer"
+                value={valor}
+                onChange={onChange}
+            >
+                {opcoes.map(opcao => (
+                    <option key={opcao.value} value={opcao.value}>
+                        {opcao.label}
+                    </option>
+                ))}
+            </select>
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <div className="w-2 h-2 border-r-2 border-b-2 border-[#052759] rotate-45"></div>
+            </div>
         </div>
     );
 
@@ -119,107 +93,146 @@ export default function CadastroNotificacao() {
 
             <div className="text-center mb-8">
                 <h1 className="text-2xl font-black text-[#052759] mb-2">
-                    Cadastrar Feira de Adoção
+                    Cadastrar Notificação
                 </h1>
                 <p className="text-[#052759] text-sm">
-                    Cadastre aqui as Feiras de Adoção que irão ocorrer nos próximos dias!
+                    Existe algum evento ou necessidade? Notifique aqui seus usuários cadastrados!
                 </p>
             </div>
 
-            <div className="w-11/12 max-w-4xl bg-[#052759] p-6 rounded-xl shadow-lg relative">
+            <div className="w-11/12 max-w-4xl bg-[#052759] p-8 rounded-xl shadow-lg relative">
 
-                <form onSubmit={handleSubmit} className="grid lg:grid-cols-2 gap-6">
+                <form onSubmit={enviarFormulario} className="grid lg:grid-cols-2 gap-6">
 
                     <div className="space-y-4">
 
-                        <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden">
-                            <span className="p-3 text-[#052759]">
-                                <FaRegClock className="text-lg" />
-                            </span>
-                            <div className="flex items-center w-full pr-3 py-2">
-                                <span className="text-sm text-[#052759] font-medium pl-3 whitespace-nowrap">
-                                    Horário da Feira:
-                                </span>
-                                <input
-                                    type="time"
-                                    name="hora"
-                                    className="ml-2 text-sm text-[#052759] focus:outline-none font-medium bg-white flex-1"
-                                    value={formData.hora}
-                                    onChange={handleChange}
-                                />
-                            </div>
-                        </div>
+                        <SelectComIcone
+                            icone={FaBell}
+                            nome="tipo"
+                            valor={form.tipo}
+                            onChange={atualizarForm}
+                            opcoes={[
+                                { value: 'feira-adocao', label: 'Feira de Adoção' },
+                                { value: 'evento-especial', label: 'Evento Especial' }
+                            ]}
+                        />
 
                         <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white">
                             <span className="p-3 text-[#052759]">
                                 <FaCalendarAlt className="text-lg" />
                             </span>
                             <input
-                                id="calendario"
+                                id="data-evento"
                                 name="data"
-                                placeholder="Data da Feira:"
-                                className="w-full pr-3 py-2 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white"
-                                value={formData.data}
-                                onChange={handleChange}
+                                placeholder="Data do Evento:"
+                                className="w-full pr-3 py-3 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white cursor-pointer"
+                                value={form.data}
+                                onChange={atualizarForm}
                             />
                         </div>
 
-                        <div className="bg-white rounded-2xl p-4 border-2 border-[#052759]">
-                            <div className="text-center">
-                                <label htmlFor="fotos" className="cursor-pointer w-48 h-40 bg-gray-100 rounded-2xl flex flex-col items-center justify-center hover:bg-gray-200 transition mx-auto">
-                                    {formData.fotos.length > 0 ? (
-                                        <>
-                                            <img src="/img-doacao-livre-upload-photo.png" alt="Câmera" className="w-16 h-16 mb-2" />
-                                            <span className="text-[#052759] font-bold text-xs">Adicionar mais fotos</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <img src="/img-doacao-livre-upload-photo.png" alt="Câmera" className="w-16 h-16 mb-4" />
-                                            <span className="text-[#052759] font-bold text-xs">Clique para selecionar</span>
-                                        </>
-                                    )}
-                                </label>
-                                <input
-                                    id="fotos"
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleFotos}
-                                    className="hidden"
-                                    multiple
-                                />
-                            </div>
-
-                            {formData.fotos.length > 0 && (
-                                <div className="mt-4">
-                                    <p className="text-[#052759] text-xs text-center mb-2">
-                                        {formData.fotos.length} foto(s) selecionada(s)
-                                    </p>
-                                    <div className="grid grid-cols-4 gap-2 max-h-24 overflow-y-auto p-2 border border-gray-300 rounded-lg">
-                                        {formData.fotos.map((foto, index) => (
-                                            <FotoPreview key={index} foto={foto} index={index} />
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            <p className="text-[#052759] text-xs text-center mt-3">
-                                *Coloque aqui as fotos dos pets presentes na feira!
-                            </p>
+                        <div className="flex items-start border-2 border-[#052759] rounded-lg bg-white min-h-[200px]">
+                            <span className="p-3 text-[#052759] self-start">
+                                <FaEnvelope className="text-lg" />
+                            </span>
+                            <textarea
+                                name="mensagem"
+                                placeholder="Mensagem (opcional)..."
+                                className="w-full pr-3 py-3 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white resize-none"
+                                value={form.mensagem}
+                                onChange={atualizarForm}
+                                rows={3}
+                            />
                         </div>
                     </div>
 
                     <div className="space-y-4">
-                        <InputComIcone icon={FaMapPin} name="cep" placeholder="CEP:" />
-                        <InputComIcone icon={FaGlobeAmericas} name="estado" placeholder="Estado:" />
-                        <InputComIcone icon={FaCity} name="cidade" placeholder="Cidade:" />
-                        <InputComIcone icon={FaHome} name="rua" placeholder="Rua:" />
-                        <InputComIcone icon={FaHome} name="numero" placeholder="Número:" />
 
-                        <Button
-                            className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#FCAD0B] hover:bg-[#052759] hover:[#052759] text-sm mx-auto w-full py-3"
-                        >
-                            Cadastrar Feira
-                        </Button>
+                        <div className="bg-white rounded-xl p-4 border-2 border-[#052759]">
+
+                            <div className="flex items-center justify-between mb-3">
+                                <h3 className="text-[#052759] font-bold flex items-center gap-2">
+                                    <FaClock className="text-[#FCAD0B]" />
+                                    Agendar Notificações
+                                </h3>
+                                <button
+                                    type="button"
+                                    onClick={adicionarNotificacao}
+                                    className="flex items-center gap-2 bg-[#FCAD0B] text-[#052759] px-3 py-2 rounded-lg hover:bg-[#FFD166] transition-colors font-bold text-sm"
+                                >
+                                    <FaPlus className="text-xs" />
+                                    Adicionar
+                                </button>
+                            </div>
+
+                            <p className="text-xs text-[#525252] mb-3">Enviada com antecedência de: </p>
+
+                            <div className="space-y-3">
+                                {notificacoes.map((notif) => (
+                                    <div key={notif.id} className="bg-[#F8F9FA] rounded-lg p-3 border border-[#052759]/20 relative group">
+
+                                        {notificacoes.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => removerNotificacao(notif.id)}
+                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <FaTrash className="text-xs" />
+                                            </button>
+                                        )}
+
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex-1">
+                                                <div className="flex items-center border border-[#052759] rounded-lg bg-white overflow-hidden">
+                                                    <select
+                                                        name={`quantidade-${notif.id}`}
+                                                        className="w-full px-3 py-2 text-sm text-[#052759] focus:outline-none font-medium bg-white appearance-none cursor-pointer"
+                                                        value={notif.quantidade}
+                                                        onChange={(e) => atualizarNotificacao(notif.id, 'quantidade', e.target.value)}
+                                                    >
+                                                        <option value="1">1</option>
+                                                        <option value="2">2</option>
+                                                        <option value="3">3</option>
+                                                        <option value="5">5</option>
+                                                        <option value="7">7</option>
+                                                    </select>
+                                                    <div className="pr-2 pointer-events-none">
+                                                        <div className="w-1.5 h-1.5 border-r border-b border-[#052759] rotate-45"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="flex items-center border border-[#052759] rounded-lg bg-white overflow-hidden">
+                                                    <select
+                                                        name={`unidade-${notif.id}`}
+                                                        className="w-full px-3 py-2 text-sm text-[#052759] focus:outline-none font-medium bg-white appearance-none cursor-pointer"
+                                                        value={notif.unidade}
+                                                        onChange={(e) => atualizarNotificacao(notif.id, 'unidade', e.target.value)}
+                                                    >
+                                                        <option value="horas">horas</option>
+                                                        <option value="dias">dias</option>
+                                                        <option value="semanas">semanas</option>
+                                                        <option value="meses">meses</option>
+                                                    </select>
+                                                    <div className="pr-2 pointer-events-none">
+                                                        <div className="w-1.5 h-1.5 border-r border-b border-[#052759] rotate-45"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="mt-4">
+                                <Button
+                                    type="submit"
+                                    className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#FCAD0B] hover:bg-[#052759] hover:[#052759] text-sm mx-auto w-full py-3"
+                                >
+                                    Agendar Notificações
+                                </Button>
+                            </div>
+                        </div>
                     </div>
                 </form>
 
