@@ -7,7 +7,7 @@ import Voluntariados from './pages/Voluntariados';
 import Patrocinadores from './pages/Patrocinadores';
 import FeirasDeAdocao from './pages/FeirasDeAdocao';
 import DoacaoLivre from './pages/DoacaoLivre';
-import {Doacao} from './pages/Doacao';
+import Ajudar from './pages/Ajudar';
 import CadastroFeiraDeAdocao from './pages/CadastroFeiraDeAdocao';
 import CadastroNotificacao from './pages/CadastroNotificacao';
 
@@ -39,12 +39,9 @@ function AppContent() {
                     <Route path="/feiras-de-adocao" element={<FeirasDeAdocao />} />
                     <Route path="/cadastro-feira-de-adocao" element={<CadastroFeiraDeAdocao />} />
                     <Route path="/cadastro-notificacao" element={<CadastroNotificacao />} />
-                    <Route path="/doacao" element={<Doacao />} />
-                    
+                    <Route path="/ajudar" element={<Ajudar />} />
                 </Routes>
             </div>
-        
-
         </>
     );
 }
@@ -54,7 +51,6 @@ function App() {
         <BrowserRouter>
             <AppContent />
         </BrowserRouter>
-
     );
 }
 
