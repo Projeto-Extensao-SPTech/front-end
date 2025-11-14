@@ -27,12 +27,12 @@ export default function Navbar({ variant = 'blue' }) {
 
     return (
         <div className="drop-shadow-[0_4px_8px_rgba(0,0,0,0.25)] relative z-50 w-full" style={{ fontFamily: 'Inter, sans-serif' }}>
-            {/* NAVBAR CONTAINER */}
+
             <div
                 className={`flex flex-row justify-around ${s.bgColor} ${s.textColor} items-center`}
                 style={{ height: '96px' }}
             >
-                {/* LOGO */}
+
                 <div className="flex items-center h-full pl-5">
                     <div
                         className="cursor-pointer h-full flex items-center"
@@ -42,7 +42,6 @@ export default function Navbar({ variant = 'blue' }) {
                     </div>
                 </div>
 
-                {/* MENU DESKTOP */}
                 <nav className="hidden lg:flex flex-row items-center gap-14 h-full text-[14px] font-bold tracking-tightest leading-tight">
                     <Link
                         to="/"
@@ -62,21 +61,22 @@ export default function Navbar({ variant = 'blue' }) {
                             <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
                         )}
                     </Link>
-                    <Link
-                        to="/doacao"
-                        className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
-                    >
-                        DOAÇÃO
-                        {location.pathname === '/doacao' && (
-                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
-                        )}
-                    </Link>
+
                     <Link
                         to="/voluntariados"
                         className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
                     >
                         VOLUNTARIADO
                         {location.pathname === '/voluntariados' && (
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                        )}
+                    </Link>
+                    <Link
+                        to="/ajudar"
+                        className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
+                    >
+                        AJUDAR
+                        {location.pathname === '/ajudar' && (
                             <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
                         )}
                     </Link>
@@ -119,7 +119,6 @@ export default function Navbar({ variant = 'blue' }) {
                     </div>
                 </nav>
 
-                {/* BOTOES LADO DIREITO */}
                 <div className="hidden lg:flex flex-row items-center h-full mr-0">
                     <button
                         className="h-32 cursor-pointer px-4 bg-[#052759] hover:brightness-110 hover:scale-105 transition-all duration-300 ease-in-out flex items-center justify-center rounded-l-xl shadow-xl"
@@ -147,7 +146,6 @@ export default function Navbar({ variant = 'blue' }) {
                     </button>
                 </div>
 
-                {/* MENU MOBILE */}
                 <div
                     className="lg:hidden flex items-center p-2 cursor-pointer"
                     onClick={handleChange}
@@ -159,7 +157,6 @@ export default function Navbar({ variant = 'blue' }) {
                 </div>
             </div>
 
-            {/* MENU MOBILE DROPDOWN */}
             <div
                 className={`${menu ? 'translate-x-0' : '-translate-x-full'
                     } lg:hidden flex flex-col absolute bg-gradient-to-b from-[#052759] to-[#0a3a8a] text-white left-0 top-full font-bold text-xl text-center pt-8 pb-8 gap-6 w-full h-fit transition-transform duration-300 z-50 shadow-2xl`}
@@ -184,16 +181,7 @@ export default function Navbar({ variant = 'blue' }) {
                         <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
                     )}
                 </Link>
-                <Link
-                    to="/doacao"
-                    onClick={() => setMenu(false)}
-                    className="hover:scale-105 transition-all duration-300 font-bold py-2"
-                >
-                    DOAÇÃO
-                    {location.pathname === '/doacao' && (
-                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
-                    )}
-                </Link>
+
                 <Link
                     to="/voluntariados"
                     onClick={() => setMenu(false)}
@@ -201,6 +189,16 @@ export default function Navbar({ variant = 'blue' }) {
                 >
                     VOLUNTARIADO
                     {location.pathname === '/voluntariados' && (
+                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                    )}
+                </Link>
+                <Link
+                    to="/ajudar"
+                    onClick={() => setMenu(false)}
+                    className="hover:scale-105 transition-all duration-300 font-bold py-2"
+                >
+                    QUERO AJUDAR
+                    {location.pathname === '/ajudar' && (
                         <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
                     )}
                 </Link>

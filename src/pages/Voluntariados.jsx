@@ -2,248 +2,147 @@ import { useState, useEffect } from 'react'
 import flatpickr from 'flatpickr'
 import 'flatpickr/dist/flatpickr.min.css'
 import { Portuguese } from 'flatpickr/dist/l10n/pt.js'
-import { sendVoluntariado } from '../js/volunteering.js'
-import { buildVoluntariadoState, SAMPLE_VOLUNTARIADO } from '../js/utils/formFiller'
-
-function CalendarioStyles() {
-    return (
-        <style>
-            {`
-        .flatpickr-calendar {
-          background-color: #EFEFEF;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-          border: 2px solid #052759;
-        }
-
-        .flatpickr-day{
-          color: #052759;
-          font-weight: 600;
-        }
-
-        .flatpicker-day:hover {
-          background: #FCAD0B;
-          color: white;
-          border: 2px solid #FCAD0B;
-        }
-
-        .flatpickr-day.selected {
-          background: #052759;
-          color: white;
-        }
-        
-        .flatpickr-day.selected:hover {
-          background: #FCAD0B;
-          color: white;
-          border: 2px solid #FCAD0B;
-        }
-
-        .flatpickr-day.today {
-          border: 2px solid #052759;
-          color: #052759;
-        }
-
-        .flatpickr-day.today.selected {
-          background: #052759;
-          color: white;
-        }
-        
-        .flatpickr-day.today:hover {
-          background: #FCAD0B;
-          color: white;
-          border: 2px solid #FCAD0B;
-        }
-
-        .flatpickr-months .flatpickr-month {
-          color: #052759;
-          font-weight: 800;
-        }
-
-        span.flatpickr-weekday {
-          color: #052759;
-          font-weight: 800;
-        }
-      `}
-        </style>
-    )
-}
+import { FaRegUser, FaEnvelope, FaWhatsapp, FaIdCard, FaPaw, FaCalendarAlt } from 'react-icons/fa'
+import Button from '../components/ui/Button'
 
 export default function Voluntariados() {
+
     const [formData, setFormData] = useState({
-        name: '', email: '', whatsapp: '', cpf: '', message: '', calendario: ''
+        name: '',
+        email: '',
+        whatsapp: '',
+        cpf: '',
+        message: '',
+        calendario: ''
     })
 
     useEffect(() => {
-        flatpickr("#calendario", {
+        const fp = flatpickr("#calendario", {
             locale: Portuguese,
             dateFormat: "d/m/Y",
             minDate: "today",
             disableMobile: true,
+            onChange: (dates) => {
+                const dataFormatada = dates.length > 0 ? flatpickr.formatDate(dates[0], "d/m/Y") : ''
+                setFormData(prev => ({ ...prev, calendario: dataFormatada }))
+            }
         })
+        return () => fp.destroy()
     }, [])
 
-    useEffect(() => {
-        const el = document.querySelector('#calendario')
-        if (el && el._flatpickr) {
-            if (!formData.calendario) el._flatpickr.clear()
-            else el._flatpickr.setDate(formData.calendario)
-        }
-    }, [formData.calendario])
+    const handleChange = (e) => {
+        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
+    }
+
+    const InputComIcone = ({ icon: Icon, name, placeholder, type = "text" }) => (
+        <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden">
+            <span className="p-3 text-[#052759]">
+                <Icon className="text-lg" />
+            </span>
+            <input
+                type={type}
+                name={name}
+                placeholder={placeholder}
+                className="w-full pr-3 py-2 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white"
+                value={formData[name]}
+                onChange={handleChange}
+            />
+        </div>
+    )
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        sendVoluntariado(formData)
-    }
-
-    const fillExample = () => {
-        setFormData(buildVoluntariadoState(SAMPLE_VOLUNTARIADO))
+        console.log("Voluntário cadastrado:", formData)
     }
 
     return (
-        <div className='mb-12'>
-            {/* botão de preenchimento rápido para testes */}
-            {/* <div className="max-w-7xl mx-auto px-8 mb-4">
-                <button
-                    type="button"
-                    onClick={fillExample}
-                    className="bg-[#052759] text-white px-3 py-1 rounded-md hover:bg-[#023582] transition"
-                >
-                    Preencher exemplo
-                </button>
-            </div> */}
-            <section id="voluntariados" className="py-8 max-w-full">
-                <CalendarioStyles />
+        <div className="min-h-screen bg-[#F0F0F0] flex flex-col items-center py-8">
 
-                <h1 className="text-3xl font-black mb-3 text-center text-[#052759]">
-                    Cadastro de Voluntários
-                </h1>
-                <h2 className="font-bold mb-6 text-center text-[#052759]">
-                    Faça parte de uma causa muito importante e ajude um "aumigo" a encontrar um lar!
-                </h2>
+            <div className="text-center mb-8">
+                <h1 className="text-2xl font-black text-[#052759] mb-2">Quero ser Voluntário</h1>
+                <p className="text-[#052759] text-sm">Faça parte de uma causa muito importante  e ajude um "aumigo" a encontrar um lar!</p>
+            </div>
 
-                <div className="grid lg:grid-cols-2 gap-8 items-start px-8">
+            <div className="w-11/12 max-w-5xl bg-[#052759] p-6 rounded-xl shadow-lg grid lg:grid-cols-2 gap-8 relative">
 
-                    <div className="bg-white pb-8 p-8 w-full rounded-2xl shadow-[10px_9px_4px_rgba(0,0,0,0.4)] border border-gray-200">
-                        <h2 className="text-lg font-bold text-[#052759] mb-4">
-                            Venha fazer um dog feliz conosco!
-                        </h2>
+                <form onSubmit={handleSubmit} className="space-y-4">
 
-                        <div className="grid lg:grid-cols-2 gap-6">
-                            <div className="flex flex-col gap-3">
-                                <input
-                                    type="text"
-                                    name="name"
-                                    placeholder="Nome"
-                                    className="pl-3 pr-3 py-2 text-sm border-2 border-[#052759] rounded-lg focus:border-[#FCAD0B] focus:outline-none placeholder-[#052759]"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                />
+                    <InputComIcone icon={FaRegUser} name="name" placeholder="Nome completo:" />
+                    <InputComIcone icon={FaEnvelope} name="email" placeholder="E-mail:" type="email" />
+                    <InputComIcone icon={FaWhatsapp} name="whatsapp" placeholder="WhatsApp (com DDD):" />
+                    <InputComIcone icon={FaIdCard} name="cpf" placeholder="CPF:" />
 
-                                <input
-                                    type="email"
-                                    name="email"
-                                    placeholder="E-mail"
-                                    className="pl-3 pr-3 py-2 text-sm border-2 border-[#052759] rounded-lg focus:border-[#FCAD0B] focus:outline-none placeholder-[#052759]"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                />
-
-                                <input
-                                    type="tel"
-                                    name="whatsapp"
-                                    placeholder="Whatsapp"
-                                    className="pl-3 pr-3 py-2 text-sm border-2 border-[#052759] rounded-lg focus:border-[#FCAD0B] focus:outline-none placeholder-[#052759]"
-                                    value={formData.whatsapp}
-                                    onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                                />
-
-                                <input
-                                    type="text"
-                                    name="cpf"
-                                    placeholder="CPF"
-                                    className="pl-3 pr-3 py-2 text-sm border-2 border-[#052759] rounded-lg focus:border-[#FCAD0B] focus:outline-none placeholder-[#052759]"
-                                    value={formData.cpf}
-                                    onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
-                                />
-
-                                <textarea
-                                    name="message"
-                                    placeholder="Enviar mensagem (opcional):"
-                                    rows="3"
-                                    className="pl-3 pr-3 py-2 text-sm border-2 border-[#052759] rounded-lg focus:border-[#FCAD0B] focus:outline-none resize-none placeholder-[#052759]"
-                                    value={formData.message}
-                                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                                />
-                            </div>
-
-                            <div className="flex flex-col items-center gap-4">
-                                <div className="w-full rounded-lg p-3 border-2 border-[#052759] text-[#052759]">
-                                    <p className="mb-3 font-black text-start text-sm">
-                                        Qual data você tem disponibilidade para ser voluntário na ONG?
-                                    </p>
-                                    <input
-                                        id="calendario"
-                                        name="calendario"
-                                        placeholder="DD/MM/AAAA"
-                                        className="w-full pl-3 pr-3 py-2 text-sm border-2 border-[#052759] text-[#052759] rounded-lg focus:border-[#FCAD0B] focus:outline-none"
-                                        value={formData.calendario}
-                                        onChange={(e) => setFormData({ ...formData, calendario: e.target.value })}
-                                    />
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    onClick={handleSubmit}
-                                    className="w-full bg-[#052759] text-lg text-white font-bold py-3 rounded-lg hover:bg-[#023582] transition-colors"
-                                >
-                                    Enviar formulário
-                                </button>
-
-                                <p className="text-xs text-[#052759] text-start italic">
-                                    Ao clicar em Enviar Formulário, você concorda em receber notificações e alertas no seu número cadastrado por Whatsapp, conforme preenchido no ato de Voluntariado.
-                                </p>
-                            </div>
-                        </div>
+                    <div className="flex items-start border-2 border-[#052759] rounded-lg bg-white">
+                        <span className="p-3 text-[#052759]">
+                            <FaPaw className="text-lg" />
+                        </span>
+                        <textarea
+                            name="message"
+                            placeholder="Mensagem (opcional):"
+                            rows="3"
+                            className="w-full pr-3 py-2 text-sm text-[#052759] resize-none focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white"
+                            value={formData.message}
+                            onChange={handleChange}
+                        />
                     </div>
 
-                    <div className="flex flex-col items-center text-start space-y-3">
-                        <p className="text-lg font-bold text-[#052759] leading-relaxed">
-                            Voluntariar: um ato de amor que resgata, cura e transforma.
+                    <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white">
+                        <span className="p-3 text-[#052759]">
+                            <FaCalendarAlt className="text-lg" />
+                        </span>
+                        <input
+                            id="calendario"
+                            type="text"
+                            name="calendario"
+                            placeholder="Disponibilidade:"
+                            className="w-full pr-3 py-2 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white cursor-pointer"
+                            value={formData.calendario}
+                            onChange={handleChange}
+                            readOnly
+                        />
+                    </div>
+
+                    <Button className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#FCAD0B] hover:bg-[#052759] text-sm w-full py-3">
+                        Tenho interesse
+                    </Button>
+
+                    <p className="text-xs text-white opacity-90 text-center">
+                        Ao enviar, você concorda em receber notificações via WhatsApp e E-mail.
+                    </p>
+                </form>
+
+                <div className="bg-[#052759] rounded-2xl p-6 border-2 border-[#052759] flex flex-col justify-center relative">
+
+                    <img
+                        src="/img-voluntariar.png"
+                        className="w-32 h-auto mx-auto"
+                        alt="Voluntário"
+                    />
+
+                    <div className="text-center space-y-3">
+
+                        <div className="inline-block bg-[#FCAD0B] px-3 py-1 rounded-full shadow-md">
+                            <span className="text-[#052759] font-bold text-xs">Por que me voluntariar?</span>
+                        </div>
+
+                        <h2 className="text-xl font-black text-white">Transforme vidas!</h2>
+
+                        <p className="text-sm text-white leading-relaxed">
+                            Ser voluntário é transformar compaixão em ação. 
                         </p>
-                        <div className="w-full flex justify-center">
-                            <img
-                                src="/photos/pet-voluntariado.png"
-                                alt="Cachorro voluntariado"
-                                className="w-72"
-                            />
-                        </div>
-                    </div>
-                </div>
+                        <p className="text-sm text-white leading-relaxed">
+                            Cada carinho, passeio ou cuidado
+                            restaura a confiança de um animal que espera por um lar.
+                        </p>
 
-                <div className='bg-white mt-12 w-11/12 rounded-xl items-center mx-auto shadow-[5px_5px_3px_rgba(0,0,0,0.4)]'>
-                    <div className='grid lg:grid-flow-col items-center gap-4'>
-                        <div className="w-full flex justify-start">
-                            <img
-                                src="/photos/pata.png"
-                                alt="Cachorro voluntariado"
-                                className="w-64"
-                            />
-                        </div>
-
-                        <div className='space-y-3 pr-8 py-6'>
-                            <p className='text-right text-[#052759] text-3xl font-black'>Porque ser um voluntário?</p>
-                            <p className='text-right text-base leading-7' style={{ color: '#052759' }}>
-                                Ser voluntário em um abrigo é transformar compaixão em ação.<br /><br />
-                                Cada carinho, passeio ou momento de cuidado restaura a confiança de um animal
-                                à espera de um lar. Você se torna o elo vital entre o abandono e uma segunda chance.<br />
-                                Enquanto você doa seu tempo, ganha em troca gratidão pura, alivia o estresse e encontra uma profunda
-                                sensação de propósito. É um ato que salva vidas— tanto as deles, quanto a sua, renovando a fé no que há
-                                de mais simples e verdadeiro.
+                        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                            <p className="text-xs italic text-white">
+                                "É um ato que salva vidas — tanto as deles quanto a sua."
                             </p>
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
         </div>
     )
 }
