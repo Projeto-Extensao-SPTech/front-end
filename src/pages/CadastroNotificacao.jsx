@@ -1,295 +1,234 @@
-import { useState, useEffect } from 'react'
-import flatpickr from 'flatpickr'
-import 'flatpickr/dist/flatpickr.min.css'
-import { Portuguese } from 'flatpickr/dist/l10n/pt.js'
-import { FaRegClock, FaCalendarAlt, FaMapMarkerAlt, FaEnvelope } from 'react-icons/fa'
-import { FaRegBell, FaUser, FaSignInAlt, FaHeart } from 'react-icons/fa'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
+import { Portuguese } from 'flatpickr/dist/l10n/pt.js';
+import { FaRegClock, FaCalendarAlt, FaMapPin, FaCity, FaHome, FaGlobeAmericas, FaTimes } from 'react-icons/fa';
+import Button from '../components/ui/Button'
 
-
-const Header = () => {
-  const primaryBlue = '#052759';
-  const primaryYellow = '#FCAD0B';
-
-
-  const navItems = [
-    { name: 'SOBRE', active: false },
-    { name: 'FEIRAS DE ADOÇÃO', active: false },
-    { name: 'DOAÇÃO', active: false },
-    { name: 'VOLUNTARIADO', active: false },
-    { name: 'CADASTROS', active: true },
-    { name: 'PATROCINADORES', active: false },
-  ];
-
-  return (
-    <header className="bg-white sticky top-0 z-50 shadow-md">
-      <div className="flex justify-between items-center h-20 px-4 lg:px-12" style={{ backgroundColor: primaryBlue }}>
-
-       
-        <div className="flex items-center space-x-2">
-          <div className="p-2 rounded-full" style={{ backgroundColor: primaryYellow }}>
-            <FaHeart className="text-xl" style={{ color: primaryBlue }} />
-          </div>
-        </div>
-
-       
-        <nav className="hidden md:flex flex-grow justify-start ml-12 space-x-8 h-full items-center">
-          {navItems.map((item) => (
-            <a
-              key={item.name}
-              href={`#${item.name.toLowerCase().replace(/ /g, '-')}`}
-              className={`h-full flex items-center text-sm font-bold transition-colors ${item.active
-                  ? `text-white border-b-4 border-white`
-                  : `text-white hover:text-gray-300`
-                }`}
-            >
-              {item.name}
-            </a>
-          ))}
-        </nav>
-
-       
-        <div className="flex items-center space-x-4">
-          <button className="text-white p-2 rounded-full hover:bg-white/10 transition-colors">
-            <FaRegBell className="text-xl" />
-          </button>
-          <button className="text-white p-2 rounded-full hover:bg-white/10 transition-colors">
-            <div className="relative w-7 h-7 flex items-center justify-center">
-              <div className="absolute w-6 h-6 rounded-full" style={{ backgroundColor: primaryYellow }}></div>
-              <FaUser className="text-base relative z-10" style={{ color: primaryBlue }} />
-            </div>
-          </button>
-          <button className="p-3 rounded-md transition-colors" style={{ backgroundColor: primaryYellow, color: primaryBlue }}>
-            <FaSignInAlt className="text-xl font-bold" />
-          </button>
-        </div>
-      </div>
-    </header>
-  );
-};
-
-
-function CalendarioStyles() {
-  return (
-    <style>{`
-      .flatpickr-calendar {
-        background-color: white; 
-        border-radius: 8px;
-        box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
-        border: none; 
-        width: 75%;
-        max-width: none;
-        position: relative !important;
-        transform: none !important;
-        padding: 0;
-        margin: 0;
-      }
-      .flatpickr-months {
-        background-color: #052759;
-        border-radius: 8px 8px 0 0;
-        padding: 6px 0;
-        display: flex; 
-        justify-content: space-between;
-        align-items: center;
-      }
-      .flatpickr-current-month,
-      .flatpickr-current-month span {
-        color: white !important;
-      }
-      .flatpickr-day {
-        color: #052759;
-        font-weight: 600;
-        padding: 0;
-      }
-      .flatpickr-day:hover, .flatpickr-day:focus {
-        background: #FCAD0B;
-        color: white;
-        border-radius: 50%;
-        border: none;
-      }
-      .flatpickr-day.selected {
-        background: #052759;
-        color: white;
-        border-radius: 50%;
-        border: none;
-      }
-      .flatpickr-day.today {
-        border: 1px solid #052759;
-        border-radius: 50%;
-        color: #052759;
-      }
-    `}</style>
-  );
-}
-
-
-const IconInput = ({ icon: Icon, placeholder, value, onChange, type = 'text', rows = 1, id }) => {
-  const primaryBlue = '#052759';
-
-  return (
-    <div className={`flex items-start border border-[${primaryBlue}] rounded-lg bg-white overflow-hidden`}>
-      <span className={`p-3 text-[${primaryBlue}] flex-shrink-0 ${rows > 1 ? 'self-start' : 'self-center'}`}>
-        <Icon className="text-xl" />
-      </span>
-
-      {rows > 1 ? (
-        <textarea
-          id={id}
-          name={id}  
-          placeholder={placeholder}
-          rows={rows}
-          className={`w-full h-full pr-3 py-3 text-sm text-[${primaryBlue}] rounded-r-lg focus:outline-none resize-none placeholder-[${primaryBlue}] font-medium pl-3`}
-          value={value}
-          onChange={onChange}
-        />
-      ) : (
-        <input
-          id={id}
-          type={type}
-          name={id} 
-          placeholder={placeholder}
-          className={`w-full pr-3 py-3 text-sm text-[${primaryBlue}] rounded-r-lg focus:outline-none placeholder-[${primaryBlue}] font-medium pl-3`}
-          value={value}
-          onChange={onChange}
-        />
-      )}
-    </div>
-  );
-};
-
-
-export default function CadastroFeiraAdocao() {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    horaEvento: '14:00 às 18:00',
-    dataHoraEvento: '17/09/2025',
-    localizacao: '',
-    mensagem: '',
-  });
-
-  const [selectedDates, setSelectedDates] = useState(["17/09/2025"]);
-
-  useEffect(() => {
-    const fp = flatpickr("#calendario-container", {
-      locale: Portuguese,
-      dateFormat: "d/m/Y",
-      minDate: "today",
-      inline: true,
-      disableMobile: true,
-      mode: "multiple",
-      defaultDate: ["2025-09-17"],
-      onChange: (selectedDatesArr) => {
-        setSelectedDates(selectedDatesArr.map(date => flatpickr.formatDate(date, "d/m/Y")));
-        setFormData(prev => ({ ...prev, dataHoraEvento: selectedDatesArr.length > 0 ? flatpickr.formatDate(selectedDatesArr[0], "d/m/Y") : '' }));
-      },
+export default function CadastroNotificacao() {
+    const [formData, setFormData] = useState({
+        hora: '',
+        data: '',
+        cep: '',
+        estado: '',
+        cidade: '',
+        rua: '',
+        numero: '',
+        fotos: []
     });
 
-    return () => fp.destroy();
-  }, []);
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+    useEffect(() => {
+        const fp = flatpickr("#calendario", {
+            locale: Portuguese,
+            dateFormat: "d/m/Y",
+            minDate: "today",
+            disableMobile: true,
+            onChange: (dates) => {
+                const dataFormatada = dates.length > 0 ? flatpickr.formatDate(dates[0], "d/m/Y") : '';
+                setFormData(prev => ({ ...prev, data: dataFormatada }));
+            },
+        });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Dados da Feira de Adoção:', formData);
-    console.log('Datas selecionadas:', selectedDates);
-  };
+        return () => fp.destroy();
+    }, []);
 
-  return (
-    <div className="relative min-h-screen flex flex-col items-center pt-0 pb-20" style={{ backgroundColor: '#F0F0F0' }}>
-      <CalendarioStyles />
+    const handleChange = (e) => {
+        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    };
 
+    const handleFotos = (e) => {
+        const novasFotos = Array.from(e.target.files);
+        setFormData(prev => ({ ...prev, fotos: [...prev.fotos, ...novasFotos] }));
+        e.target.value = '';
+    };
 
-      <div className="flex flex-col items-center pt-8 px-4">
-        <h1 className="text-3xl font-black mb-3 text-center text-[#052759]">
-          Cadastrar Feira de Adoção
-        </h1>
-        <h2 className="font-bold mb-6 text-center text-[#052759]">
-          Cadastre aqui as Feiras de Adoção que irão ocorrer nos próximos dias!
-        </h2>
-      </div>
+    const removerFoto = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            fotos: prev.fotos.filter((_, i) => i !== index)
+        }));
+    };
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
 
-<div
-  className="w-11/12 max-w-5xl p-8 lg:p-12 bg-white rounded-xl shadow-md border border-gray-100 relative z-10"
-  style={{ paddingBottom: '10rem'}} 
->        
-        <h2 className="text-2xl font-bold text-[#052759] mb-8 text-center">
-          Informações sobre a Feira de Adoção
-        </h2>
+        const dadosParaEnviar = {
+            ...formData,
+            fotos: formData.fotos
+        };
 
-        <form onSubmit={handleSubmit} className="grid lg:grid-cols-2 gap-8">
+        try {
+            const response = await fetch('/api/feiras-adocao', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(dadosParaEnviar)
+            });
 
-          <div className="flex flex-col gap-6 min-h-[300px]">
-            <IconInput
-              icon={FaRegClock}
-              placeholder="Hora do evento: 14:00 às 18:00"
-              value={formData.horaEvento}
-              onChange={handleChange}
-              id="horaEvento"
-            />
-            <div className="flex items-center border border-[#052759] rounded-lg bg-white overflow-hidden">
-              <span className="p-3 text-[#052759] flex items-center justify-center flex-shrink-0">
-                <FaCalendarAlt className="text-xl" />
-              </span>
-              <input
-                type="text"
-                name="dataHoraEvento"
-                placeholder="Data/Hora do evento:"
-                value={formData.dataHoraEvento}
-                readOnly
-                className="w-full pr-3 py-3 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3"
-              />
-              <span className="p-3 text-[#052759] flex-shrink-0 flex items-center justify-center cursor-pointer">
-                <span className="text-sm">▼</span>
-              </span>
-            </div>
-            <div id="calendario-container" className="w-full border border-gray-200 rounded-xl " />
-          </div>
+            if (response.ok) {
+                alert('Feira cadastrada com sucesso!');
+                setFormData({
+                    hora: '', data: '', cep: '', estado: '', cidade: '', rua: '', numero: '', fotos: []
+                });
+            } else {
+                alert('Erro ao cadastrar feira');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro de conexão');
+        }
+    };
 
-
-          <div className="flex flex-col gap-6">
-            <IconInput
-              icon={FaMapMarkerAlt}
-              placeholder="Localização da feira:"
-              value={formData.localizacao}
-              onChange={handleChange}
-              rows={8}
-              id="localizacao"
-            />
-            <IconInput
-              icon={FaEnvelope}
-              placeholder="Mensagem:"
-              value={formData.mensagem}
-              onChange={handleChange}
-              rows={8}
-              id="mensagem"
+    const FotoPreview = ({ foto, index }) => (
+        <div className="relative group">
+            <img
+                src={URL.createObjectURL(foto)}
+                alt={`Preview ${index + 1}`}
+                className="w-12 h-12 object-cover rounded-lg border-2 border-[#052759]"
             />
             <button
-              onClick={() => navigate("/")}
-              type="submit"
-              className="mt-4 w-full bg-[#052759] text-lg text-white font-bold py-3 rounded-lg hover:bg-[#023582] transition-colors shadow-md"
+                type="button"
+                onClick={() => removerFoto(index)}
+                className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
             >
-              Cadastrar Feira
+                <FaTimes className="text-xs" />
             </button>
+        </div>
+    );
 
+    const InputComIcone = ({ icon: Icon, name, placeholder, type = "text" }) => (
+        <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden">
+            <span className="p-3 text-[#052759]">
+                <Icon className="text-lg" />
+            </span>
+            <input
+                type={type}
+                name={name}
+                placeholder={placeholder}
+                className="w-full pr-3 py-2 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white"
+                value={formData[name]}
+                onChange={handleChange}
+            />
+        </div>
+    );
 
-          </div>
-        </form>
+    return (
+        <div className="min-h-screen bg-[#F0F0F0] flex flex-col items-center py-8">
 
-        <img
-          src="/img-cadastro.png"
-          alt="Cachorrinho olhando para cima"
-          className="absolute bottom-0 left-0 object-contain z-0 pointer-events-none"
-          style={{
-            width: '320px',
-            maxHeight: '290px'
-          }}
-        />
-      </div>
+            <div className="text-center mb-8">
+                <h1 className="text-2xl font-black text-[#052759] mb-2">
+                    Cadastrar Feira de Adoção
+                </h1>
+                <p className="text-[#052759] text-sm">
+                    Cadastre aqui as Feiras de Adoção que irão ocorrer nos próximos dias!
+                </p>
+            </div>
 
+            <div className="w-11/12 max-w-4xl bg-[#052759] p-6 rounded-xl shadow-lg relative">
 
+                <form onSubmit={handleSubmit} className="grid lg:grid-cols-2 gap-6">
 
-    </div>
-  );
+                    <div className="space-y-4">
+
+                        <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden">
+                            <span className="p-3 text-[#052759]">
+                                <FaRegClock className="text-lg" />
+                            </span>
+                            <div className="flex items-center w-full pr-3 py-2">
+                                <span className="text-sm text-[#052759] font-medium pl-3 whitespace-nowrap">
+                                    Horário da Feira:
+                                </span>
+                                <input
+                                    type="time"
+                                    name="hora"
+                                    className="ml-2 text-sm text-[#052759] focus:outline-none font-medium bg-white flex-1"
+                                    value={formData.hora}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white">
+                            <span className="p-3 text-[#052759]">
+                                <FaCalendarAlt className="text-lg" />
+                            </span>
+                            <input
+                                id="calendario"
+                                name="data"
+                                placeholder="Data da Feira:"
+                                className="w-full pr-3 py-2 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white"
+                                value={formData.data}
+                                onChange={handleChange}
+                            />
+                        </div>
+
+                        <div className="bg-white rounded-2xl p-4 border-2 border-[#052759]">
+                            <div className="text-center">
+                                <label htmlFor="fotos" className="cursor-pointer w-48 h-40 bg-gray-100 rounded-2xl flex flex-col items-center justify-center hover:bg-gray-200 transition mx-auto">
+                                    {formData.fotos.length > 0 ? (
+                                        <>
+                                            <img src="/img-doacao-livre-upload-photo.png" alt="Câmera" className="w-16 h-16 mb-2" />
+                                            <span className="text-[#052759] font-bold text-xs">Adicionar mais fotos</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <img src="/img-doacao-livre-upload-photo.png" alt="Câmera" className="w-16 h-16 mb-4" />
+                                            <span className="text-[#052759] font-bold text-xs">Clique para selecionar</span>
+                                        </>
+                                    )}
+                                </label>
+                                <input
+                                    id="fotos"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFotos}
+                                    className="hidden"
+                                    multiple
+                                />
+                            </div>
+
+                            {formData.fotos.length > 0 && (
+                                <div className="mt-4">
+                                    <p className="text-[#052759] text-xs text-center mb-2">
+                                        {formData.fotos.length} foto(s) selecionada(s)
+                                    </p>
+                                    <div className="grid grid-cols-4 gap-2 max-h-24 overflow-y-auto p-2 border border-gray-300 rounded-lg">
+                                        {formData.fotos.map((foto, index) => (
+                                            <FotoPreview key={index} foto={foto} index={index} />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            <p className="text-[#052759] text-xs text-center mt-3">
+                                *Coloque aqui as fotos dos pets presentes na feira!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <InputComIcone icon={FaMapPin} name="cep" placeholder="CEP:" />
+                        <InputComIcone icon={FaGlobeAmericas} name="estado" placeholder="Estado:" />
+                        <InputComIcone icon={FaCity} name="cidade" placeholder="Cidade:" />
+                        <InputComIcone icon={FaHome} name="rua" placeholder="Rua:" />
+                        <InputComIcone icon={FaHome} name="numero" placeholder="Número:" />
+
+                        <Button
+                            className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#FCAD0B] hover:bg-[#052759] hover:[#052759] text-sm mx-auto w-full py-3"
+                        >
+                            Cadastrar Feira
+                        </Button>
+                    </div>
+                </form>
+
+                <img
+                    src="/img-cadastro.png"
+                    alt="Cachorrinho"
+                    className="absolute bottom-0 left-0 w-32 max-h-28 object-contain pointer-events-none"
+                />
+            </div>
+        </div>
+    );
 }
