@@ -233,7 +233,7 @@ export default function Auth() {
     };
 
     return (
-        <div className="w-full h-[calc(100vh-96px)] flex flex-col bg-white overflow-hidden">
+        <div className="w-full h-[calc(100vh-96px)] flex flex-col bg-[#052759] overflow-hidden">
             <div className="flex-1 flex items-center justify-center relative overflow-hidden">
 
                 <img src="/blob.svg" alt="Blob" className="hidden md:block w-[600px] absolute rotate-45 z-0 -left-40 -bottom-40 opacity-90" />
@@ -310,7 +310,7 @@ export default function Auth() {
 
                     ) : (
 
-                        <> {/* Este lado já estava correto */}
+                        <> 
                             {etapaRecuperarSenha === 1 && (
                                 <CardRecuperarSenha
                                     telefone={formData.telefone}
