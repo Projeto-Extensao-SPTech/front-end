@@ -100,11 +100,11 @@ export default function CadastroNotificacao() {
                 </p>
             </div>
 
-            <div className="w-11/12 max-w-4xl bg-[#052759] p-8 rounded-xl shadow-lg relative">
+            <div className="w-11/12 max-w-5xl bg-[#052759] p-8 rounded-xl shadow-lg relative">
 
-                <form onSubmit={enviarFormulario} className="grid lg:grid-cols-2 gap-6">
+                <form onSubmit={enviarFormulario} className="grid lg:grid-cols-2 gap-8">
 
-                    <div className="space-y-4">
+                    <div className="space-y-6">
 
                         <SelectComIcone
                             icone={FaBell}
@@ -131,7 +131,7 @@ export default function CadastroNotificacao() {
                             />
                         </div>
 
-                        <div className="flex items-start border-2 border-[#052759] rounded-lg bg-white min-h-[200px]">
+                        <div className="flex items-start border-2 border-[#052759] rounded-lg bg-white min-h-[220px]">
                             <span className="p-3 text-[#052759] self-start">
                                 <FaEnvelope className="text-lg" />
                             </span>
@@ -141,82 +141,73 @@ export default function CadastroNotificacao() {
                                 className="w-full pr-3 py-3 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white resize-none"
                                 value={form.mensagem}
                                 onChange={atualizarForm}
-                                rows={3}
+                                rows={4}
                             />
                         </div>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-6">
 
-                        <div className="bg-white rounded-xl p-4 border-2 border-[#052759]">
+                        <div className="bg-white rounded-xl p-6 border-2 border-[#052759] h-full flex flex-col">
 
-                            <div className="flex items-center justify-between mb-3">
-                                <h3 className="text-[#052759] font-bold flex items-center gap-2">
-                                    <FaClock className="text-[#FCAD0B]" />
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-[#052759] font-bold flex items-center gap-2 text-lg">
+                                    <FaClock className="text-[#FCAD0B] text-xl" />
                                     Agendar Notificações
                                 </h3>
                                 <button
                                     type="button"
                                     onClick={adicionarNotificacao}
-                                    className="flex items-center gap-2 bg-[#FCAD0B] text-[#052759] px-3 py-2 rounded-lg hover:bg-[#FFD166] transition-colors font-bold text-sm"
+                                    className="flex items-center gap-2 bg-[#FCAD0B] text-[#052759] px-4 py-2.5 rounded-lg hover:bg-[#FFD166] transition-colors font-bold text-sm"
                                 >
-                                    <FaPlus className="text-xs" />
+                                    <FaPlus className="text-sm" />
                                     Adicionar
                                 </button>
                             </div>
 
-                            <p className="text-xs text-[#525252] mb-3">Enviada com antecedência de: </p>
+                            <p className="text-sm text-[#525252] mb-4">Enviada com antecedência de: </p>
 
-                            <div className="space-y-3">
+                            <div className="flex-1 overflow-y-auto max-h-80 pr-3 space-y-4 custom-scrollbar">
                                 {notificacoes.map((notif) => (
-                                    <div key={notif.id} className="bg-[#F8F9FA] rounded-lg p-3 border border-[#052759]/20 relative group">
+                                    <div key={notif.id} className="bg-[#F8F9FA] rounded-lg p-4 border border-[#052759]/20 relative group">
 
                                         {notificacoes.length > 1 && (
                                             <button
                                                 type="button"
                                                 onClick={() => removerNotificacao(notif.id)}
-                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                                             >
                                                 <FaTrash className="text-xs" />
                                             </button>
                                         )}
 
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-3">
                                             <div className="flex-1">
                                                 <div className="flex items-center border border-[#052759] rounded-lg bg-white overflow-hidden">
                                                     <select
                                                         name={`quantidade-${notif.id}`}
-                                                        className="w-full px-3 py-2 text-sm text-[#052759] focus:outline-none font-medium bg-white appearance-none cursor-pointer"
+                                                        className="w-full px-4 py-2.5 text-sm text-[#052759] focus:outline-none font-medium bg-white appearance-none cursor-pointer"
                                                         value={notif.quantidade}
                                                         onChange={(e) => atualizarNotificacao(notif.id, 'quantidade', e.target.value)}
                                                     >
                                                         <option value="1">1</option>
                                                         <option value="2">2</option>
                                                         <option value="3">3</option>
+                                                        <option value="4">4</option>
                                                         <option value="5">5</option>
+                                                        <option value="6">6</option>
                                                         <option value="7">7</option>
                                                     </select>
-                                                    <div className="pr-2 pointer-events-none">
+                                                    <div className="pr-3 pointer-events-none">
                                                         <div className="w-1.5 h-1.5 border-r border-b border-[#052759] rotate-45"></div>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className="flex-1">
-                                                <div className="flex items-center border border-[#052759] rounded-lg bg-white overflow-hidden">
-                                                    <select
-                                                        name={`unidade-${notif.id}`}
-                                                        className="w-full px-3 py-2 text-sm text-[#052759] focus:outline-none font-medium bg-white appearance-none cursor-pointer"
-                                                        value={notif.unidade}
-                                                        onChange={(e) => atualizarNotificacao(notif.id, 'unidade', e.target.value)}
-                                                    >
-                                                        <option value="horas">horas</option>
-                                                        <option value="dias">dias</option>
-                                                        <option value="semanas">semanas</option>
-                                                        <option value="meses">meses</option>
-                                                    </select>
-                                                    <div className="pr-2 pointer-events-none">
-                                                        <div className="w-1.5 h-1.5 border-r border-b border-[#052759] rotate-45"></div>
-                                                    </div>
+                                                <div className="flex items-center justify-center border border-[#052759] rounded-lg bg-white overflow-hidden">
+                                                    <span className="w-full px-4 py-2.5 text-sm text-[#052759] font-medium text-center">
+                                                        dias
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
@@ -224,10 +215,10 @@ export default function CadastroNotificacao() {
                                 ))}
                             </div>
 
-                            <div className="mt-4">
+                            <div className="mt-6 pt-4 border-t border-[#052759]/20">
                                 <Button
                                     type="submit"
-                                    className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#FCAD0B] hover:bg-[#052759] hover:[#052759] text-sm mx-auto w-full py-3"
+                                    className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#FCAD0B] hover:bg-[#052759] hover:[#052759] text-sm mx-auto w-full py-4"
                                 >
                                     Agendar Notificações
                                 </Button>
@@ -239,9 +230,26 @@ export default function CadastroNotificacao() {
                 <img
                     src="/img-cadastro.png"
                     alt="Cachorrinho"
-                    className="absolute bottom-0 left-0 w-32 max-h-28 object-contain pointer-events-none"
+                    className="absolute bottom-0 left-0 w-40 max-h-32 object-contain pointer-events-none"
                 />
             </div>
+
+            <style jsx>{`
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 8px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: #f1f1f1;
+                    border-radius: 10px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #052759;
+                    border-radius: 10px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: #FCAD0B;
+                }
+            `}</style>
         </div>
     );
 }

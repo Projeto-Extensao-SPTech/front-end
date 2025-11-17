@@ -17,7 +17,6 @@ export default function CadastroFeiraDeAdocao() {
     fotos: []
   });
 
-
   useEffect(() => {
     const fp = flatpickr("#calendario", {
       locale: Portuguese,
@@ -86,12 +85,12 @@ export default function CadastroFeiraDeAdocao() {
       <img
         src={URL.createObjectURL(foto)}
         alt={`Preview ${index + 1}`}
-        className="w-12 h-12 object-cover rounded-lg border-2 border-[#052759]"
+        className="w-16 h-16 object-cover rounded-lg border-2 border-[#052759]"
       />
       <button
         type="button"
         onClick={() => removerFoto(index)}
-        className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
       >
         <FaTimes className="text-xs" />
       </button>
@@ -107,7 +106,7 @@ export default function CadastroFeiraDeAdocao() {
         type={type}
         name={name}
         placeholder={placeholder}
-        className="w-full pr-3 py-2 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white"
+        className="w-full pr-3 py-3 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white"
         value={formData[name]}
         onChange={handleChange}
       />
@@ -126,17 +125,17 @@ export default function CadastroFeiraDeAdocao() {
         </p>
       </div>
 
-      <div className="w-11/12 max-w-4xl bg-[#052759] p-6 rounded-xl shadow-lg relative">
+      <div className="w-11/12 max-w-5xl bg-[#052759] p-8 rounded-xl shadow-lg relative">
 
-        <form onSubmit={handleSubmit} className="grid lg:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="grid lg:grid-cols-2 gap-8">
 
-          <div className="space-y-4">
+          <div className="space-y-6">
 
             <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden">
               <span className="p-3 text-[#052759]">
                 <FaRegClock className="text-lg" />
               </span>
-              <div className="flex items-center w-full pr-3 py-2">
+              <div className="flex items-center w-full pr-3 py-3">
                 <span className="text-sm text-[#052759] font-medium pl-3 whitespace-nowrap">
                   Horário da Feira:
                 </span>
@@ -158,24 +157,24 @@ export default function CadastroFeiraDeAdocao() {
                 id="calendario"
                 name="data"
                 placeholder="Data da Feira:"
-                className="w-full pr-3 py-2 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white"
+                className="w-full pr-3 py-3 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white"
                 value={formData.data}
                 onChange={handleChange}
               />
             </div>
 
-            <div className="bg-white rounded-2xl p-4 border-2 border-[#052759]">
+            <div className="bg-white rounded-2xl p-6 border-2 border-[#052759]">
               <div className="text-center">
-                <label htmlFor="fotos" className="cursor-pointer w-48 h-40 bg-gray-100 rounded-2xl flex flex-col items-center justify-center hover:bg-gray-200 transition mx-auto">
+                <label htmlFor="fotos" className="cursor-pointer w-56 h-48 bg-gray-100 rounded-2xl flex flex-col items-center justify-center hover:bg-gray-200 transition mx-auto">
                   {formData.fotos.length > 0 ? (
                     <>
-                      <img src="/img-doacao-livre-upload-photo.png" alt="Câmera" className="w-16 h-16 mb-2" />
-                      <span className="text-[#052759] font-bold text-xs">Adicionar mais fotos</span>
+                      <img src="/img-doacao-livre-upload-photo.png" alt="Câmera" className="w-20 h-20 mb-3" />
+                      <span className="text-[#052759] font-bold text-sm">Adicionar mais fotos</span>
                     </>
                   ) : (
                     <>
-                      <img src="/img-doacao-livre-upload-photo.png" alt="Câmera" className="w-16 h-16 mb-4" />
-                      <span className="text-[#052759] font-bold text-xs">Clique para selecionar</span>
+                      <img src="/img-doacao-livre-upload-photo.png" alt="Câmera" className="w-20 h-20 mb-4" />
+                      <span className="text-[#052759] font-bold text-sm">Clique para selecionar</span>
                     </>
                   )}
                 </label>
@@ -190,11 +189,11 @@ export default function CadastroFeiraDeAdocao() {
               </div>
 
               {formData.fotos.length > 0 && (
-                <div className="mt-4">
-                  <p className="text-[#052759] text-xs text-center mb-2">
+                <div className="mt-6">
+                  <p className="text-[#052759] text-sm text-center mb-3">
                     {formData.fotos.length} foto(s) selecionada(s)
                   </p>
-                  <div className="grid grid-cols-4 gap-2 max-h-24 overflow-y-auto p-2 border border-gray-300 rounded-lg">
+                  <div className="grid grid-cols-4 gap-3 max-h-32 overflow-y-auto p-3 border border-gray-300 rounded-lg">
                     {formData.fotos.map((foto, index) => (
                       <FotoPreview key={index} foto={foto} index={index} />
                     ))}
@@ -202,13 +201,13 @@ export default function CadastroFeiraDeAdocao() {
                 </div>
               )}
 
-              <p className="text-[#052759] text-xs text-center mt-3">
+              <p className="text-[#052759] text-sm text-center mt-4">
                 *Coloque aqui as fotos dos pets presentes na feira!
               </p>
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-6">
             <InputComIcone icon={FaMapPin} name="cep" placeholder="CEP:" />
             <InputComIcone icon={FaGlobeAmericas} name="estado" placeholder="Estado:" />
             <InputComIcone icon={FaCity} name="cidade" placeholder="Cidade:" />
@@ -216,7 +215,7 @@ export default function CadastroFeiraDeAdocao() {
             <InputComIcone icon={FaHome} name="numero" placeholder="Número:" />
 
             <Button
-              className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#FCAD0B] hover:bg-[#052759] hover:[#052759] text-sm mx-auto w-full py-3"
+              className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#FCAD0B] hover:bg-[#052759] hover:[#052759] text-sm mx-auto w-full py-4"
             >
               Cadastrar Feira
             </Button>
@@ -226,7 +225,7 @@ export default function CadastroFeiraDeAdocao() {
         <img
           src="/img-cadastro.png"
           alt="Cachorrinho"
-          className="absolute bottom-0 left-0 w-32 max-h-28 object-contain pointer-events-none"
+          className="absolute bottom-0 left-0 w-40 max-h-32 object-contain pointer-events-none"
         />
       </div>
     </div>
