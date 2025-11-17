@@ -1,5 +1,5 @@
 import Button from '../ui/Button'
-import { Link } from 'react-scroll'
+import { Link } from 'react-router-dom'
 
 export default function Participar() {
     return (
@@ -108,7 +108,7 @@ export default function Participar() {
                         </p>
                         
                         <div className="flex flex-col sm:flex-row gap-3">
-                            <Link to="voluntariado" spy={true} smooth={true} duration={800}>
+                            <Link to="/voluntariados" spy={true} smooth={true} duration={800}>
                                 <Button
                                     className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#FCAD0B] hover:bg-[#052759] hover:[#052759] text-sm mx-auto"
                                 >
