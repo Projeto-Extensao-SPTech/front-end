@@ -4,17 +4,76 @@ import 'flatpickr/dist/flatpickr.min.css';
 import { Portuguese } from 'flatpickr/dist/l10n/pt.js';
 import { FaCalendarAlt, FaBell, FaEnvelope, FaClock, FaPlus, FaTrash } from 'react-icons/fa';
 import Button from '../components/ui/Button'
+import api from '../api/api';
 
 export default function CadastroNotificacao() {
     const [form, setForm] = useState({
-        tipo: 'feira-adocao',
+        tipo: '',
         data: '',
-        mensagem: ''
+        mensagem: '',
+        id_feira: null
     });
 
     const [notificacoes, setNotificacoes] = useState([
         { id: 1, quantidade: '1', unidade: 'dias' }
     ]);
+
+    const [feiras, setFeiras] = useState([
+        {
+            id: 1,
+            fairDate: "2025-11-18",
+            fairHour: "2025-11-18T19:07:40",
+            address: {
+                id: 2,
+                zipCode: "08341150",
+                street: "Rua 2000",
+                number: 100,
+                complement: "Casa",
+                city: "São Paulo",
+                state: "SP",
+                country: "BR",
+            },
+        },
+        {
+            id: 2,
+            fairDate: "2025-12-01",
+            fairHour: "2025-12-01T14:30:00",
+            address: {
+                id: 3,
+                zipCode: "04534011",
+                street: "Av. Faria Lima",
+                number: 1500,
+                complement: "7º andar",
+                city: "São Paulo",
+                state: "SP",
+                country: "BR",
+            },
+        },
+        {
+            id: 3,
+            fairDate: "2026-01-05",
+            fairHour: "2026-01-05T09:45:00",
+            address: {
+                id: 4,
+                zipCode: "88000000",
+                street: "Rua das Flores",
+                number: 250,
+                complement: "",
+                city: "Florianópolis",
+                state: "SC",
+                country: "BR",
+            },
+        },
+    ])
+
+    function formatFeira(feira) {
+        const date = feira.fairDate.split("/").reverse().join("/")
+        const { street, number, city, state } = feira.address;
+        const addressFormatted = `${street}, n° ${number} | ${city}/${state}`;
+        return `${date} - ${addressFormatted}`;
+    }
+
+
 
     useEffect(() => {
         const calendario = flatpickr("#data-evento", {
@@ -54,39 +113,60 @@ export default function CadastroNotificacao() {
         }
     };
 
+    function formatDate(dateStr) {
+        const [day, month, year] = dateStr.split('/');
+        return `${year}-${month}-${day}`;
+    }
+
     const enviarFormulario = async (e) => {
         e.preventDefault();
+        console.log(notificacoes)
 
         const dados = {
-            ...form,
-            notificacoes: notificacoes
+            type: form.tipo,
+            event_date: formatDate(form.data),
+            message: form.mensagem,
+            adoption_fair_id: form.id_feira,
+            recurrences: notificacoes.map(it => Number(it.quantidade))
         };
+
+        const response = await api.post("/notifications", dados)
+        console.log(response.data)
 
         console.log('Dados para enviar:', dados);
     };
 
-    const SelectComIcone = ({ icone: Icone, nome, opcoes, valor, onChange }) => (
+    const SelectComIcone = ({ icone: Icone, nome, opcoes, valor, onChange, placeholder }) => (
         <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden relative">
             <span className="p-3 text-[#052759]">
                 <Icone className="text-lg" />
             </span>
+
             <select
                 name={nome}
                 className="w-full pr-10 py-3 text-sm text-[#052759] focus:outline-none font-medium pl-3 bg-white appearance-none cursor-pointer"
-                value={valor}
+                value={valor === null ? "" : valor}
                 onChange={onChange}
             >
+                {placeholder && (
+                    <option value="" disabled hidden>
+                        {placeholder}
+                    </option>
+                )}
+
                 {opcoes.map(opcao => (
                     <option key={opcao.value} value={opcao.value}>
                         {opcao.label}
                     </option>
                 ))}
             </select>
+
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                 <div className="w-2 h-2 border-r-2 border-b-2 border-[#052759] rotate-45"></div>
             </div>
         </div>
     );
+
 
     return (
         <div className="min-h-screen bg-[#F0F0F0] flex flex-col items-center py-8">
@@ -107,15 +187,36 @@ export default function CadastroNotificacao() {
                     <div className="space-y-6">
 
                         <SelectComIcone
+                            key={1}
                             icone={FaBell}
                             nome="tipo"
                             valor={form.tipo}
                             onChange={atualizarForm}
+                            placeholder="Selecione o tipo da notificação"
                             opcoes={[
-                                { value: 'feira-adocao', label: 'Feira de Adoção' },
-                                { value: 'evento-especial', label: 'Evento Especial' }
+                                { value: 'adoption-fair', label: 'Feira de Adoção' },
+                                { value: 'donation', label: 'Precisamos de Doações' },
+                                { value: 'volunteer', label: 'Precisamos de Voluntários' },
+                                { value: 'general', label: 'Outro' }
                             ]}
                         />
+
+                        {
+                            form.tipo == 'adoption-fair' &&
+                            <SelectComIcone
+                                key={2}
+                                icone={FaBell}
+                                nome="id_feira"
+                                valor={form.id_feira}
+                                onChange={atualizarForm}
+                                placeholder="Selecione uma feira"
+                                opcoes={feiras.map(feira => ({
+                                    value: feira.id,
+                                    label: formatFeira(feira)
+                                }))}
+                            />
+
+                        }
 
                         <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white">
                             <span className="p-3 text-[#052759]">
@@ -137,7 +238,7 @@ export default function CadastroNotificacao() {
                             </span>
                             <textarea
                                 name="mensagem"
-                                placeholder="Mensagem (opcional)..."
+                                placeholder="Mensagem"
                                 className="w-full pr-3 py-3 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white resize-none"
                                 value={form.mensagem}
                                 onChange={atualizarForm}
@@ -167,7 +268,7 @@ export default function CadastroNotificacao() {
 
                             <p className="text-sm text-[#525252] mb-4">Enviada com antecedência de: </p>
 
-                            <div className="flex-1 overflow-y-auto max-h-80 pr-3 space-y-4 custom-scrollbar">
+                            <div className="flex-1 overflow-y-auto max-h-40 pr-3 space-y-4 custom-scrollbar">
                                 {notificacoes.map((notif) => (
                                     <div key={notif.id} className="bg-[#F8F9FA] rounded-lg p-4 border border-[#052759]/20 relative group">
 
@@ -217,6 +318,7 @@ export default function CadastroNotificacao() {
 
                             <div className="mt-6 pt-4 border-t border-[#052759]/20">
                                 <Button
+                                    onChange={enviarFormulario}
                                     type="submit"
                                     className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#FCAD0B] hover:bg-[#052759] hover:[#052759] text-sm mx-auto w-full py-4"
                                 >
