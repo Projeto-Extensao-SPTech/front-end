@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import flatpickr from 'flatpickr'
 import 'flatpickr/dist/flatpickr.min.css'
 import { Portuguese } from 'flatpickr/dist/l10n/pt.js'
-import { FaCalendarAlt, FaPaw, FaBell, FaEnvelope, FaClock, FaPlus, FaTrashclear} from 'react-icons/fa'
+import { FaCalendarAlt, FaPaw, FaBell, FaEnvelope, FaClock, FaPlus, FaTrash} from 'react-icons/fa'
 import Button from '../components/ui/Button'
 import api from '../api/apiUserService'
 import { handleHttpFeedback } from '../js/utils/handleHttpFeedback'
@@ -224,7 +224,8 @@ export default function CadastroNotificacao() {
 
             <div className="w-11/12 max-w-5xl bg-[#052759] p-8 rounded-xl shadow-lg relative">
 
-                <form onSubmit={enviarFormulario} className="grid lg:grid-cols-2 gap-8">
+                <form onSubmit={enviarFormulario} className="grid lg:grid-cols-2 gap-8 items-start">
+
 
                     <div className="space-y-6">
 
