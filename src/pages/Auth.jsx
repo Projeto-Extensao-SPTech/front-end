@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { AlertUtils } from "../hooks/useAlertUtils";
+import { useAlertUtils } from "../hooks/useAlertUtils";
 import axios from 'axios';
 import { buscarCep } from "../api/apiCep"
 import { CardRecuperarSenha } from "../components/sections/CardRecuperarSenha"
@@ -9,7 +9,7 @@ import { CardSenhaRedefinida } from "../components/sections/CardSenhaRedefinida"
 import { CardVerificarCodigo } from "../components/sections/CardVerificarCodigo"
 
 export default function Auth() {
-
+    const alert = useAlertUtils()
     const [cepCarregando, setCepCarregando] = useState(false);
     const [cepErro, setCepErro] = useState(null);
     const navigate = useNavigate();
@@ -186,7 +186,7 @@ export default function Auth() {
             const erro = validarCampos();
             if (erro && ["nome", "email", "senha", "cpf", "telefone"].includes(erro.campo)) {
                 console.log(`Erro no campo ${erro.campo}: ${erro.mensagem}`);
-                AlertUtils.error(`Erro no campo ${erro.campo}`, erro.mensagem);
+                alert.error(`Erro no campo ${erro.campo}`, erro.mensagem);
                 return;
             }
 
@@ -198,7 +198,7 @@ export default function Auth() {
             const erro = validarCampos();
             if (erro) {
                 console.log(`Erro no campo ${erro.campo}: ${erro.mensagem}`);
-                AlertUtils.error(`Erro no campo ${erro.campo}`, erro.mensagem);
+                alert.error(`Erro no campo ${erro.campo}`, erro.mensagem);
                 return;
             }
         }
@@ -214,7 +214,7 @@ export default function Auth() {
                 navigate('/auth?mode=login');
             }
         } catch (error) {
-            AlertUtils.error("Erro!", error.message || "Ocorreu um erro. Tente novamente.");
+            alert.error("Erro!", error.message || "Ocorreu um erro. Tente novamente.");
         } finally {
             setIsLoading(false);
         }
@@ -395,7 +395,7 @@ export default function Auth() {
 }
 
 async function cadastroUser(formData, tipoPessoa) {
-    AlertUtils.loading("Cadastrando usuário...", "Aguarde um momento");
+    alert.loading("Cadastrando usuário...", "Aguarde um momento");
     try {
         const requestBody = {
             name: formData.nome,
@@ -418,30 +418,30 @@ async function cadastroUser(formData, tipoPessoa) {
         console.log("Dados enviados: ", JSON.stringify(requestBody))
 
         const response = await axios.post('http://localhost:7000/auth/register', requestBody);
-        AlertUtils.close();
-        await AlertUtils.success("Cadastro realizado com sucesso!", "Bem-vindo ao abrigo dog feliz 🐶");
+        alert.close();
+        await alert.success("Cadastro realizado com sucesso!", "Bem-vindo ao abrigo dog feliz 🐶");
         return response.data;
     } catch (error) {
-        AlertUtils.close();
-        await AlertUtils.error("Tentativa de cadastro falhou!", "Verifique os dados informados e tente novamente.");
+        alert.close();
+        await alert.error("Tentativa de cadastro falhou!", "Verifique os dados informados e tente novamente.");
         throw new Error(error.message);
     }
 }
 
 async function loginUser(formData) {
-    AlertUtils.loading("Realizando login...", "Aguarde um momento");
+    alert.loading("Realizando login...", "Aguarde um momento");
     try {
         const response = await axios.post('http://localhost:7000/auth/login', {
             email: formData.email,
             password: formData.senha
         });
 
-        AlertUtils.close();
-        AlertUtils.success("Login realizado com sucesso!", "Bem vindo de volta 🐾");
+        alert.close();
+        alert.success("Login realizado com sucesso!", "Bem vindo de volta 🐾");
         return response.data;
     } catch (error) {
-        AlertUtils.close();
-        await AlertUtils.error("Falha no login!", "Verifique suas credenciais e tente novamente.");
+        alert.close();
+        await alert.error("Falha no login!", "Verifique suas credenciais e tente novamente.");
         throw new Error(error.message);
     }
 }

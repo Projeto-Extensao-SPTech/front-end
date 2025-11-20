@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import flatpickr from 'flatpickr'
 import 'flatpickr/dist/flatpickr.min.css'
 import { Portuguese } from 'flatpickr/dist/l10n/pt.js'
-import { FaCalendarAlt, FaBell, FaEnvelope, FaClock, FaPlus, FaTrash } from 'react-icons/fa'
+import { FaCalendarAlt, FaPaw, FaBell, FaEnvelope, FaClock, FaPlus, FaTrashclear} from 'react-icons/fa'
 import Button from '../components/ui/Button'
 import api from '../api/apiUserService'
 import { handleHttpFeedback } from '../js/utils/handleHttpFeedback'
@@ -247,7 +247,7 @@ export default function CadastroNotificacao() {
                             form.tipo == 'ADOPTION_FAIR' &&
                             <SelectComIcone
                                 key={2}
-                                icone={FaBell}
+                                icone={FaPaw}
                                 nome="id_feira"
                                 valor={form.id_feira}
                                 onChange={atualizarForm}
