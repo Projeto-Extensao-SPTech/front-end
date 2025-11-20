@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { AlertUtils } from "../js/utils/alertUtils";
+import { AlertUtils } from "../hooks/useAlertUtils";
 import axios from 'axios';
-import { buscarCep } from "../js/api/cepAPI"
+import { buscarCep } from "../api/apiCep"
 import { CardRecuperarSenha } from "../components/sections/CardRecuperarSenha"
 import { CardNovaSenha } from "../components/sections/CardNovaSenha"
 import { CardSenhaRedefinida } from "../components/sections/CardSenhaRedefinida"
