@@ -10,12 +10,16 @@ export default function CadastroFeiraDeAdocao() {
     hora: '',
     data: '',
     cep: '',
-    estado: '',
-    cidade: '',
     rua: '',
     numero: '',
+    complemento: '',
+    cidade: '',
+    estado: '',
+    pais: '',
     fotos: []
   });
+
+  const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJsdWNhc0BlbWFpbC5jb20iLCJpYXQiOjE3NjM4NDg0MjEsImV4cCI6MTc2Mzg1MjAyMX0.6cLUD7VxyXNiYq4o8UcLRnbAz7nWU24jO5TGrqPD3vE";
 
   useEffect(() => {
     const fp = flatpickr("#calendario", {
@@ -31,6 +35,12 @@ export default function CadastroFeiraDeAdocao() {
 
     return () => fp.destroy();
   }, []);
+
+  const convertDateToISO = (dateStr) => {
+    if (!dateStr) return "";
+    const [day, month, year] = dateStr.split("/");
+    return `${year}-${month}-${day}`;
+  };
 
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -52,31 +62,51 @@ export default function CadastroFeiraDeAdocao() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const dadosParaEnviar = {
-      ...formData,
-      fotos: formData.fotos
+    const formDataToSend = new FormData();
+
+    const fairData = {
+      fairDate: convertDateToISO(formData.data),
+      fairHour: `${convertDateToISO(formData.data)}T${formData.hora}`,
+      address: {
+        zipCode: formData.cep,
+        street: formData.rua,
+        number: formData.numero,
+        complement: formData.complemento,
+        city: formData.cidade,
+        state: formData.estado,
+        country: formData.pais
+      }
     };
 
+    formDataToSend.append(
+      "fair",
+      new Blob([JSON.stringify(fairData)], { type: "application/json" })
+    );
+
+    formData.fotos.forEach((foto) => {
+      formDataToSend.append("imagem", foto);
+    });
+
     try {
-      const response = await fetch('/api/feiras-adocao', {
-        method: 'POST',
+      const response = await fetch("http://localhost:7000/feiras/cadastrar", {
+        method: "POST",
+        body: formDataToSend,
         headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dadosParaEnviar)
+          Authorization: `Bearer ${token}`
+        }
       });
 
       if (response.ok) {
-        alert('Feira cadastrada com sucesso!');
+        alert("Feira cadastrada com sucesso!");
         setFormData({
-          hora: '', data: '', cep: '', estado: '', cidade: '', rua: '', numero: '', fotos: []
+          hora: '', data: '', cep: '', rua: '', numero: '', complemento: '', cidade: '', estado: '', pais: '', fotos: []
         });
       } else {
-        alert('Erro ao cadastrar feira');
+        alert("Erro ao cadastrar feira");
       }
     } catch (error) {
-      console.error('Erro:', error);
-      alert('Erro de conexão');
+      console.error("Erro:", error);
+      alert("Erro de conexão");
     }
   };
 
@@ -209,10 +239,12 @@ export default function CadastroFeiraDeAdocao() {
 
           <div className="space-y-6">
             <InputComIcone icon={FaMapPin} name="cep" placeholder="CEP:" />
-            <InputComIcone icon={FaGlobeAmericas} name="estado" placeholder="Estado:" />
-            <InputComIcone icon={FaCity} name="cidade" placeholder="Cidade:" />
             <InputComIcone icon={FaHome} name="rua" placeholder="Rua:" />
             <InputComIcone icon={FaHome} name="numero" placeholder="Número:" />
+            <InputComIcone icon={FaHome} name="complemento" placeholder="Complemento:" />
+            <InputComIcone icon={FaCity} name="cidade" placeholder="Cidade:" />
+            <InputComIcone icon={FaGlobeAmericas} name="estado" placeholder="Estado:" />
+            <InputComIcone icon={FaCity} name="pais" placeholder="Pais:" />
 
             <Button
               className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#FCAD0B] hover:bg-[#052759] hover:[#052759] text-sm mx-auto w-full py-4"
