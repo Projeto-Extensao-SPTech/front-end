@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import { Portuguese } from 'flatpickr/dist/l10n/pt.js';
-import { FaRegClock, FaCalendarAlt, FaMapPin, FaCity, FaHome, FaGlobeAmericas, FaTimes } from 'react-icons/fa';
+import { FaRegClock, FaCalendarAlt, FaMapPin, FaCity, FaHome, FaGlobeAmericas, FaTimes, FaSortNumericUpAlt } from 'react-icons/fa';
 import Button from '../components/ui/Button'
+import axios from 'axios';
+import { AlertUtils } from '../js/utils/alertUtils';
 
 export default function CadastroFeiraDeAdocao() {
   const [formData, setFormData] = useState({
@@ -19,7 +21,7 @@ export default function CadastroFeiraDeAdocao() {
     fotos: []
   });
 
-  const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJsdWNhc0BlbWFpbC5jb20iLCJpYXQiOjE3NjM4NDg0MjEsImV4cCI6MTc2Mzg1MjAyMX0.6cLUD7VxyXNiYq4o8UcLRnbAz7nWU24jO5TGrqPD3vE";
+  const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJsdWNhc0BlbWFpbC5jb20iLCJpYXQiOjE3NjM5NTU4NTMsImV4cCI6MTc2Mzk1OTQ1M30.j9SKq0g5_2ehyBeOHNPOBTDE34lKYjvJ18w6a-HOHRo";
 
   useEffect(() => {
     const fp = flatpickr("#calendario", {
@@ -88,25 +90,24 @@ export default function CadastroFeiraDeAdocao() {
     });
 
     try {
-      const response = await fetch("http://localhost:7000/feiras/cadastrar", {
-        method: "POST",
-        body: formDataToSend,
-        headers: {
-          Authorization: `Bearer ${token}`
+      const response = await axios.post(
+        "http://localhost:7000/feiras/cadastrar",
+        formDataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data"
+          }
         }
-      });
-
-      if (response.ok) {
-        alert("Feira cadastrada com sucesso!");
-        setFormData({
-          hora: '', data: '', cep: '', rua: '', numero: '', complemento: '', cidade: '', estado: '', pais: '', fotos: []
-        });
+      );
+      if (response.status == 200 || response.status == 201) { 
+        AlertUtils.success("Feira cadastrada com sucesso!", "A feira de adoção." + rua + " foi cadastrada com sucesso.");
       } else {
-        alert("Erro ao cadastrar feira");
+        AlertUtils.error("Erro ao cadastrar feira");
       }
     } catch (error) {
       console.error("Erro:", error);
-      alert("Erro de conexão");
+      AlertUtils.error("Erro de conexão");
     }
   };
 
@@ -189,6 +190,7 @@ export default function CadastroFeiraDeAdocao() {
                 placeholder="Data da Feira:"
                 className="w-full pr-3 py-3 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white"
                 value={formData.data}
+                readOnly
                 onChange={handleChange}
               />
             </div>
@@ -240,11 +242,11 @@ export default function CadastroFeiraDeAdocao() {
           <div className="space-y-6">
             <InputComIcone icon={FaMapPin} name="cep" placeholder="CEP:" />
             <InputComIcone icon={FaHome} name="rua" placeholder="Rua:" />
-            <InputComIcone icon={FaHome} name="numero" placeholder="Número:" />
+            <InputComIcone icon={FaMapPin} name="numero" placeholder="Número:" />
             <InputComIcone icon={FaHome} name="complemento" placeholder="Complemento:" />
             <InputComIcone icon={FaCity} name="cidade" placeholder="Cidade:" />
-            <InputComIcone icon={FaGlobeAmericas} name="estado" placeholder="Estado:" />
-            <InputComIcone icon={FaCity} name="pais" placeholder="Pais:" />
+            <InputComIcone icon={FaCity} name="estado" placeholder="Estado:" />
+            <InputComIcone icon={FaGlobeAmericas} name="pais" placeholder="Pais:" />
 
             <Button
               className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#FCAD0B] hover:bg-[#052759] hover:[#052759] text-sm mx-auto w-full py-4"
