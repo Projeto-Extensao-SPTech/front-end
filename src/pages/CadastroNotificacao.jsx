@@ -143,6 +143,7 @@ export default function CadastroNotificacao() {
     const enviarFormulario = async (e) => {
         e.preventDefault()
 
+        alert.loading("Aguarde", "Estamos cadastrando a sua notificação...")
         const dados = {
             type: form.tipo,
             event_date: formatDate(form.data, "/", "-"),

@@ -12,6 +12,7 @@ export function useAlertUtils() {
       Swal.fire({
         title,
         text,
+        icon: "info",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading()
