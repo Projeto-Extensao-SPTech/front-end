@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { useAlertUtils } from "../hooks/useAlertUtils"
-import axios from 'axios'
 import { buscarCep } from "../api/apiCep"
 import { CardRecuperarSenha } from "../components/sections/CardRecuperarSenha"
 import { CardNovaSenha } from "../components/sections/CardNovaSenha"
 import { CardSenhaRedefinida } from "../components/sections/CardSenhaRedefinida"
 import { CardVerificarCodigo } from "../components/sections/CardVerificarCodigo"
+import { api, setAuthToken } from "../api/apiUserService"
 
 export default function Auth() {
     
@@ -27,7 +27,7 @@ export default function Auth() {
         nome: '',
         email: '',
         senha: '',
-        cpf: '',
+        documento: '',
         telefone: '',
         cep: '',
         estado: '',
@@ -131,17 +131,17 @@ export default function Auth() {
     useEffect(() => {
         setIsLogin(initialMode === 'login')
         setCadastroStep(1)
-        setTipoPessoa('fisica')
+        setTipoPessoa('PF')
     }, [initialMode])
 
     const validarCampos = () => {
-        if (tipoPessoa === 'fisica') {
+        if (tipoPessoa === 'PF') {
             if (formData.nome.length < 8 || formData.nome.length > 40) {
                 return { campo: "nome", mensagem: "O nome deve ter entre 8 e 40 caracteres." }
             }
 
             const cpfRegex = /^\d{11}$/
-            if (!cpfRegex.test(formData.cpf)) {
+            if (!cpfRegex.test(formData.documento)) {
                 return { campo: "cpf", mensagem: "O CPF deve conter exatamente 11 números." }
             }
         } else {
@@ -150,7 +150,7 @@ export default function Auth() {
             }
 
             const cnpjRegex = /^\d{14}$/
-            if (!cnpjRegex.test(formData.cpf)) {
+            if (!cnpjRegex.test(formData.documento)) {
                 return { campo: "cpf", mensagem: "O CNPJ deve conter exatamente 14 números." }
             }
         }
@@ -221,12 +221,12 @@ export default function Auth() {
     const switchMode = (mode) => {
         setIsLogin(mode === 'login')
         setCadastroStep(1)
-        setTipoPessoa('fisica')
+        setTipoPessoa('PF')
         setFormData({
             nome: '',
             email: '',
             senha: '',
-            cpf: '',
+            documento: '',
             telefone: '',
             cep: '',
             estado: '',
@@ -248,7 +248,7 @@ export default function Auth() {
         setFormData(prev => ({
             ...prev,
             nome: '',
-            cpf: ''
+            documento: ''
         }))
     }
 
@@ -286,8 +286,8 @@ export default function Auth() {
                                     {cadastroStep === 1 && (
                                         <div className="flex justify-center mb-4 w-full">
                                             <button
-                                                className={`${tipoPessoa === 'fisica' ? 'bg-[#052759] text-[#FCAD0B]' : 'bg-[#FCAD0B] text-[#052759] opacity-70'} cursor-pointer w-32 h-8 rounded-l-xl text-sm hover:opacity-90 font-bold`}
-                                                onClick={() => handleTipoPessoaChange('fisica')}
+                                                className={`${tipoPessoa === 'PF' ? 'bg-[#052759] text-[#FCAD0B]' : 'bg-[#FCAD0B] text-[#052759] opacity-70'} cursor-pointer w-32 h-8 rounded-l-xl text-sm hover:opacity-90 font-bold`}
+                                                onClick={() => handleTipoPessoaChange('PF')}
                                             >
                                                 Pessoa Física
                                             </button>
@@ -307,16 +307,16 @@ export default function Auth() {
                                     <>
                                         <Input
                                             name="nome"
-                                            placeholder={tipoPessoa === 'fisica' ? "Nome completo" : "Razão Social"}
+                                            placeholder={tipoPessoa === 'PF' ? "Nome completo" : "Razão Social"}
                                             icon="/icons/user-icon.svg"
                                             value={formData.nome}
                                             onChange={handleInputChange}
                                         />
                                         <Input
-                                            name="cpf"
-                                            placeholder={tipoPessoa === 'fisica' ? "CPF" : "CNPJ"}
+                                            name="documento"
+                                            placeholder={tipoPessoa === 'PF' ? "CPF" : "CNPJ"}
                                             icon="/icons/cpf-icon.svg"
-                                            value={formData.cpf}
+                                            value={formData.documento}
                                             onChange={handleInputChange}
                                         />
                                         <Input name="email" placeholder="Email" icon="/icons/email-icon.svg" type="email" value={formData.email} onChange={handleInputChange} />
@@ -398,10 +398,10 @@ async function cadastroUser(formData, tipoPessoa, alertUtils) {
     try {
         const requestBody = {
             name: formData.nome,
-            document: formData.cpf,
+            document: formData.documento,
             phone: formData.telefone,
             address: {
-                zipCode: formData.cep,
+                zip_code: formData.cep,
                 state: formData.estado,
                 city: formData.municipio,
                 street: formData.rua,
@@ -409,12 +409,12 @@ async function cadastroUser(formData, tipoPessoa, alertUtils) {
                 number: formData.numero,
                 country: "Brasil"
             },
-            email: formData.email,
+            mail_address: formData.email,
             password: formData.senha,
-            type: tipoPessoa === 'fisica' ? 'PHYSICAL' : 'LEGAL'
+            type: tipoPessoa
         }
-
-        const response = await axios.post('http://localhost:7000/auth/register', requestBody)
+        console.log("Dados da requisição: ", requestBody)
+        const response = await api.post('/auth/register', requestBody)
 
         alertUtils.close()
         await alertUtils.success("Cadastro realizado com sucesso!", "Bem-vindo ao abrigo dog feliz 🐶")
@@ -431,15 +431,17 @@ async function loginUser(formData, alertUtils) {
     alertUtils.loading("Realizando login...", "Aguarde um momento")
 
     try {
-        const response = await axios.post('http://localhost:7000/auth/login', {
-            email: formData.email,
+        const response = await api.post('/auth/login', {
+            mail_address: formData.email,
             password: formData.senha
         })
 
         alertUtils.close()
         alertUtils.success("Login realizado com sucesso!", "Bem vindo de volta 🐾")
 
-        return response.data
+        const data = response.data
+        setAuthToken(data.token)
+        return data
     } catch (error) {
         alertUtils.close()
         await alertUtils.error("Falha no login!", "Verifique suas credenciais e tente novamente.")

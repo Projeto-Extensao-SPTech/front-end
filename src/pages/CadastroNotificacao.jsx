@@ -4,7 +4,7 @@ import 'flatpickr/dist/flatpickr.min.css'
 import { Portuguese } from 'flatpickr/dist/l10n/pt.js'
 import { FaCalendarAlt, FaPaw, FaBell, FaEnvelope, FaClock, FaPlus, FaTrash} from 'react-icons/fa'
 import Button from '../components/ui/Button'
-import api from '../api/apiUserService'
+import { api } from '../api/apiUserService'
 import { handleHttpFeedback } from '../js/utils/handleHttpFeedback'
 import { useAlertUtils } from '../hooks/useAlertUtils'
 
