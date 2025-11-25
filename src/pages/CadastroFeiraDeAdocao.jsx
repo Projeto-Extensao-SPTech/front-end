@@ -4,10 +4,14 @@ import 'flatpickr/dist/flatpickr.min.css';
 import { Portuguese } from 'flatpickr/dist/l10n/pt.js';
 import { FaRegClock, FaCalendarAlt, FaMapPin, FaCity, FaHome, FaGlobeAmericas, FaTimes, FaSortNumericUpAlt } from 'react-icons/fa';
 import Button from '../components/ui/Button'
-import axios from 'axios';
-import { AlertUtils } from '../js/utils/alertUtils';
+import { useAlertUtils } from '../hooks/useAlertUtils';
+import { handleHttpFeedback } from '../js/utils/handleHttpFeedback';
+import { api, setHeaderParam } from '../api/apiUserService';
 
 export default function CadastroFeiraDeAdocao() {
+
+  const alert = useAlertUtils();
+
   const [formData, setFormData] = useState({
     hora: '',
     data: '',
@@ -20,8 +24,6 @@ export default function CadastroFeiraDeAdocao() {
     pais: '',
     fotos: []
   });
-
-  const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJsdWNhc0BlbWFpbC5jb20iLCJpYXQiOjE3NjM5NTU4NTMsImV4cCI6MTc2Mzk1OTQ1M30.j9SKq0g5_2ehyBeOHNPOBTDE34lKYjvJ18w6a-HOHRo";
 
   useEffect(() => {
     const fp = flatpickr("#calendario", {
@@ -62,17 +64,18 @@ export default function CadastroFeiraDeAdocao() {
   };
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     const formDataToSend = new FormData();
 
     const fairData = {
-      fairDate: convertDateToISO(formData.data),
-      fairHour: `${convertDateToISO(formData.data)}T${formData.hora}`,
+      fair_date: convertDateToISO(formData.data),
+      fair_hour: `${convertDateToISO(formData.data)}T${formData.hora}`,
       address: {
-        zipCode: formData.cep,
+        zip_code: formData.cep,
         street: formData.rua,
-        number: formData.numero,
+        number: formData.numero ? parseInt(formData.numero) : null,
         complement: formData.complemento,
         city: formData.cidade,
         state: formData.estado,
@@ -89,25 +92,22 @@ export default function CadastroFeiraDeAdocao() {
       formDataToSend.append("imagem", foto);
     });
 
+
     try {
-      const response = await axios.post(
-        "http://localhost:7000/feiras/cadastrar",
-        formDataToSend,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data"
-          }
-        }
-      );
-      if (response.status == 200 || response.status == 201) { 
-        AlertUtils.success("Feira cadastrada com sucesso!", "A feira de adoção." + rua + " foi cadastrada com sucesso.");
-      } else {
-        AlertUtils.error("Erro ao cadastrar feira");
-      }
-    } catch (error) {
-      console.error("Erro:", error);
-      AlertUtils.error("Erro de conexão");
+
+      const response = await api.post("/feiras/cadastrar", formDataToSend);
+
+      handleHttpFeedback(alert, response, {
+        successTitle: "Feira cadastrada com sucesso!",
+        successMessage: `A feira de adoção na rua ${formData.rua} foi cadastrada com sucesso.`,
+      });
+    }
+    catch (error) {
+      handleHttpFeedback(alert, error.response, {
+        errorTitle: "Erro ao cadastrar feira",
+        errorMessage: "Não foi possível cadastrar a feira de adoção. Tente novamente mais tarde.",
+      })
+
     }
   };
 
@@ -264,4 +264,5 @@ export default function CadastroFeiraDeAdocao() {
       </div>
     </div>
   );
+
 }
