@@ -1,78 +1,19 @@
-import { use, useState, useEffect } from 'react';
-import { api, setHeaderParam } from "../api/apiUserService"
-import { parseISO, format } from 'date-fns';
+import { useState, useEffect } from 'react';
+import { api } from "../api/apiUserService"
+import { parseISO, format } from 'date-fns'; 
 
 
 export default function FeirasDeAdocao() {
-
-
 
     const [feiraSelecionada, setFeiraSelecionada] = useState(0);
     const [paginaAtual, setPaginaAtual] = useState(1);
     const [feiras, setFeiras] = useState([]);
 
-    // const feiras = [
-    //     {
-    //         id: 1,
-    //         data: '20/12',
-    //         bairro: 'Barra Funda',
-    //         endereco: 'Rua dos Alfeneiros, 123',
-    //         horario: '14:00 - 18:00',
-    //         imagemDestaque: '/img-card1.png',
-    //         pets: [
-    //             { id: 1, foto: '/img-petfeira1.png' },
-    //             { id: 2, foto: '/img-petfeira2.png' },
-    //             { id: 3, foto: '/img-petfeira3.png' },
-    //             { id: 4, foto: '/img-petfeira4.png' }
-    //         ]
-    //     },
-    //     {
-    //         id: 2,
-    //         data: '22/12',
-    //         bairro: 'Jardins',
-    //         endereco: 'Av. Paulista, 1500',
-    //         horario: '10:00 - 16:00',
-    //         imagemDestaque: '/img-card2.png',
-    //         pets: [
-    //             { id: 1, foto: '/img-petfeira1.png' },
-    //             { id: 2, foto: '/img-petfeira2.png' }
-    //         ]
-    //     },
-    //     {
-    //         id: 3,
-    //         data: '25/12',
-    //         bairro: 'Mauá',
-    //         endereco: 'Rua da Amizade, 300',
-    //         horario: '09:00 - 15:00',
-    //         imagemDestaque: '/img-card3.png',
-    //         pets: [
-    //             { id: 1, foto: '/img-petfeira1.png' },
-    //             { id: 2, foto: '/img-petfeira2.png' },
-    //             { id: 3, foto: '/img-petfeira3.png' }
-    //         ]
-    //     },
-    //     {
-    //         id: 4,
-    //         data: '28/12',
-    //         bairro: 'Moema',
-    //         endereco: 'Rua Alguma Coisa, 450',
-    //         horario: '13:00 - 17:00',
-    //         imagemDestaque: '/img-card1.png',
-    //         pets: [
-    //             { id: 1, foto: '/img-petfeira1.png' },
-    //             { id: 2, foto: '/img-petfeira2.png' }
-    //         ]
-    //     }
-    // ];
-
-
     async function getFairs() {
         try {
             const response = await api.get('/feiras');
             setFeiras(response.data);
-
             console.log("Feiras de adoção:", response.data);
-
         }
         catch (error) {
             console.error("Erro ao buscar feiras de adoção:", error);
@@ -83,7 +24,7 @@ export default function FeirasDeAdocao() {
         getFairs();
     }, []);
 
-
+    
     const CARDS_POR_PAGINA = 3;
     const totalPaginas = Math.ceil(feiras.length / CARDS_POR_PAGINA);
     const indiceInicio = (paginaAtual - 1) * CARDS_POR_PAGINA;
@@ -223,7 +164,12 @@ function CardFeira({ feira, isSelected, onClick }) {
     );
 }
 
+
 function CardPet({ image, index }) {
+    
+    const imageUrl = `http://localhost:7000/feiras/images/${image}`;
+
+    
     return (
         <div className="group relative" style={{ animationDelay: `${index * 0.1}s` }}>
             <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-3xl blur-xl opacity-0 group-hover:opacity-75 transition-all duration-500" />
@@ -235,7 +181,8 @@ function CardPet({ image, index }) {
                 </div>
 
                 <img
-                    src={`http://localhost:7000/images/${image}`}
+
+                    src={imageUrl}
                     alt="Pet disponível para adoção"
                     className="w-32 h-32 object-cover rounded-2xl mx-auto mb-4 shadow-lg group-hover:shadow-2xl transition-shadow"
                 />
