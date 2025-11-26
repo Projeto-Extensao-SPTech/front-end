@@ -1,63 +1,88 @@
-import { useState } from 'react';
+import { use, useState, useEffect } from 'react';
+import { api, setHeaderParam } from "../api/apiUserService"
+import { parseISO, format } from 'date-fns';
+
 
 export default function FeirasDeAdocao() {
 
+
+
     const [feiraSelecionada, setFeiraSelecionada] = useState(0);
     const [paginaAtual, setPaginaAtual] = useState(1);
+    const [feiras, setFeiras] = useState([]);
 
-    const feiras = [
-        {
-            id: 1,
-            data: '20/12',
-            bairro: 'Barra Funda',
-            endereco: 'Rua dos Alfeneiros, 123',
-            horario: '14:00 - 18:00',
-            imagemDestaque: '/img-card1.png',
-            pets: [
-                { id: 1, foto: '/img-petfeira1.png' },
-                { id: 2, foto: '/img-petfeira2.png' },
-                { id: 3, foto: '/img-petfeira3.png' },
-                { id: 4, foto: '/img-petfeira4.png' }
-            ]
-        },
-        {
-            id: 2,
-            data: '22/12',
-            bairro: 'Jardins',
-            endereco: 'Av. Paulista, 1500',
-            horario: '10:00 - 16:00',
-            imagemDestaque: '/img-card2.png',
-            pets: [
-                { id: 1, foto: '/img-petfeira1.png' },
-                { id: 2, foto: '/img-petfeira2.png' }
-            ]
-        },
-        {
-            id: 3,
-            data: '25/12',
-            bairro: 'Mauá',
-            endereco: 'Rua da Amizade, 300',
-            horario: '09:00 - 15:00',
-            imagemDestaque: '/img-card3.png',
-            pets: [
-                { id: 1, foto: '/img-petfeira1.png' },
-                { id: 2, foto: '/img-petfeira2.png' },
-                { id: 3, foto: '/img-petfeira3.png' }
-            ]
-        },
-        {
-            id: 4,
-            data: '28/12',
-            bairro: 'Moema',
-            endereco: 'Rua Alguma Coisa, 450',
-            horario: '13:00 - 17:00',
-            imagemDestaque: '/img-card1.png',
-            pets: [
-                { id: 1, foto: '/img-petfeira1.png' },
-                { id: 2, foto: '/img-petfeira2.png' }
-            ]
+    // const feiras = [
+    //     {
+    //         id: 1,
+    //         data: '20/12',
+    //         bairro: 'Barra Funda',
+    //         endereco: 'Rua dos Alfeneiros, 123',
+    //         horario: '14:00 - 18:00',
+    //         imagemDestaque: '/img-card1.png',
+    //         pets: [
+    //             { id: 1, foto: '/img-petfeira1.png' },
+    //             { id: 2, foto: '/img-petfeira2.png' },
+    //             { id: 3, foto: '/img-petfeira3.png' },
+    //             { id: 4, foto: '/img-petfeira4.png' }
+    //         ]
+    //     },
+    //     {
+    //         id: 2,
+    //         data: '22/12',
+    //         bairro: 'Jardins',
+    //         endereco: 'Av. Paulista, 1500',
+    //         horario: '10:00 - 16:00',
+    //         imagemDestaque: '/img-card2.png',
+    //         pets: [
+    //             { id: 1, foto: '/img-petfeira1.png' },
+    //             { id: 2, foto: '/img-petfeira2.png' }
+    //         ]
+    //     },
+    //     {
+    //         id: 3,
+    //         data: '25/12',
+    //         bairro: 'Mauá',
+    //         endereco: 'Rua da Amizade, 300',
+    //         horario: '09:00 - 15:00',
+    //         imagemDestaque: '/img-card3.png',
+    //         pets: [
+    //             { id: 1, foto: '/img-petfeira1.png' },
+    //             { id: 2, foto: '/img-petfeira2.png' },
+    //             { id: 3, foto: '/img-petfeira3.png' }
+    //         ]
+    //     },
+    //     {
+    //         id: 4,
+    //         data: '28/12',
+    //         bairro: 'Moema',
+    //         endereco: 'Rua Alguma Coisa, 450',
+    //         horario: '13:00 - 17:00',
+    //         imagemDestaque: '/img-card1.png',
+    //         pets: [
+    //             { id: 1, foto: '/img-petfeira1.png' },
+    //             { id: 2, foto: '/img-petfeira2.png' }
+    //         ]
+    //     }
+    // ];
+
+
+    async function getFairs() {
+        try {
+            const response = await api.get('/feiras');
+            setFeiras(response.data);
+
+            console.log("Feiras de adoção:", response.data);
+
         }
-    ];
+        catch (error) {
+            console.error("Erro ao buscar feiras de adoção:", error);
+        }
+    }
+
+    useEffect(() => {
+        getFairs();
+    }, []);
+
 
     const CARDS_POR_PAGINA = 3;
     const totalPaginas = Math.ceil(feiras.length / CARDS_POR_PAGINA);
@@ -75,7 +100,7 @@ export default function FeirasDeAdocao() {
 
             <div className="max-w-7xl mx-auto mb-12">
                 <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 mb-8">
-                    
+
                     <div className="lg:w-2/5">
                         <h1 className="text-3xl lg:text-4xl text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
                             <span className="font-light">NAVEGUE PELAS</span>
@@ -93,11 +118,10 @@ export default function FeirasDeAdocao() {
                                 <button
                                     key={pagina}
                                     onClick={() => mudarPagina(pagina)}
-                                    className={`text-xl font-light transition-all duration-500 ${
-                                        paginaAtual === pagina
-                                            ? 'text-white scale-125 drop-shadow-lg'
-                                            : 'text-white/30 hover:text-white/60'
-                                    }`}
+                                    className={`text-xl font-light transition-all duration-500 ${paginaAtual === pagina
+                                        ? 'text-white scale-125 drop-shadow-lg'
+                                        : 'text-white/30 hover:text-white/60'
+                                        }`}
                                     style={{ fontFamily: 'Poppins, sans-serif' }}
                                     aria-current={paginaAtual === pagina ? 'page' : undefined}
                                 >
@@ -125,7 +149,6 @@ export default function FeirasDeAdocao() {
                 </div>
             </div>
 
-            {/* SEÇAO PETS PRESENTES NA FEIRA */}
             <div className="max-w-7xl mx-auto">
                 <h2 className="text-2xl lg:text-3xl font-bold text-white text-center mb-8" style={{ fontFamily: 'Poppins, sans-serif' }}>
                     Veja abaixo quais serão os pets presentes na Feira selecionada!
@@ -133,8 +156,8 @@ export default function FeirasDeAdocao() {
 
                 <div className="flex justify-center">
                     <div className="flex flex-wrap justify-center gap-6 max-w-6xl">
-                        {feiras[feiraSelecionada]?.pets.map((pet, index) => (
-                            <CardPet key={pet.id} pet={pet} index={index} />
+                        {feiras[feiraSelecionada]?.images?.map((image, index) => (
+                            <CardPet key={index} image={image} index={index} />
                         ))}
                     </div>
                 </div>
@@ -144,44 +167,55 @@ export default function FeirasDeAdocao() {
 }
 
 function CardFeira({ feira, isSelected, onClick }) {
+
+    function formatHour(iso) {
+        if (!iso) return '';
+        const afterT = iso.split('T')[1] || '';
+        return afterT.slice(0, 5);
+    }
+
+    function formatDate(isoDate) {
+        if (!isoDate) return '';
+        const date = parseISO(isoDate);
+        return format(date, 'dd/MM');
+    }
+
     return (
         <div
             onClick={onClick}
-            className={`min-w-[320px] lg:min-w-0 bg-white rounded-2xl p-6 shadow-2xl cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-2xl relative ${
-                isSelected ? 'scale-105' : ''
-            } shadow-[inset_0_8px_30px_0_rgba(0,0,0,0.4)]`}
+            className={`min-w-[320px] lg:min-w-0 bg-white rounded-2xl p-6 shadow-2xl cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-2xl relative ${isSelected ? 'scale-105' : ''
+                } shadow-[inset_0_8px_30px_0_rgba(0,0,0,0.4)]`}
             style={{ height: '380px' }}
         >
             <div
-                className={`absolute -bottom-9 left-1/2 transform -translate-x-1/2 w-5 h-5 rounded-full transition-all duration-300 ${
-                    isSelected ? 'bg-white' : 'bg-white/40'
-                }`}
+                className={`absolute -bottom-9 left-1/2 transform -translate-x-1/2 w-5 h-5 rounded-full transition-all duration-300 ${isSelected ? 'bg-white' : 'bg-white/40'
+                    }`}
             />
 
             <div className="text-left mb-6">
-                <span className="text-gray-600 font-normal text-2xl" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                    {feira.data}
+                <span className="text-[#052759] font-normal  text-2xl" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                    {formatDate(feira.fair_date)}
                 </span>
             </div>
 
             <div className="text-center">
                 <h3 className="font-semibold text-[#052759] text-xl mb-3" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                    {feira.bairro}
+                    {formatHour(feira.fair_hour)}
                 </h3>
                 <div className="space-y-1">
                     <p className="text-[#052759] text-sm font-normal" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                        {feira.endereco}
+                        {feira.address.street}, {feira.address.number}
                     </p>
-                    <p className="text-[#052759] text-sm font-medium" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                        {feira.horario}
+                    <p className="text-[#052759] text-sm font-normal" style={{ fontFamily: 'Poppins, sans-serif' }}>
+
                     </p>
                 </div>
             </div>
 
             <div className="flex justify-start mt-8 -ml-6">
                 <img
-                    src={feira.imagemDestaque}
-                    alt={`Cachorro da feira em ${feira.bairro}`}
+                    src={`/img-card1.png`}
+                    alt={`Cachorro da feira em ${feira.street}`}
                     className="w-40 h-40 object-cover rounded-r-xl shadow-lg"
                 />
             </div>
@@ -189,15 +223,10 @@ function CardFeira({ feira, isSelected, onClick }) {
     );
 }
 
-function CardPet({ pet, index }) {
+function CardPet({ image, index }) {
     return (
-        <div
-            className="group relative"
-            style={{ animationDelay: `${index * 0.1}s` }}
-        >
-
+        <div className="group relative" style={{ animationDelay: `${index * 0.1}s` }}>
             <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-3xl blur-xl opacity-0 group-hover:opacity-75 transition-all duration-500" />
-
 
             <div className="relative bg-gradient-to-br from-white to-yellow-50 rounded-3xl p-6 shadow-2xl transform transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-2">
 
@@ -206,7 +235,7 @@ function CardPet({ pet, index }) {
                 </div>
 
                 <img
-                    src={pet.foto}
+                    src={`http://localhost:7000/images/${image}`}
                     alt="Pet disponível para adoção"
                     className="w-32 h-32 object-cover rounded-2xl mx-auto mb-4 shadow-lg group-hover:shadow-2xl transition-shadow"
                 />
@@ -217,4 +246,5 @@ function CardPet({ pet, index }) {
             </div>
         </div>
     );
+
 }
