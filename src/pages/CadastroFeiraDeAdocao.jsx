@@ -1,12 +1,47 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import { Portuguese } from 'flatpickr/dist/l10n/pt.js';
-import { FaRegClock, FaCalendarAlt, FaMapPin, FaCity, FaHome, FaGlobeAmericas, FaTimes, FaSortNumericUpAlt } from 'react-icons/fa';
+import { FaRegClock, FaCalendarAlt, FaMapPin, FaCity, FaHome, FaGlobeAmericas, FaTimes } from 'react-icons/fa';
 import Button from '../components/ui/Button'
 import { useAlertUtils } from '../hooks/useAlertUtils';
 import { handleHttpFeedback } from '../js/utils/handleHttpFeedback';
-import { api, setHeaderParam } from '../api/apiUserService';
+import { api } from '../api/apiUserService';
+
+const FotoPreview = React.memo(({ foto, index, onRemove }) => (
+  <div className="relative group">
+    <img
+      src={URL.createObjectURL(foto)}
+      alt={`Preview ${index + 1}`}
+      className="w-16 h-16 object-cover rounded-lg border-2 border-[#052759]"
+    />
+    <button
+      type="button"
+      onClick={() => onRemove(index)}
+      className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+    >
+      <FaTimes className="text-xs" />
+    </button>
+  </div>
+));
+
+const InputComIcone = React.memo(({ icon: Icon, name, placeholder, type = "text", value, onChange }) => (
+  <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden">
+    <span className="p-3 text-[#052759]">
+      <Icon className="text-lg" />
+    </span>
+    <input
+      type={type}
+      name={name}
+      placeholder={placeholder}
+      className="w-full pr-3 py-3 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white"
+      value={value || ''}
+      onChange={onChange}
+    />
+  </div>
+));
+
+
 
 export default function CadastroFeiraDeAdocao() {
 
@@ -24,6 +59,17 @@ export default function CadastroFeiraDeAdocao() {
     pais: '',
     fotos: []
   });
+
+  const handleChange = useCallback((e) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  }, []);
+
+  const removerFoto = useCallback((index) => {
+    setFormData(prev => ({
+      ...prev,
+      fotos: prev.fotos.filter((_, i) => i !== index)
+    }));
+  }, []);
 
   useEffect(() => {
     const fp = flatpickr("#calendario", {
@@ -46,21 +92,10 @@ export default function CadastroFeiraDeAdocao() {
     return `${year}-${month}-${day}`;
   };
 
-  const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
   const handleFotos = (e) => {
     const novasFotos = Array.from(e.target.files);
     setFormData(prev => ({ ...prev, fotos: [...prev.fotos, ...novasFotos] }));
     e.target.value = '';
-  };
-
-  const removerFoto = (index) => {
-    setFormData(prev => ({
-      ...prev,
-      fotos: prev.fotos.filter((_, i) => i !== index)
-    }));
   };
 
   const handleSubmit = async (e) => {
@@ -94,7 +129,6 @@ export default function CadastroFeiraDeAdocao() {
 
 
     try {
-
       const response = await api.post("/feiras/cadastrar", formDataToSend);
 
       handleHttpFeedback(alert, response, {
@@ -111,38 +145,6 @@ export default function CadastroFeiraDeAdocao() {
     }
   };
 
-  const FotoPreview = ({ foto, index }) => (
-    <div className="relative group">
-      <img
-        src={URL.createObjectURL(foto)}
-        alt={`Preview ${index + 1}`}
-        className="w-16 h-16 object-cover rounded-lg border-2 border-[#052759]"
-      />
-      <button
-        type="button"
-        onClick={() => removerFoto(index)}
-        className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <FaTimes className="text-xs" />
-      </button>
-    </div>
-  );
-
-  const InputComIcone = ({ icon: Icon, name, placeholder, type = "text" }) => (
-    <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden">
-      <span className="p-3 text-[#052759]">
-        <Icon className="text-lg" />
-      </span>
-      <input
-        type={type}
-        name={name}
-        placeholder={placeholder}
-        className="w-full pr-3 py-3 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white"
-        value={formData[name]}
-        onChange={handleChange}
-      />
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-[#F0F0F0] flex flex-col items-center py-8">
@@ -227,7 +229,12 @@ export default function CadastroFeiraDeAdocao() {
                   </p>
                   <div className="grid grid-cols-4 gap-3 max-h-32 overflow-y-auto p-3 border border-gray-300 rounded-lg">
                     {formData.fotos.map((foto, index) => (
-                      <FotoPreview key={index} foto={foto} index={index} />
+                      <FotoPreview
+                        key={index}
+                        foto={foto}
+                        index={index}
+                        onRemove={removerFoto}
+                      />
                     ))}
                   </div>
                 </div>
@@ -240,13 +247,13 @@ export default function CadastroFeiraDeAdocao() {
           </div>
 
           <div className="space-y-6">
-            <InputComIcone icon={FaMapPin} name="cep" placeholder="CEP:" />
-            <InputComIcone icon={FaHome} name="rua" placeholder="Rua:" />
-            <InputComIcone icon={FaMapPin} name="numero" placeholder="Número:" />
-            <InputComIcone icon={FaHome} name="complemento" placeholder="Complemento:" />
-            <InputComIcone icon={FaCity} name="cidade" placeholder="Cidade:" />
-            <InputComIcone icon={FaCity} name="estado" placeholder="Estado:" />
-            <InputComIcone icon={FaGlobeAmericas} name="pais" placeholder="Pais:" />
+            <InputComIcone icon={FaMapPin} name="cep" placeholder="CEP:" value={formData.cep} onChange={handleChange} />
+            <InputComIcone icon={FaHome} name="rua" placeholder="Rua:" value={formData.rua} onChange={handleChange} />
+            <InputComIcone icon={FaMapPin} name="numero" placeholder="Número:" type="number" value={formData.numero} onChange={handleChange} />
+            <InputComIcone icon={FaHome} name="complemento" placeholder="Complemento:" value={formData.complemento} onChange={handleChange} />
+            <InputComIcone icon={FaCity} name="cidade" placeholder="Cidade:" value={formData.cidade} onChange={handleChange} />
+            <InputComIcone icon={FaCity} name="estado" placeholder="Estado:" value={formData.estado} onChange={handleChange} />
+            <InputComIcone icon={FaGlobeAmericas} name="pais" placeholder="País:" value={formData.pais} onChange={handleChange} />
 
             <Button
               className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#FCAD0B] hover:bg-[#052759] hover:[#052759] text-sm mx-auto w-full py-4"
@@ -264,5 +271,4 @@ export default function CadastroFeiraDeAdocao() {
       </div>
     </div>
   );
-
 }
