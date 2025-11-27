@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from "../api/apiUserService"
-import { parseISO, format } from 'date-fns'; 
-
+import { parseISO, format } from 'date-fns';
+import Button from '../components/ui/Button';
 
 export default function FeirasDeAdocao() {
 
@@ -12,19 +12,36 @@ export default function FeirasDeAdocao() {
     async function getFairs() {
         try {
             const response = await api.get('/feiras');
-            setFeiras(response.data);
-            console.log("Feiras de adoção:", response.data);
+            const data = response.data.map(feiras => ({
+                ...feiras,
+                card_image: randomImage()
+            }));
+            setFeiras(data);
         }
         catch (error) {
             console.error("Erro ao buscar feiras de adoção:", error);
         }
     }
 
+    function randomImage() {
+        const images = [
+            '/img-card1.png',
+            '/img-card2.png',
+            '/img-card3.png',
+            '/img-card4.png',
+            '/img-card5.png',
+            '/img-card6.png',
+            '/img-card8.png',
+            '/img-card9.png',
+        ]
+
+        return images[Math.floor(Math.random() * images.length)];
+    }
+
     useEffect(() => {
         getFairs();
     }, []);
 
-    
     const CARDS_POR_PAGINA = 3;
     const totalPaginas = Math.ceil(feiras.length / CARDS_POR_PAGINA);
     const indiceInicio = (paginaAtual - 1) * CARDS_POR_PAGINA;
@@ -121,13 +138,25 @@ function CardFeira({ feira, isSelected, onClick }) {
         return format(date, 'dd/MM');
     }
 
+    async function fairInterest() {
+        const response = await api.patch(`/feiras/${feira.id}`)
+        console.log(response);
+    }
+
     return (
+
+
         <div
             onClick={onClick}
             className={`min-w-[320px] lg:min-w-0 bg-white rounded-2xl p-6 shadow-2xl cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-2xl relative ${isSelected ? 'scale-105' : ''
                 } shadow-[inset_0_8px_30px_0_rgba(0,0,0,0.4)]`}
             style={{ height: '380px' }}
         >
+
+            <Button className="absolute -top-2 -right-4 bg-[#FCAD0B] text-[#052759] rounded-full text-sm font-bold" onClick={fairInterest}>
+                Tenho interesse
+            </Button>
+
             <div
                 className={`absolute -bottom-9 left-1/2 transform -translate-x-1/2 w-5 h-5 rounded-full transition-all duration-300 ${isSelected ? 'bg-white' : 'bg-white/40'
                     }`}
@@ -147,15 +176,12 @@ function CardFeira({ feira, isSelected, onClick }) {
                     <p className="text-[#052759] text-sm font-normal" style={{ fontFamily: 'Poppins, sans-serif' }}>
                         {feira.address.street}, {feira.address.number}
                     </p>
-                    <p className="text-[#052759] text-sm font-normal" style={{ fontFamily: 'Poppins, sans-serif' }}>
-
-                    </p>
                 </div>
             </div>
 
             <div className="flex justify-start mt-8 -ml-6">
                 <img
-                    src={`/img-card1.png`}
+                    src={feira.card_image}
                     alt={`Cachorro da feira em ${feira.street}`}
                     className="w-40 h-40 object-cover rounded-r-xl shadow-lg"
                 />
@@ -166,10 +192,10 @@ function CardFeira({ feira, isSelected, onClick }) {
 
 
 function CardPet({ image, index }) {
-    
+
     const imageUrl = `http://localhost:7000/feiras/images/${image}`;
 
-    
+
     return (
         <div className="group relative" style={{ animationDelay: `${index * 0.1}s` }}>
             <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-3xl blur-xl opacity-0 group-hover:opacity-75 transition-all duration-500" />
@@ -181,7 +207,6 @@ function CardPet({ image, index }) {
                 </div>
 
                 <img
-
                     src={imageUrl}
                     alt="Pet disponível para adoção"
                     className="w-32 h-32 object-cover rounded-2xl mx-auto mb-4 shadow-lg group-hover:shadow-2xl transition-shadow"
