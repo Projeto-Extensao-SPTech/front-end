@@ -18,10 +18,10 @@ export default function Auth() {
     const [searchParams] = useSearchParams()
     const initialMode = searchParams.get('mode') || 'login'
 
-    const [isLogin, setIsLogin] = useState(initialMode === 'login')
-    const [cadastroStep, setCadastroStep] = useState(1)
-    const [eyeOpen, setEyeOpen] = useState(false)
-    const [tipoPessoa, setTipoPessoa] = useState('fisica')
+    const [isLogin, setIsLogin] = useState(initialMode === 'login');
+    const [cadastroStep, setCadastroStep] = useState(1);
+    const [eyeOpen, setEyeOpen] = useState(false);
+    const [tipoPessoa, setTipoPessoa] = useState('fisica');
 
     const [formData, setFormData] = useState({
         nome: '',

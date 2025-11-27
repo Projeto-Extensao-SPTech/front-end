@@ -274,7 +274,6 @@ function Indicador({ currentStep }) {
 export default function Patrocinadores() {
     const [currentStep, setCurrentStep] = useState('apoio')
 
-    // estados elevados (agregam dados de todos os passos)
     const [areasApoio, setAreasApoio] = useState([])
     const [formInfo, setFormInfo] = useState({ nome: "", email: "", telefone: "", cpf: "", dataNascimento: "" })
     const [descricao, setDescricao] = useState("")
@@ -293,7 +292,7 @@ export default function Patrocinadores() {
     const handleNext = () => {
         const currentIndex = steps.indexOf(currentStep)
         if (currentIndex < steps.length - 1) {
-            // se está finalizando a descrição (próximo é agradecimento), você pode consolidar os dados aqui
+
             if (steps[currentIndex + 1] === 'agradecimento') {
                 const aggregated = {
                     areasApoio,
