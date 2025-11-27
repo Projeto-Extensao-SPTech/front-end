@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react';
 import { api } from "../api/apiUserService"
 import { parseISO, format } from 'date-fns';
 import Button from '../components/ui/Button';
+import { useAlertUtils } from '../hooks/useAlertUtils';
+import { handleHttpFeedback } from '../js/utils/handleHttpFeedback';
 
 export default function FeirasDeAdocao() {
 
     const [feiraSelecionada, setFeiraSelecionada] = useState(0);
     const [paginaAtual, setPaginaAtual] = useState(1);
     const [feiras, setFeiras] = useState([]);
+
 
     async function getFairs() {
         try {
@@ -25,14 +28,12 @@ export default function FeirasDeAdocao() {
 
     function randomImage() {
         const images = [
-            '/img-card1.png',
-            '/img-card2.png',
-            '/img-card3.png',
             '/img-card4.png',
             '/img-card5.png',
             '/img-card6.png',
             '/img-card8.png',
             '/img-card9.png',
+            '/img-card10.png'
         ]
 
         return images[Math.floor(Math.random() * images.length)];
@@ -125,6 +126,8 @@ export default function FeirasDeAdocao() {
 }
 
 function CardFeira({ feira, isSelected, onClick }) {
+    const alert = useAlertUtils();
+
 
     function formatHour(iso) {
         if (!iso) return '';
@@ -139,8 +142,20 @@ function CardFeira({ feira, isSelected, onClick }) {
     }
 
     async function fairInterest() {
-        const response = await api.patch(`/feiras/${feira.id}`)
-        console.log(response);
+
+        try {
+            const response = await api.patch(`/feiras/${feira.id}`)
+            handleHttpFeedback(alert, response, {
+                successTitle: "Interesse registrado!",
+                successMessage: `Agradecemos seu interesse na feira de adoção em ${feira.address.street}.`,
+            });
+
+        } catch (error) {
+            handleHttpFeedback(alert, error.response, {
+                errorTitle: "Erro ao registrar interesse",
+                errorMessage: "Não foi possível registrar seu interesse. Tente novamente mais tarde.",
+            })
+        }
     }
 
     return (
@@ -153,7 +168,7 @@ function CardFeira({ feira, isSelected, onClick }) {
             style={{ height: '380px' }}
         >
 
-            <Button className="absolute -top-2 -right-4 bg-[#FCAD0B] text-[#052759] rounded-full text-sm font-bold" onClick={fairInterest}>
+            <Button className="absolute -top-2 -right-4 bg-[#FCAD0B] text-[#052759] text-sm font-bold" onClick={fairInterest}>
                 Tenho interesse
             </Button>
 
@@ -183,7 +198,7 @@ function CardFeira({ feira, isSelected, onClick }) {
                 <img
                     src={feira.card_image}
                     alt={`Cachorro da feira em ${feira.street}`}
-                    className="w-40 h-40 object-cover rounded-r-xl shadow-lg"
+                    className="w-40 h-40 object-cover rounded-r-xl "
                 />
             </div>
         </div>
