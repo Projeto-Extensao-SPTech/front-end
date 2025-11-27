@@ -1,5 +1,5 @@
 export default function Button({ children, variant = 'primary', className = '', ...props }) {
-    const baseStyles = 'px-6 py-3 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2'
+    const baseStyles = 'px-6 py-3 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2'
 
     const variants = {
         primary: 'bg-[#FCAD0B] text-[#052759] hover:bg-yellow-400 focus:ring-[#FCAD0B]',

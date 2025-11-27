@@ -6,10 +6,10 @@ import { CardRecuperarSenha } from "../components/sections/CardRecuperarSenha"
 import { CardNovaSenha } from "../components/sections/CardNovaSenha"
 import { CardSenhaRedefinida } from "../components/sections/CardSenhaRedefinida"
 import { CardVerificarCodigo } from "../components/sections/CardVerificarCodigo"
-import { api, setAuthToken } from "../api/apiUserService"
+import { api, setHeaderParam } from "../api/apiUserService"
 
 export default function Auth() {
-    
+
     const alertUtils = useAlertUtils()
 
     const [cepCarregando, setCepCarregando] = useState(false)
@@ -393,6 +393,7 @@ export default function Auth() {
 }
 
 async function cadastroUser(formData, tipoPessoa, alertUtils) {
+
     alertUtils.loading("Cadastrando usuário...", "Aguarde um momento")
 
     try {
@@ -440,7 +441,7 @@ async function loginUser(formData, alertUtils) {
         alertUtils.success("Login realizado com sucesso!", "Bem vindo de volta 🐾")
 
         const data = response.data
-        setAuthToken(data.token)
+        setHeaderParam("Authorization", `Bearer ${data.token}`)
         return data
     } catch (error) {
         alertUtils.close()
