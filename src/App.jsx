@@ -11,6 +11,8 @@ import Dashboard from './pages/Dashboard';
 import Ajudar from './pages/Ajudar';
 import CadastroFeiraDeAdocao from './pages/CadastroFeiraDeAdocao';
 import CadastroNotificacao from './pages/CadastroNotificacao';
+import Chart from "react-apexcharts";
+
 
 function AppContent() {
     const location = useLocation();
