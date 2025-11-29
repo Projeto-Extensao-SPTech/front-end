@@ -53,7 +53,7 @@ export default function ChartCadastros() {
         options={chartData.options}
         series={chartData.series}
         type="line"
-        height={550}
+        height={480}
         
       />
     </div>
