@@ -174,11 +174,6 @@ export default function CadastroNotificacao() {
 
     }
 
-
-    function mostrarFeedback(response) {
-
-    }
-
     const SelectComIcone = ({ icone: Icone, nome, opcoes, valor, onChange, placeholder }) => (
         <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden relative">
             <span className="p-3 text-[#052759]">
