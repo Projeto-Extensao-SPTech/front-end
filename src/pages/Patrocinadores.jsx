@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { sendSponsor } from '../js/sponsors'
-import * as validators from "../js/utils/validators"
+import axios from 'axios'
+
 
 function Apoiar({ areasApoio, toggleArea, onNext }) {
     const checkBoxes = [
@@ -35,142 +35,14 @@ function Apoiar({ areasApoio, toggleArea, onNext }) {
             </div>
 
             <button
-                onClick={()=> {
-                    if(areasApoio.length > 0) {
+                onClick={() => {
+                    if (areasApoio.length > 0) {
                         onNext();
                     } else {
                         alert("Por favor, selecione ao menos uma área de apoio para continuar.");
                     }
                 }}
                 className="w-64 bg-[#FFB114] text-white rounded-lg py-2 mt-6 hover:bg-[#ffd175] transition-colors duration-300 font-bold"
-            >
-                Avançar
-            </button>
-        </div>
-    )
-}
-
-function Informacoes({ formInfo, setFormField, onNext }) {
-    const inputs = [
-        { label: 'Nome', type: 'text', name: 'nome' },
-        { label: 'Email', type: 'email', name: 'email' },
-        { label: 'Telefone', type: 'text', name: 'telefone' },
-        { label: 'CPF', type: 'text', name: 'cpf' },
-        { label: 'Data de Nascimento', type: 'date', name: 'dataNascimento' },
-    ]
-
-    const [errors, setErrors] = useState({})
-
-    const getFriendlyMessage = (name, rawValue, validatorResult) => {
-        const value = (rawValue || '').toString().trim()
-        if (!value) return 'Campo obrigatório'
-
-        switch (name) {
-            case 'nome':
-                return 'Informe seu nome completo (mínimo 3 caracteres).'
-            case 'email':
-                return 'Informe um email válido (ex: usuario@exemplo.com).'
-            case 'telefone':
-                return 'Informe um telefone com DDD — 10 ou 11 dígitos (somente números).'
-            case 'cpf':
-                return 'Informe um CPF válido com 11 dígitos (somente números).'
-            default:
-                return validatorResult && validatorResult.message
-                    ? validatorResult.message
-                    : 'Valor inválido'
-        }
-    }
-
-    const validateField = (name, value) => {
-        let result = { isValid: true, message: '' }
-
-        switch (name) {
-            case 'nome':
-                result = validators.validateUserName(value || '')
-                break
-            case 'email':
-                result = validators.validateEmail(value || '')
-                break
-            case 'telefone': {
-                const digits = (value || '').replace(/\D/g, '')
-                result = validators.validatePhoneNumber(digits)
-                break
-            }
-            case 'cpf': {
-                const digits = (value || '').replace(/\D/g, '')
-                result = validators.validateCpf(digits)
-                break
-            }
-            default:
-                result = { isValid: true, message: '' }
-        }
-
-        if (!result.isValid) {
-            const friendly = getFriendlyMessage(name, value, result)
-            setErrors(prev => ({ ...prev, [name]: friendly }))
-            return false
-        }
-
-        setErrors(prev => ({ ...prev, [name]: null }))
-        return true
-    }
-
-    const handleChange = (e) => {
-        const { name, value } = e.target
-        setFormField(name, value)
-        validateField(name, value)
-    }
-
-    const handleNextClick = () => {
-        const required = ['nome', 'email', 'telefone', 'cpf']
-        const allValid = required.every((field) => validateField(field, formInfo[field]))
-        if (allValid) {
-            onNext()
-        } else {
-            const firstErrorField = required.find(f => errors[f])
-            if (firstErrorField) {
-                const el = document.getElementById(firstErrorField)
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-            }
-        }
-    }
-
-    return (
-        <div className="text-center space-y-6 w-full">
-            <h2 className="text-2xl text-white font-bold">Seja um Patrocinador</h2>
-            <h3 className="text-lg text-white/80 font-normal">Preencha suas informações</h3>
-
-            <form className="flex flex-col w-full gap-4" onSubmit={(e) => e.preventDefault()}>
-                {inputs.map((input) => {
-                    const fieldError = errors[input.name]
-                    const errorClasses = fieldError
-                        ? "border-red-500 bg-red-50 focus:border-red-500"
-                        : "border border-gray-300 focus:border-[#FFB114]"
-
-                    return (
-                        <div key={input.name} className="flex flex-col text-left">
-                            <label htmlFor={input.name} className="text-white mb-1 font-medium text-sm">{input.label}:</label>
-                            <input
-                                id={input.name}
-                                name={input.name}
-                                type={input.type}
-                                value={formInfo[input.name] || ""}
-                                onChange={handleChange}
-                                className={`rounded-lg w-full text-black font-normal p-2 ${errorClasses} focus:outline-none text-sm`}
-                                placeholder={
-                                    input.name === "telefone" ? "(xx) xxxxx-xxxx" :
-                                        input.name === "cpf" ? "000.000.000-00" : ""
-                                }
-                            />
-                            {fieldError && <p className="text-sm text-red-500 mt-1 text-left">{fieldError}</p>}
-                        </div>
-                    )
-                })}
-            </form>
-
-            <button
-                onClick={handleNextClick}
-                className="w-64 bg-[#FFB114] text-white rounded-lg py-2 mt-4 hover:bg-[#ffd175] transition-colors duration-300 font-bold"
             >
                 Avançar
             </button>
@@ -228,7 +100,6 @@ function Agradecimento() {
 function Indicador({ currentStep }) {
     const steps = [
         { key: "apoio", label: "Onde deseja apoiar" },
-        { key: "info", label: "Preencha suas informações" },
         { key: "descricao", label: "Descreva como pode ajudar" },
         { key: "agradecimento", label: "Finalizado" }
     ]
@@ -276,7 +147,6 @@ export default function Patrocinadores() {
 
     // estados elevados (agregam dados de todos os passos)
     const [areasApoio, setAreasApoio] = useState([])
-    const [formInfo, setFormInfo] = useState({ nome: "", email: "", telefone: "", cpf: "", dataNascimento: "" })
     const [descricao, setDescricao] = useState("")
 
     const toggleArea = (area) => {
@@ -285,19 +155,14 @@ export default function Patrocinadores() {
         )
     }
 
-    const setFormField = (name, value) => {
-        setFormInfo(prev => ({ ...prev, [name]: value }))
-    }
-
-    const steps = ['apoio', 'info', 'descricao', 'agradecimento']
+    const steps = ['apoio', 'descricao', 'agradecimento']
     const handleNext = () => {
         const currentIndex = steps.indexOf(currentStep)
         if (currentIndex < steps.length - 1) {
-            // se está finalizando a descrição (próximo é agradecimento), você pode consolidar os dados aqui
+            // se está finalizando a descrição (próximo é agradecimento), envia os dados
             if (steps[currentIndex + 1] === 'agradecimento') {
                 const aggregated = {
                     areasApoio,
-                    ...formInfo,
                     descricao
                 }
                 sendSponsor(aggregated)
@@ -310,8 +175,6 @@ export default function Patrocinadores() {
         switch (currentStep) {
             case 'apoio':
                 return <Apoiar areasApoio={areasApoio} toggleArea={toggleArea} onNext={handleNext} />
-            case 'info':
-                return <Informacoes formInfo={formInfo} setFormField={setFormField} onNext={handleNext} />
             case 'descricao':
                 return <Descricao descricao={descricao} setDescricao={setDescricao} onNext={handleNext} />
             case 'agradecimento':
@@ -342,4 +205,91 @@ export default function Patrocinadores() {
             </div>
         </div>
     )
+}
+
+// CÓDIGO DEDICADO AO CRUD DE PATROCINADORES (SPONSORS) NA APLICAÇÃO
+function sendSponsor(formData) {
+    if (!formData) return;
+
+    // Pega os dados do usuário logado do sessionStorage
+    const SESSION_KEY = "APP_USER";
+    let user = null;
+
+    try {
+        const raw = sessionStorage.getItem(SESSION_KEY);
+        user = raw ? JSON.parse(raw) : null;
+    } catch (err) {
+        console.error("Erro ao ler sessionStorage:", err);
+        alert("Você precisa estar logado para se tornar um patrocinador.");
+        return;
+    }
+
+    if (!user || !user.id) {
+        alert("Você precisa estar logado para se tornar um patrocinador.");
+        return;
+    }
+
+    console.log("Dados do usuário (sessionStorage):", user);
+    console.log("Dados do formulário:", formData);
+
+    const sponsorshipPayload = {
+        sponsor_id: user.id,
+        type: user.type || "PF", // Dado padrão é PF caso não exista
+        description: formData.descricao || "Sem descrição fornecida",
+        department: getSponsorshipDepartment(formData.areasApoio)
+    };
+
+    console.log("Enviando sponsorship:", sponsorshipPayload);
+
+    // Envia a sponsorship
+    axios.post("http://localhost:3000/sponsorships", sponsorshipPayload)
+        .then(sponsorshipResponse => {
+            console.log("Sponsorship created:", sponsorshipResponse.data);
+
+            const sponsorship = sponsorshipResponse.data
+
+            // Envia notificação via WhatsApp
+            const departments = getSponsorshipDepartment(formData.areasApoio);
+            const messageText = `Olá Andressa,\nTemos uma nova proposta de Patrocinador! 😻\n\n*Nome*: ${sponsorship.sponsor.name}\n*Departamento*: ${departments}\n*Descrição*: ${sponsorship.description || "Não informado"}\n*Tipo*: ${sponsorship.type}\n*Email*: ${sponsorship.sponsor.email || "Não informado"}\n*Telefone*: ${sponsorship.sponsor.phone || "Não informado"}\n\nEntre em contato para saber mais detalhes! 🐶🦴`;
+
+            return axios.post("http://localhost:7000/messages/sendText/Evolution-teste-api", {
+                number: "5511978704169",
+                text: messageText
+            });
+        })
+        .then(messageResponse => {
+            console.log("WhatsApp message sent:", messageResponse.data);
+        })
+        .catch(error => {
+            console.error("Erro no envio de patrocínio:", error);
+            if (error.response) {
+                console.error("Resposta do servidor:", error.response.data);
+            }
+            alert("Ocorreu um erro ao enviar sua proposta. Tente novamente.");
+        });
+}
+
+
+function getSponsorshipDepartment(areas) {
+    const areaToDepartmentMap = {
+        financeiramente: "Financeiro",
+        alimentos: "Alimentício",
+        remedios: "Saúde",
+        divulgacao: "Marketing",
+        campanhas: "Marketing",
+        obras: "Infraestrutura",
+        transporte: "Logística",
+        higiene: "Saúde"
+    };
+    const areasArray = Array.isArray(areas) ? areas : [areas];
+
+    // Mapeia cada área para o departamento correspondente
+    const departments = areasArray
+        .map(area => areaToDepartmentMap[area])
+        .filter(dept => dept !== undefined);
+
+    // Remove duplicatas (ex: Marketing aparece 2x)
+    const uniqueDepartments = [...new Set(departments)];
+
+    return uniqueDepartments.join(", ") || "Não especificado";
 }
