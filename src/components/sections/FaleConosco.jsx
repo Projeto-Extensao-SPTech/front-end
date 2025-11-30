@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { api } from "../../api/apiUserService"
+import { handleHttpFeedback } from '../../js/utils/handleHttpFeedback'
+import { useAlertUtils } from '../../hooks/useAlertUtils'
 
 export default function FaleConosco() {
     const [formData, setFormData] = useState({
@@ -7,9 +10,45 @@ export default function FaleConosco() {
         mensagem: ''
     })
 
-    const handleSubmit = (e) => {
+    const alert = useAlertUtils()
+
+    const handleSubmit = async (e) => {
         e.preventDefault()
         console.log('Dados do formulário:', formData)
+
+
+        alert.loading("Enviando sua mensagem", "Não saia da página ou recarregue a sessão!")
+        try {
+            const result = await api.post(`/mails/gmail/default`, {
+                subject: "Novo contato recebido pelo site!",
+                content: `
+                Olá! Você recebeu uma nova mensagem através do formulário de contato.
+
+                Nome: ${formData.nome}
+                E-mail: ${formData.email}
+
+                Mensagem:
+                ${formData.mensagem}
+
+                Caso queira responder, é só retornar para o e-mail informado acima.
+                `
+            })
+
+            alert.close()
+            handleHttpFeedback(alert, result, {
+                successTitle: "Mensagem enviada!",
+                successMessage:
+                    "A sua mensagem foi enviada e em breve será analisada pela nossa equipe"
+            });
+        } catch (error) {
+            console.error("Erro ao enviar:", error);
+
+            alert.close()
+            handleHttpFeedback(alert, error.response, {
+                errorTitle: "Erro ao enviar mensagem",
+                errorMessage: error.response?.data?.message || "Não foi possível enviar a sua mensagem, aguarde alguns segundos e tente novamente"
+            });
+        }
     }
 
     const handleChange = (e) => {
@@ -19,14 +58,14 @@ export default function FaleConosco() {
 
     return (
         <div className="relative bg-gradient-to-br from-[#052759] via-[#0d3a7a] to-[#052759] py-6 lg:py-8 overflow-hidden">
-            
+
             <div className="absolute inset-0 overflow-hidden opacity-5">
                 <div className="absolute top-1/3 -left-20 w-96 h-96 bg-[#FCAD0B] rounded-full blur-3xl"></div>
                 <div className="absolute bottom-1/3 -right-20 w-96 h-96 bg-white rounded-full blur-3xl"></div>
             </div>
 
             <div className="max-w-6xl mx-auto px-4 lg:px-8 relative z-10">
-                
+
                 <div className="text-center mb-4">
                     <h2 className="text-xl lg:text-2xl font-black text-white mb-1 leading-tight">
                         Fale Conosco
@@ -34,7 +73,7 @@ export default function FaleConosco() {
                 </div>
 
                 <div className="grid lg:grid-cols-2 gap-4 items-start">
-                    
+
                     <div className="bg-white rounded-xl p-4 shadow-2xl">
                         <div className="flex items-center gap-2 mb-3">
                             <div className="w-8 h-8 bg-gradient-to-br from-[#FCAD0B] to-[#f8b83d] rounded-lg flex items-center justify-center shadow-lg">
@@ -46,7 +85,7 @@ export default function FaleConosco() {
                                 <h3 className="font-bold text-[#052759]">Envie uma mensagem</h3>
                             </div>
                         </div>
-                        
+
                         <form onSubmit={handleSubmit} className="space-y-2">
                             <div>
                                 <label htmlFor="nome" className="block text-[#052759] font-bold mb-1 text-xs">
@@ -109,13 +148,13 @@ export default function FaleConosco() {
                     </div>
 
                     <div className="space-y-3">
-                        
+
                         <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
                             <h3 className="text-base font-bold text-white mb-2 flex items-center gap-2">
                                 <span className="w-1 h-4 bg-gradient-to-b from-[#FCAD0B] to-[#f8b83d] rounded-full"></span>
                                 Conecte-se
                             </h3>
-                            
+
                             <div className="grid grid-cols-2 gap-2">
                                 <a
                                     href="https://instagram.com/abrigodogfeliz"
@@ -123,10 +162,10 @@ export default function FaleConosco() {
                                     rel="noopener noreferrer"
                                     className="group bg-[#052759] rounded-lg p-3 hover:bg-gradient-to-br hover:from-purple-500 hover:to-pink-500 transition-all duration-300 transform hover:scale-105 shadow-lg"
                                 >
-                                    <img 
-                                        src="/img-ig.png" 
-                                        alt="Instagram" 
-                                        className="w-22 h-16 mx-auto mb-1 group-hover:scale-110 transition-transform" 
+                                    <img
+                                        src="/img-ig.png"
+                                        alt="Instagram"
+                                        className="w-22 h-16 mx-auto mb-1 group-hover:scale-110 transition-transform"
                                     />
                                     <p className="text-center font-bold text-white group-hover:text-white transition-colors text-sm">
                                         Instagram
@@ -139,10 +178,10 @@ export default function FaleConosco() {
                                     rel="noopener noreferrer"
                                     className="group bg-[#052759] rounded-lg p-3 hover:bg-gradient-to-br hover:from-green-400 hover:to-green-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
                                 >
-                                    <img 
-                                        src="/img-wpp.png" 
-                                        alt="WhatsApp" 
-                                        className="w-22 h-16 mx-auto mb-1 group-hover:scale-110 transition-transform" 
+                                    <img
+                                        src="/img-wpp.png"
+                                        alt="WhatsApp"
+                                        className="w-22 h-16 mx-auto mb-1 group-hover:scale-110 transition-transform"
                                     />
                                     <p className="text-center font-bold text-white group-hover:text-white transition-colors text-sm">
                                         WhatsApp

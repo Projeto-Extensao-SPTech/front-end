@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import flatpickr from 'flatpickr'
 import 'flatpickr/dist/flatpickr.min.css'
 import { Portuguese } from 'flatpickr/dist/l10n/pt.js'
-import { FaCalendarAlt, FaPaw, FaBell, FaEnvelope, FaClock, FaPlus, FaTrash} from 'react-icons/fa'
+import { FaCalendarAlt, FaPaw, FaBell, FaEnvelope, FaClock, FaPlus, FaTrash } from 'react-icons/fa'
 import Button from '../components/ui/Button'
 import { api } from '../api/apiUserService'
 import { handleHttpFeedback } from '../js/utils/handleHttpFeedback'
@@ -22,53 +22,16 @@ export default function CadastroNotificacao() {
         { id: 1, quantidade: '1', unidade: 'dias' }
     ])
 
-    const [feiras, setFeiras] = useState([
-        {
-            id: 1,
-            fairDate: "2025-11-18",
-            fairHour: "2025-11-18T19:07:40",
-            address: {
-                id: 2,
-                zipCode: "08341150",
-                street: "Rua 2000",
-                number: 100,
-                complement: "Casa",
-                city: "São Paulo",
-                state: "SP",
-                country: "BR",
-            },
-        },
-        {
-            id: 2,
-            fairDate: "2025-12-01",
-            fairHour: "2025-12-01T14:30:00",
-            address: {
-                id: 3,
-                zipCode: "04534011",
-                street: "Av. Faria Lima",
-                number: 1500,
-                complement: "7º andar",
-                city: "São Paulo",
-                state: "SP",
-                country: "BR",
-            },
-        },
-        {
-            id: 3,
-            fairDate: "2026-01-05",
-            fairHour: "2026-01-05T09:45:00",
-            address: {
-                id: 4,
-                zipCode: "88000000",
-                street: "Rua das Flores",
-                number: 250,
-                complement: "",
-                city: "Florianópolis",
-                state: "SC",
-                country: "BR",
-            },
-        },
-    ])
+    const [feiras, setFeiras] = useState([])
+
+    useEffect(() => {
+        if (form.tipo === "FAIR") {
+            buscarFeiras()
+        } else {
+            setFeiras([])
+            setForm(prev => ({ ...prev, id_feira: '' }))
+        }
+    }, [form.tipo])
 
     function formatFeira(feira) {
         const date = feira.fairDate.split("-").reverse().join("/")
@@ -76,8 +39,6 @@ export default function CadastroNotificacao() {
         const addressFormatted = `${street}, n° ${number} | ${city}/${state}`
         return `${date} - ${addressFormatted}`
     }
-
-
 
     useEffect(() => {
         const calendario = flatpickr("#data-evento", {
@@ -123,60 +84,77 @@ export default function CadastroNotificacao() {
     }
 
     function formatDate(dateStr, currentSplit, desiredSplit) {
-        const parts = dateStr.split(currentSplit);
-        if (parts.length !== 3) return dateStr;
+        const parts = dateStr.split(currentSplit)
+        if (parts.length !== 3) return dateStr
 
         if (parts[0].length === 2) {
-            const [day, month, year] = parts;
-            return `${year}${desiredSplit}${month}${desiredSplit}${day}`;
+            const [day, month, year] = parts
+            return `${year}${desiredSplit}${month}${desiredSplit}${day}`
         }
 
         if (parts[0].length === 4) {
-            const [year, month, day] = parts;
-            return `${day}${desiredSplit}${month}${desiredSplit}${year}`;
+            const [year, month, day] = parts
+            return `${day}${desiredSplit}${month}${desiredSplit}${year}`
         }
 
-        return dateStr;
+        return dateStr
     }
 
+    async function buscarFeiras() {
+        try {
+            const result = await api.get("/feiras/future")
+            if (result.status == 200) {
+                const data = result.data
+                console.log("Feiras obtidas: ", data)
+                setFeiras(data)
+            } else {
+                alert.warn(
+                    "Ops, não foi possível carregar a lista de feiras!",
+                    "No momento não existem feiras disponíveis para associar à notificação. Cadastre uma nova feira e tente novamente."
+                )
+                setForm(prev => ({
+                    ...prev,
+                    tipo: ''
+                }))
+            }
+        } catch (error) {
+            console.log("Erro ao coletar feiras:", error)
+            handleHttpFeedback(alert, error)
+        }
+    }
 
     const enviarFormulario = async (e) => {
         e.preventDefault()
 
         alert.loading("Aguarde", "Estamos cadastrando a sua notificação...")
+
         const dados = {
             type: form.tipo,
             event_date: formatDate(form.data, "/", "-"),
             message: form.mensagem,
-            adoption_fair_id: form.id_feira,
+            fair_id: form.id_feira,
             recurrences: notificacoes.map(it => Number(it.quantidade)),
         }
 
         try {
-            const result = await api.post("/notifications", dados);
-            console.log("Resultado: ", result);
+            const result = await api.post("/notifications", dados)
+            console.log("Resultado: ", result)
 
             handleHttpFeedback(alert, result, {
                 successTitle: "Notificação criada!",
                 successMessage:
                     `A notificação foi cadastrada com sucesso para os dias: ` +
                     result.data.recurrences.map(r => formatDate(r, "-", "/")).join(", ") + "!"
-            });
+            })
 
         } catch (error) {
-            console.error("Erro ao enviar:", error);
+            console.error("Erro ao enviar:", error)
 
-            handleHttpFeedback(alert, error.response, {
+            handleHttpFeedback(alert, error.response ?? error, {
                 errorTitle: "Erro ao criar notificação",
                 errorMessage: error.response?.data?.message || "Não foi possível criar a notificação."
-            });
+            })
         }
-
-    }
-
-
-    function mostrarFeedback(response) {
-
     }
 
     const SelectComIcone = ({ icone: Icone, nome, opcoes, valor, onChange, placeholder }) => (
@@ -210,7 +188,6 @@ export default function CadastroNotificacao() {
         </div>
     )
 
-
     return (
         <div className="min-h-screen bg-[#F0F0F0] flex flex-col items-center py-8">
 
@@ -227,7 +204,6 @@ export default function CadastroNotificacao() {
 
                 <form onSubmit={enviarFormulario} className="grid lg:grid-cols-2 gap-8 items-start">
 
-
                     <div className="space-y-6">
 
                         <SelectComIcone
@@ -238,15 +214,14 @@ export default function CadastroNotificacao() {
                             onChange={atualizarForm}
                             placeholder="Selecione o tipo da notificação"
                             opcoes={[
-                                { value: 'ADOPTION_FAIR', label: 'Feira de Adoção' },
+                                { value: 'FAIR', label: 'Feira de Adoção' },
                                 { value: 'DONATION', label: 'Precisamos de Doações' },
                                 { value: 'VOLUNTEER', label: 'Precisamos de Voluntários' },
                                 { value: 'GENERAL', label: 'Outro' }
                             ]}
                         />
 
-                        {
-                            form.tipo == 'ADOPTION_FAIR' &&
+                        {form.tipo == 'FAIR' && (
                             <SelectComIcone
                                 key={2}
                                 icone={FaPaw}
@@ -259,8 +234,7 @@ export default function CadastroNotificacao() {
                                     label: formatFeira(feira)
                                 }))}
                             />
-
-                        }
+                        )}
 
                         <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white">
                             <span className="p-3 text-[#052759]">
@@ -362,7 +336,6 @@ export default function CadastroNotificacao() {
 
                             <div className="mt-6 pt-4 border-t border-[#052759]/20">
                                 <Button
-                                    onChange={enviarFormulario}
                                     type="submit"
                                     className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#FCAD0B] hover:bg-[#052759] hover:[#052759] text-sm mx-auto w-full py-4"
                                 >
@@ -397,5 +370,5 @@ export default function CadastroNotificacao() {
                 }
             `}</style>
         </div>
-    );
+    )
 }
