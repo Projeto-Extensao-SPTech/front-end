@@ -2,12 +2,14 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AiOutlineMenu } from 'react-icons/ai';
 import { useState, useEffect } from 'react';
 import { api, setHeaderParam } from '../api/apiUserService';
+import { Notificacoes } from '../components/sections/Notificacoes';
 
 export default function Navbar({ variant = 'blue' }) {
     const location = useLocation();
     const navigate = useNavigate();
     const [menu, setMenu] = useState(false);
     const [cadastrosOpen, setCadastrosOpen] = useState(false);
+    const [notificacaoOpen, setNotificacaoOpen] = useState(false);
 
     const [user, setUser] = useState(null);
 
@@ -72,6 +74,7 @@ export default function Navbar({ variant = 'blue' }) {
                             <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
                         )}
                     </Link>
+
                     <Link
                         to="/feiras-de-adocao"
                         className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
@@ -91,6 +94,7 @@ export default function Navbar({ variant = 'blue' }) {
                             <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
                         )}
                     </Link>
+
                     <Link
                         to="/ajudar"
                         className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
@@ -116,7 +120,6 @@ export default function Navbar({ variant = 'blue' }) {
 
                             {cadastrosOpen && (
                                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 animate-in fade-in-0 zoom-in-95">
-
                                     <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-t border-l border-gray-100"></div>
 
                                     <Link
@@ -127,6 +130,7 @@ export default function Navbar({ variant = 'blue' }) {
                                         <div className="w-2 h-2 bg-[#FCAD0B] rounded-full mr-3 group-hover:bg-white transition-colors"></div>
                                         Cadastrar Notificação
                                     </Link>
+
                                     <Link
                                         to="/cadastro-feira-de-adocao"
                                         className="flex items-center px-6 py-4 text-[15px] text-[#052759] hover:bg-gradient-to-r hover:from-[#FCAD0B] hover:to-[#FFD166] hover:text-white transition-all duration-200 group border-b border-gray-100 last:border-b-0"
@@ -144,12 +148,24 @@ export default function Navbar({ variant = 'blue' }) {
                 <div className="hidden lg:flex flex-row items-center h-full mr-0">
                     {user ? (
                         <div className="flex items-center gap-4">
-                            <button
-                                className="h-12 w-12 cursor-pointer bg-[#052759] hover:bg-[#0a3a8a] rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
-                                onClick={() => console.log('notificação clicada')}
-                            >
-                                <img src="/btn-sininho.png" alt="Notificações" className="h-6 w-6" />
-                            </button>
+                            <div className="relative">
+                                <button
+                                    className={`h-12 w-12 cursor-pointer rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105
+                                    ${notificacaoOpen
+                                            ? 'bg-gradient-to-r from-[#FCAD0B] to-[#FFD166]'
+                                            : 'bg-[#052759] hover:bg-[#0a3a8a]'}
+                                            `}
+                                    onClick={() => setNotificacaoOpen(!notificacaoOpen)}
+                                >
+                                    <img src="/btn-sininho.png" alt="Notificações" className="h-6 w-6" />
+                                </button>
+
+                                {notificacaoOpen && (
+                                    <div className="absolute left-0 mt-3 z-[9999] w-max flex">
+                                        <Notificacoes onClose={() => setNotificacaoOpen(false)} />
+                                    </div>
+                                )}
+                            </div>
 
                             <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-2 border border-white/20">
                                 <div className="w-10 h-10 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full flex items-center justify-center shadow-lg">
@@ -174,15 +190,12 @@ export default function Navbar({ variant = 'blue' }) {
                                     Sair
                                 </button>
                             </div>
+
                         </div>
                     ) : (
                         <>
-                            <button className="h-32 cursor-pointer px-4 bg-[#052759] hover:brightness-110 hover:scale-105 transition-all duration-300 ease-in-out flex items-center justify-center rounded-l-xl shadow-xl">
-                                <img src="/btn-sininho.png" alt="VerNotificacao" className="h-8 w-auto" />
-                            </button>
-
                             <button
-                                className="h-32 cursor-pointer px-4 bg-[#052759] hover:brightness-110 hover:scale-105 transition-all duration-300 ease-in-out flex items-center justify-center shadow-xl"
+                                className="h-32 cursor-pointer px-4 bg-[#052759] hover:brightness-110 hover:scale-105 transition-all duration-300 ease-in-out flex items-center justify-center rounded-l-xl shadow-xl"
                                 onClick={() => navigate('/auth?mode=cadastro')}
                             >
                                 <img src="/btn-registrar.png" alt="Registrar" className="h-10 w-auto" />
@@ -209,10 +222,13 @@ export default function Navbar({ variant = 'blue' }) {
                 </div>
             </div>
 
+            {/* ------------------- MENU MOBILE ------------------------ */}
+
             <div
                 className={`${menu ? 'translate-x-0' : '-translate-x-full'
                     } lg:hidden flex flex-col absolute bg-gradient-to-b from-[#052759] to-[#0a3a8a] text-white left-0 top-full font-bold text-xl text-center pt-8 pb-8 gap-6 w-full h-fit transition-transform duration-300 z-50 shadow-2xl`}
             >
+
                 <Link
                     to="/"
                     onClick={() => setMenu(false)}
@@ -223,6 +239,7 @@ export default function Navbar({ variant = 'blue' }) {
                         <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
                     )}
                 </Link>
+
                 <Link
                     to="/feiras-de-adocao"
                     onClick={() => setMenu(false)}
@@ -244,6 +261,7 @@ export default function Navbar({ variant = 'blue' }) {
                         <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
                     )}
                 </Link>
+
                 <Link
                     to="/ajudar"
                     onClick={() => setMenu(false)}
@@ -258,6 +276,7 @@ export default function Navbar({ variant = 'blue' }) {
                 {user?.isAdmin && (
                     <div className="flex flex-col gap-4 mt-2 bg-white/10 rounded-2xl p-6 mx-4">
                         <div className="text-[#FCAD0B] font-bold text-lg mb-2">CADASTROS</div>
+
                         <Link
                             to="/cadastro-notificacao"
                             onClick={() => setMenu(false)}
@@ -265,6 +284,7 @@ export default function Navbar({ variant = 'blue' }) {
                         >
                             Cadastrar Notificação
                         </Link>
+
                         <Link
                             to="/cadastro-feira-de-adocao"
                             onClick={() => setMenu(false)}
@@ -275,6 +295,7 @@ export default function Navbar({ variant = 'blue' }) {
                     </div>
                 )}
 
+                {/* Sessão mobile */}
                 <div className="flex justify-center items-center mt-6 gap-3">
                     {user ? (
                         <div className="flex flex-col items-center gap-4 w-full px-4">
@@ -301,6 +322,7 @@ export default function Navbar({ variant = 'blue' }) {
                                     >
                                         <img src="/btn-sininho.png" alt="Notificações" className="h-5 w-5" />
                                     </button>
+
                                     <button
                                         onClick={logout}
                                         className="h-10 px-4 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] text-[#052759] rounded-xl font-bold text-sm hover:brightness-110 transition-all"
@@ -308,6 +330,7 @@ export default function Navbar({ variant = 'blue' }) {
                                         Sair
                                     </button>
                                 </div>
+
                             </div>
                         </div>
                     ) : (
@@ -315,12 +338,14 @@ export default function Navbar({ variant = 'blue' }) {
                             <button className="h-20 cursor-pointer px-6 bg-white/10 hover:bg-white/20 rounded-xl transition-all flex items-center justify-center backdrop-blur-sm">
                                 <img src="/btn-sininho.png" alt="VerNotificacao" className="h-8 w-auto" />
                             </button>
+
                             <button
                                 onClick={() => { navigate('/auth?mode=cadastro'); setMenu(false); }}
                                 className="h-20 cursor-pointer px-6 bg-white/10 hover:bg-white/20 rounded-xl transition-all flex items-center justify-center backdrop-blur-sm"
                             >
                                 <img src="/btn-registrar.png" alt="Registrar" className="h-10 w-auto" />
                             </button>
+
                             <button
                                 onClick={() => { navigate('/auth?mode=login'); setMenu(false); }}
                                 className="h-20 cursor-pointer px-6 bg-[#FCAD0B] hover:bg-[#FFD166] rounded-xl transition-all flex items-center justify-center"
@@ -330,6 +355,7 @@ export default function Navbar({ variant = 'blue' }) {
                         </>
                     )}
                 </div>
+
             </div>
         </div>
     );
