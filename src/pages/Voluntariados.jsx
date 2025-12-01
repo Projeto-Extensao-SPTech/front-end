@@ -4,6 +4,7 @@ import 'flatpickr/dist/flatpickr.min.css'
 import { Portuguese } from 'flatpickr/dist/l10n/pt.js'
 import { FaRegUser, FaEnvelope, FaWhatsapp, FaIdCard, FaPaw, FaCalendarAlt } from 'react-icons/fa'
 import Button from '../components/ui/Button'
+import { api } from '../api/apiUserService'
 
 export default function Voluntariados() {
 
@@ -15,6 +16,22 @@ export default function Voluntariados() {
         message: '',
         calendario: ''
     })
+
+    useEffect(() => {
+        const token = sessionStorage.getItem("USER_DATA")
+
+        if (token) {
+            const jsonData = JSON.parse(token)
+
+             setFormData(prev => ({
+            ...prev,
+            name: jsonData?.name || '',
+            email: jsonData?.email || '',
+            cpf: jsonData?.cpf || '',
+            whatsapp: jsonData?.whatsapp || ''
+        }));
+    }
+}, []);
 
     useEffect(() => {
         const fp = flatpickr("#calendario", {
