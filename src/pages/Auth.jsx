@@ -292,8 +292,8 @@ export default function Auth() {
                                                 Pessoa Física
                                             </button>
                                             <button
-                                                className={`${tipoPessoa === 'juridica' ? 'bg-[#052759] text-[#FCAD0B]' : 'bg-[#FCAD0B] text-[#052759] opacity-70'} cursor-pointer w-32 h-8 rounded-r-xl text-sm hover:opacity-90 font-bold`}
-                                                onClick={() => handleTipoPessoaChange('juridica')}
+                                                className={`${tipoPessoa === 'PJ' ? 'bg-[#052759] text-[#FCAD0B]' : 'bg-[#FCAD0B] text-[#052759] opacity-70'} cursor-pointer w-32 h-8 rounded-r-xl text-sm hover:opacity-90 font-bold`}
+                                                onClick={() => handleTipoPessoaChange('PJ')}
                                             >
                                                 Pessoa Jurídica
                                             </button>
