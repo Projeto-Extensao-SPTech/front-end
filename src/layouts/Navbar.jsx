@@ -81,6 +81,16 @@ export default function Navbar({ variant = 'blue' }) {
                         )}
                     </Link>
                     
+                    <Link
+                        to="/dashboard"
+                        className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
+                    >
+                        PAINEL
+                        {location.pathname === '/dashboard' && (
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                        )}
+                    </Link>
+                    
                     <div 
                         className="relative"
                         onMouseEnter={() => setCadastrosOpen(true)}
@@ -199,6 +209,17 @@ export default function Navbar({ variant = 'blue' }) {
                 >
                     QUERO AJUDAR
                     {location.pathname === '/ajudar' && (
+                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                    )}
+                </Link>
+                
+                <Link
+                    to="/dashboard"
+                    onClick={() => setMenu(false)}
+                    className="hover:scale-105 transition-all duration-300 font-bold py-2"
+                >
+                    PAINEL
+                    {location.pathname === '/dashboard' && (
                         <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
                     )}
                 </Link>
