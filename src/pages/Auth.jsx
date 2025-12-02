@@ -292,8 +292,8 @@ export default function Auth() {
                                                 Pessoa Física
                                             </button>
                                             <button
-                                                className={`${tipoPessoa === 'juridica' ? 'bg-[#052759] text-[#FCAD0B]' : 'bg-[#FCAD0B] text-[#052759] opacity-70'} cursor-pointer w-32 h-8 rounded-r-xl text-sm hover:opacity-90 font-bold`}
-                                                onClick={() => handleTipoPessoaChange('juridica')}
+                                                className={`${tipoPessoa === 'PJ' ? 'bg-[#052759] text-[#FCAD0B]' : 'bg-[#FCAD0B] text-[#052759] opacity-70'} cursor-pointer w-32 h-8 rounded-r-xl text-sm hover:opacity-90 font-bold`}
+                                                onClick={() => handleTipoPessoaChange('PJ')}
                                             >
                                                 Pessoa Jurídica
                                             </button>
@@ -440,9 +440,11 @@ async function loginUser(formData, alertUtils) {
         alertUtils.close()
         alertUtils.success("Login realizado com sucesso!", "Bem vindo de volta 🐾")
 
-        const data = response.data
-        setHeaderParam("Authorization", `Bearer ${data.token}`)
-        return data
+        const data = response.data;
+        sessionStorage.setItem("USER_DATA", JSON.stringify(data));
+        setHeaderParam("Authorization", `Bearer ${data.token}`);
+        window.location.href = '/';
+        return data;
     } catch (error) {
         alertUtils.close()
         await alertUtils.error("Falha no login!", "Verifique suas credenciais e tente novamente.")
