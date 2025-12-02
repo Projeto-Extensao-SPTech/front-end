@@ -1,16 +1,39 @@
-import { useState, useEffect } from 'react';
-import { api } from "../api/apiUserService"
+import { useState, useEffect, useRef } from 'react';
+import { api } from "../api/apiUserService";
 import { parseISO, format } from 'date-fns';
 import Button from '../components/ui/Button';
 import { useAlertUtils } from '../hooks/useAlertUtils';
 import { handleHttpFeedback } from '../js/utils/handleHttpFeedback';
 
+function useScrollReveal(threshold = 0.1) {
+    const [isVisible, setIsVisible] = useState(false);
+    const ref = useRef(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) setIsVisible(true);
+            },
+            { threshold }
+        );
+
+        if (ref.current) observer.observe(ref.current);
+        return () => observer.disconnect();
+    }, [threshold]);
+
+    return [ref, isVisible];
+}
+
 export default function FeirasDeAdocao() {
+
+    const [headerRef, headerVisible] = useScrollReveal(0.1);
+    const [paginationRef, paginationVisible] = useScrollReveal(0.1);
+    const [feiraCardsRef, feiraCardsVisible] = useScrollReveal(0.1);
+    const [petsRef, petsVisible] = useScrollReveal(0.1);
 
     const [feiraSelecionada, setFeiraSelecionada] = useState(0);
     const [paginaAtual, setPaginaAtual] = useState(1);
     const [feiras, setFeiras] = useState([]);
-
 
     async function getFairs() {
         try {
@@ -28,14 +51,14 @@ export default function FeirasDeAdocao() {
 
     function randomImage() {
         const images = [
+            '/img-card1.png',
+            '/img-card2.png',
+            '/img-card3.png',
             '/img-card4.png',
             '/img-card5.png',
             '/img-card6.png',
-            '/img-card8.png',
-            '/img-card9.png',
-            '/img-card10.png'
-        ]
-
+            '/img-card7.png'
+        ];
         return images[Math.floor(Math.random() * images.length)];
     }
 
@@ -45,6 +68,7 @@ export default function FeirasDeAdocao() {
 
     const CARDS_POR_PAGINA = 3;
     const totalPaginas = Math.ceil(feiras.length / CARDS_POR_PAGINA);
+
     const indiceInicio = (paginaAtual - 1) * CARDS_POR_PAGINA;
     const indiceFim = indiceInicio + CARDS_POR_PAGINA;
     const feirasVisiveis = feiras.slice(indiceInicio, indiceFim);
@@ -58,21 +82,29 @@ export default function FeirasDeAdocao() {
             <img src="/img-fade.png" alt="" className="absolute top-0 left-0 w-40 h-40" />
 
             <div className="max-w-7xl mx-auto mb-12">
-                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 mb-8">
 
+                <div
+                    ref={headerRef}
+                    className={`flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 mb-8 transition-all duration-700
+                        ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-8"}
+                    `}
+                >
                     <div className="lg:w-2/5">
                         <h1 className="text-3xl lg:text-4xl text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                            <span className="font-light">NAVEGUE PELAS</span>
-                            <br />
-                            <span className="font-bold">FEIRAS DE</span>
-                            <br />
+                            <span className="font-light">NAVEGUE PELAS</span><br />
+                            <span className="font-bold">FEIRAS DE</span><br />
                             <span>ADOÇÃO</span>
                         </h1>
                     </div>
 
                     <div className="lg:w-3/5 w-full">
 
-                        <nav className="flex justify-center gap-6 mb-6" aria-label="Paginação">
+                        <nav
+                            ref={paginationRef}
+                            className={`flex justify-center gap-6 mb-6 transition-all duration-700
+                                ${paginationVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}
+                            `}
+                        >
                             {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((pagina) => (
                                 <button
                                     key={pagina}
@@ -82,34 +114,49 @@ export default function FeirasDeAdocao() {
                                         : 'text-white/30 hover:text-white/60'
                                         }`}
                                     style={{ fontFamily: 'Poppins, sans-serif' }}
-                                    aria-current={paginaAtual === pagina ? 'page' : undefined}
                                 >
                                     {pagina}
                                 </button>
                             ))}
                         </nav>
 
-                        <div className="flex gap-6 overflow-x-auto pb-4 lg:overflow-visible lg:grid lg:grid-cols-3">
+                        <div
+                            ref={feiraCardsRef}
+                            className={`flex gap-6 overflow-x-auto pb-4 lg:overflow-visible lg:grid lg:grid-cols-3 transition-all duration-700
+                                ${feiraCardsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}
+                            `}
+                        >
                             {feirasVisiveis.map((feira, indexNaPagina) => {
                                 const indexGlobal = indiceInicio + indexNaPagina;
                                 const isSelected = feiraSelecionada === indexGlobal;
 
                                 return (
-                                    <CardFeira
+                                    <div
                                         key={feira.id}
-                                        feira={feira}
-                                        isSelected={isSelected}
-                                        onClick={() => selecionarFeira(indexGlobal)}
-                                    />
+                                        style={{ transitionDelay: `${indexNaPagina * 150}ms` }}
+                                        className="transition-all duration-700"
+                                    >
+                                        <CardFeira
+                                            feira={feira}
+                                            isSelected={isSelected}
+                                            onClick={() => selecionarFeira(indexGlobal)}
+                                        />
+                                    </div>
                                 );
                             })}
                         </div>
+
                     </div>
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto">
-                <h2 className="text-2xl lg:text-3xl font-bold text-white text-center mb-8" style={{ fontFamily: 'Poppins, sans-serif' }}>
+            <div
+                ref={petsRef}
+                className={`max-w-7xl mx-auto transition-all duration-700
+                    ${petsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}
+                `}
+            >
+                <h2 className="text-2xl lg:text-3xl font-bold text-white text-center mb-8">
                     Veja abaixo quais serão os pets presentes na Feira selecionada!
                 </h2>
 
@@ -128,7 +175,6 @@ export default function FeirasDeAdocao() {
 function CardFeira({ feira, isSelected, onClick }) {
     const alert = useAlertUtils();
 
-
     function formatHour(iso) {
         if (!iso) return '';
         const afterT = iso.split('T')[1] || '';
@@ -142,14 +188,12 @@ function CardFeira({ feira, isSelected, onClick }) {
     }
 
     async function fairInterest() {
-
         try {
-            const response = await api.patch(`/feiras/${feira.id}`)
+            const response = await api.patch(`/feiras/${feira.id}`);
             handleHttpFeedback(alert, response, {
                 successTitle: "Interesse registrado!",
                 successMessage: `Agradecemos seu interesse na feira de adoção em ${feira.address.street}.`,
             });
-
         } catch (error) {
             handleHttpFeedback(alert, error.response, {
                 errorTitle: "Erro ao registrar interesse",
@@ -159,60 +203,67 @@ function CardFeira({ feira, isSelected, onClick }) {
     }
 
     return (
-
-
         <div
             onClick={onClick}
-            className={`min-w-[320px] lg:min-w-0 bg-white rounded-2xl p-6 shadow-2xl cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-2xl relative ${isSelected ? 'scale-105' : ''
-                } shadow-[inset_0_8px_30px_0_rgba(0,0,0,0.4)]`}
+            className={`min-w-[320px] lg:min-w-0 bg-white rounded-2xl p-6 shadow-2xl cursor-pointer transform transition-all duration-300 hover:scale-105 relative
+                ${isSelected ? 'scale-105' : ''}
+                shadow-[inset_0_8px_30px_0_rgba(0,0,0,0.4)]
+            `}
             style={{ height: '380px' }}
         >
-
             <Button className="absolute -top-2 -right-4 bg-[#FCAD0B] text-[#052759] text-sm font-bold" onClick={fairInterest}>
                 Tenho interesse
             </Button>
 
-            <div
-                className={`absolute -bottom-9 left-1/2 transform -translate-x-1/2 w-5 h-5 rounded-full transition-all duration-300 ${isSelected ? 'bg-white' : 'bg-white/40'
-                    }`}
-            />
+            <div className="absolute -bottom-9 left-1/2 transform -translate-x-1/2 w-5 h-5 rounded-full transition-all duration-300 
+                ${isSelected ? 'bg-white' : 'bg-white/40'}
+            " />
 
             <div className="text-left mb-6">
-                <span className="text-[#052759] font-normal  text-2xl" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                <span className="text-[#052759] font-normal text-2xl">
                     {formatDate(feira.fair_date)}
                 </span>
             </div>
 
             <div className="text-center">
-                <h3 className="font-semibold text-[#052759] text-xl mb-3" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                <h3 className="font-semibold text-[#052759] text-xl mb-3">
                     {formatHour(feira.fair_hour)}
                 </h3>
-                <div className="space-y-1">
-                    <p className="text-[#052759] text-sm font-normal" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                        {feira.address.street}, {feira.address.number}
-                    </p>
-                </div>
+                <p className="text-[#052759] text-sm font-normal">
+                    {feira.address.street}, {feira.address.number}
+                </p>
             </div>
 
             <div className="flex justify-start mt-8 -ml-6">
                 <img
                     src={feira.card_image}
-                    alt={`Cachorro da feira em ${feira.street}`}
-                    className="w-40 h-40 object-cover rounded-r-xl "
+                    alt="pet"
+                    className="w-40 h-40 object-cover rounded-r-xl"
                 />
             </div>
         </div>
     );
 }
 
-
 function CardPet({ image, index }) {
 
     const imageUrl = `http://localhost:7000/feiras/images/${image}`;
 
-
     return (
-        <div className="group relative" style={{ animationDelay: `${index * 0.1}s` }}>
+        <div
+            className="group relative transition-all duration-700 opacity-0 translate-y-6"
+            style={{
+                animation: "fadeUp 0.6s forwards",
+                animationDelay: `${index * 0.12}s`
+            }}
+        >
+            <style>{`
+                @keyframes fadeUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            `}</style>
+
             <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-3xl blur-xl opacity-0 group-hover:opacity-75 transition-all duration-500" />
 
             <div className="relative bg-gradient-to-br from-white to-yellow-50 rounded-3xl p-6 shadow-2xl transform transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-2">
@@ -233,5 +284,4 @@ function CardPet({ image, index }) {
             </div>
         </div>
     );
-
 }

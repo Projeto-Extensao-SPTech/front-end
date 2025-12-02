@@ -131,7 +131,7 @@ export default function Navbar({ variant = 'blue' }) {
                             </div>
 
                             {cadastrosOpen && (
-                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 animate-in fade-in-0 zoom-in-95">
+                                <div className="absolute top-full left-1/2 transform -translate-x-1/2  w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 animate-in fade-in-0 zoom-in-95">
                                     <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-t border-l border-gray-100"></div>
 
                                     <Link

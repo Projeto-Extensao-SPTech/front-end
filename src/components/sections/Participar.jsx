@@ -1,7 +1,47 @@
+import { useState, useEffect, useRef } from 'react'
 import Button from '../ui/Button'
 import { Link } from 'react-router-dom'
 
+function useScrollReveal(threshold = 0.1) {
+    const [isVisible, setIsVisible] = useState(false)
+    const ref = useRef(null)
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true)
+                }
+            },
+            { threshold }
+        )
+
+        if (ref.current) {
+            observer.observe(ref.current)
+        }
+
+        return () => {
+            if (ref.current) {
+                observer.unobserve(ref.current)
+            }
+        }
+    }, [threshold])
+
+    return [ref, isVisible]
+}
+
 export default function Participar() {
+    const [cardsRef, cardsVisible] = useScrollReveal(0.1)
+    const [headerRef, headerVisible] = useScrollReveal(0.1)
+    const [ctaRef, ctaVisible] = useScrollReveal(0.1)
+
+    const cards = [
+        { icon: '/img-participar-1.png', title: 'Adote', desc: 'Dê um lar definitivo e ganhe um companheiro para vida toda.', color: 'from-[#FCAD0B] to-[#f8b83d]' },
+        { icon: '/img-participar-1.png', title: 'Patrocine', desc: 'Ajude financeiramente um animal até ele encontrar um lar.', color: 'from-[#052759] to-[#0d3a7a]' },
+        { icon: '/img-participar-2.png', title: 'Doe', desc: 'Ração, medicamentos, brinquedos ou recursos financeiros.', color: 'from-[#FCAD0B] to-[#f8b83d]' },
+        { icon: '/img-participar-3.png', title: 'Divulgue', desc: 'Compartilhe nas redes e ajude a aumentar nosso alcance.', color: 'from-[#052759] to-[#0d3a7a]' }
+    ]
+
     return (
         <div className="relative bg-gradient-to-br from-[#052759] via-[#0d3a7a] to-[#052759] py-16 lg:py-24 overflow-hidden">
             
@@ -12,71 +52,44 @@ export default function Participar() {
 
             <div className="max-w-7xl mx-auto px-4 lg:px-8 relative z-10">
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                    
-                    <div className="group relative bg-white rounded-2xl p-5 shadow-xl hover:shadow-[#FCAD0B]/20 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2">
-                        <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-[#FCAD0B]/10 to-transparent rounded-tr-2xl"></div>
-                        <div className="relative z-10">
-                            <div className="w-12 h-12 bg-gradient-to-br from-[#FCAD0B] to-[#f8b83d] rounded-xl flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                                <img src="/img-participar-1.png" alt="Adotar" className="w-6 h-6" />
+                <div ref={cardsRef} className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    {cards.map((card, index) => (
+                        <div
+                            key={index}
+                            className={`group relative bg-white rounded-2xl p-5 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 ${
+                                cardsVisible 
+                                    ? 'opacity-100 translate-y-0' 
+                                    : 'opacity-0 translate-y-12'
+                            }`}
+                            style={{ 
+                                transitionDelay: cardsVisible ? `${index * 100}ms` : '0ms',
+                                transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
+                            }}
+                        >
+                            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-[#FCAD0B]/10 to-transparent rounded-tr-2xl"></div>
+                            <div className="relative z-10">
+                                <div className={`w-12 h-12 bg-gradient-to-br ${card.color} rounded-xl flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
+                                    <img src={card.icon} alt={card.title} className="w-6 h-6" />
+                                </div>
+                                <h3 className="text-xl font-bold text-[#052759] mb-2 group-hover:text-[#FCAD0B] transition-colors">
+                                    {card.title}
+                                </h3>
+                                <p className="text-gray-600 leading-relaxed text-sm">
+                                    {card.desc}
+                                </p>
                             </div>
-                            <h3 className="text-xl font-bold text-[#052759] mb-2 group-hover:text-[#FCAD0B] transition-colors">
-                                Adote
-                            </h3>
-                            <p className="text-gray-600 leading-relaxed text-sm">
-                                Dê um lar definitivo e ganhe um companheiro para vida toda.
-                            </p>
                         </div>
-                    </div>
-
-                    <div className="group relative bg-white rounded-2xl p-5 shadow-xl hover:shadow-[#052759]/20 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2">
-                        <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-[#052759]/10 to-transparent rounded-tr-2xl"></div>
-                        <div className="relative z-10">
-                            <div className="w-12 h-12 bg-gradient-to-br from-[#052759] to-[#0d3a7a] rounded-xl flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                                <img src="/img-participar-1.png" alt="Apadrinhar" className="w-6 h-6" />
-                            </div>
-                            <h3 className="text-xl font-bold text-[#052759] mb-2 group-hover:text-[#0d3a7a] transition-colors">
-                                Patrocine
-                            </h3>
-                            <p className="text-gray-600 leading-relaxed text-sm">
-                                Ajude financeiramente um animal até ele encontrar um lar.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="group relative bg-white rounded-2xl p-5 shadow-xl hover:shadow-[#FCAD0B]/20 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2">
-                        <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-[#FCAD0B]/10 to-transparent rounded-tr-2xl"></div>
-                        <div className="relative z-10">
-                            <div className="w-12 h-12 bg-gradient-to-br from-[#FCAD0B] to-[#f8b83d] rounded-xl flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                                <img src="/img-participar-2.png" alt="Doar" className="w-6 h-6" />
-                            </div>
-                            <h3 className="text-xl font-bold text-[#052759] mb-2 group-hover:text-[#FCAD0B] transition-colors">
-                                Doe
-                            </h3>
-                            <p className="text-gray-600 leading-relaxed text-sm">
-                                Ração, medicamentos, brinquedos ou recursos financeiros.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="group relative bg-white rounded-2xl p-5 shadow-xl hover:shadow-[#052759]/20 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2">
-                        <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-[#052759]/10 to-transparent rounded-tr-2xl"></div>
-                        <div className="relative z-10">
-                            <div className="w-12 h-12 bg-gradient-to-br from-[#052759] to-[#0d3a7a] rounded-xl flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                                <img src="/img-participar-3.png" alt="Compartilhar" className="w-6 h-6" />
-                            </div>
-                            <h3 className="text-xl font-bold text-[#052759] mb-2 group-hover:text-[#0d3a7a] transition-colors">
-                                Divulgue
-                            </h3>
-                            <p className="text-gray-600 leading-relaxed text-sm">
-                                Compartilhe nas redes e ajude a aumentar nosso alcance.
-                            </p>
-                        </div>
-                    </div>
-
+                    ))}
                 </div>
 
-                <div className="text-center mb-8 lg:mb-12">
+                <div 
+                    ref={headerRef}
+                    className={`text-center mb-8 lg:mb-12 transition-all duration-700 ${
+                        headerVisible 
+                            ? 'opacity-100 translate-y-0' 
+                            : 'opacity-0 -translate-y-8'
+                    }`}
+                >
                     <h1 className="text-3xl lg:text-4xl font-black text-white mb-4 leading-tight">
                         FAÇA PARTE DA MUDANÇA
                     </h1>
@@ -88,8 +101,14 @@ export default function Participar() {
                     </p>
                 </div>
 
-                <div className="relative bg-gradient-to-r from-white via-white to-gray-50 rounded-2xl p-6 lg:p-8 shadow-xl overflow-hidden">
-
+                <div 
+                    ref={ctaRef}
+                    className={`relative bg-gradient-to-r from-white via-white to-gray-50 rounded-2xl p-6 lg:p-8 shadow-xl overflow-hidden transition-all duration-700 ${
+                        ctaVisible 
+                            ? 'opacity-100 translate-x-0' 
+                            : 'opacity-0 -translate-x-12'
+                    }`}
+                >
                     <div className="absolute right-6 bottom-0 w-48 lg:w-56 opacity-100">
                         <img 
                             src="/img-adotar.png" 
