@@ -12,6 +12,14 @@ export default function FeirasDeAdocao() {
     const [feiras, setFeiras] = useState([]);
 
 
+    function selectText() {
+        if (feiras.length === 0) {
+            return "Nenhuma feira de adoção disponível no momento.";
+        }else{
+            return "Veja abaixo os pets disponíveis na feira selecionada:";
+        }
+    }
+
     async function getFairs() {
         try {
             const response = await api.get('/feiras');
@@ -110,7 +118,7 @@ export default function FeirasDeAdocao() {
 
             <div className="max-w-7xl mx-auto">
                 <h2 className="text-2xl lg:text-3xl font-bold text-white text-center mb-8" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                    Veja abaixo quais serão os pets presentes na Feira selecionada!
+                        {selectText()}
                 </h2>
 
                 <div className="flex justify-center">
