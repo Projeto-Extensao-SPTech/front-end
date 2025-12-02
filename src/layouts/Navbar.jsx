@@ -105,22 +105,18 @@ export default function Navbar({ variant = 'blue' }) {
                         )}
                     </Link>
                     
-                    <Link
-                        to="/dashboard"
-                        className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
-                    >
-                        PAINEL
-                        {location.pathname === '/dashboard' && (
-                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
-                        )}
-                    </Link>
+                    {user?.isAdmin && (
+                        <Link
+                            to="/dashboard"
+                            className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
+                        >
+                            PAINEL
+                            {location.pathname === '/dashboard' && (
+                                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                            )}
+                        </Link>
+                    )}
                     
-                    <div 
-                        className="relative"
-                        onMouseEnter={() => setCadastrosOpen(true)}
-                        onMouseLeave={() => setCadastrosOpen(false)}
-                    >
-
                     {user?.isAdmin && (
                         <div
                             className="relative"
@@ -289,34 +285,18 @@ export default function Navbar({ variant = 'blue' }) {
                     )}
                 </Link>
                 
-                <Link
-                    to="/dashboard"
-                    onClick={() => setMenu(false)}
-                    className="hover:scale-105 transition-all duration-300 font-bold py-2"
-                >
-                    PAINEL
-                    {location.pathname === '/dashboard' && (
-                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
-                    )}
-                </Link>
-                
-                <div className="flex flex-col gap-4 mt-2 bg-white/10 rounded-2xl p-6 mx-4">
-                    <div className="text-[#FCAD0B] font-bold text-lg mb-2">CADASTROS</div>
+                {user?.isAdmin && (
                     <Link
-                        to="/cadastro-evento"
+                        to="/dashboard"
                         onClick={() => setMenu(false)}
-                        className="text-base hover:scale-105 transition-all duration-300 font-bold text-gray-200 bg-white/5 rounded-xl py-3 px-4 hover:bg-[#FCAD0B] hover:text-[#052759]"
+                        className="hover:scale-105 transition-all duration-300 font-bold py-2"
                     >
-                        📅 Cadastro de Evento
+                        PAINEL
+                        {location.pathname === '/dashboard' && (
+                            <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                        )}
                     </Link>
-                    <Link
-                        to="/cadastro-notificacao"
-                        onClick={() => setMenu(false)}
-                        className="text-base hover:scale-105 transition-all duration-300 font-bold text-gray-200 bg-white/5 rounded-xl py-3 px-4 hover:bg-[#FCAD0B] hover:text-[#052759]"
-                    >
-                        🐕 Cadastro de Feira de Adoção
-                    </Link>
-                </div>
+                )}
 
                 {user?.isAdmin && (
                     <div className="flex flex-col gap-4 mt-2 bg-white/10 rounded-2xl p-6 mx-4">
@@ -380,10 +360,6 @@ export default function Navbar({ variant = 'blue' }) {
                         </div>
                     ) : (
                         <>
-                            <button className="h-20 cursor-pointer px-6 bg-white/10 hover:bg-white/20 rounded-xl transition-all flex items-center justify-center backdrop-blur-sm">
-                                <img src="/btn-sininho.png" alt="VerNotificacao" className="h-8 w-auto" />
-                            </button>
-
                             <button
                                 onClick={() => { navigate('/auth?mode=cadastro'); setMenu(false); }}
                                 className="h-20 cursor-pointer px-6 bg-white/10 hover:bg-white/20 rounded-xl transition-all flex items-center justify-center backdrop-blur-sm"
