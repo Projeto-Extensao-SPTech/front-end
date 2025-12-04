@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
-
+import { api } from '../api/apiUserService'
 
 function Apoiar({ areasApoio, toggleArea, onNext }) {
     const checkBoxes = [
@@ -211,8 +210,7 @@ export default function Patrocinadores() {
 function sendSponsor(formData) {
     if (!formData) return;
 
-    // Pega os dados do usuário logado do sessionStorage
-    const SESSION_KEY = "APP_USER";
+    const SESSION_KEY = "USER_DATA";
     let user = null;
 
     try {
@@ -242,7 +240,7 @@ function sendSponsor(formData) {
     console.log("Enviando sponsorship:", sponsorshipPayload);
 
     // Envia a sponsorship
-    axios.post("http://localhost:3000/sponsorships", sponsorshipPayload)
+    api.post("/sponsorships", sponsorshipPayload)
         .then(sponsorshipResponse => {
             console.log("Sponsorship created:", sponsorshipResponse.data);
 
@@ -250,10 +248,11 @@ function sendSponsor(formData) {
 
             // Envia notificação via WhatsApp
             const departments = getSponsorshipDepartment(formData.areasApoio);
-            const messageText = `Olá Andressa,\nTemos uma nova proposta de Patrocinador! 😻\n\n*Nome*: ${sponsorship.sponsor.name}\n*Departamento*: ${departments}\n*Descrição*: ${sponsorship.description || "Não informado"}\n*Tipo*: ${sponsorship.type}\n*Email*: ${sponsorship.sponsor.email || "Não informado"}\n*Telefone*: ${sponsorship.sponsor.phone || "Não informado"}\n\nEntre em contato para saber mais detalhes! 🐶🦴`;
 
-            return axios.post("http://localhost:7000/messages/sendText/Evolution-teste-api", {
-                number: "5511978704169",
+            const messageText = `Olá Andressa,\nTemos uma nova proposta de Patrocinador! 😻\n\n*Nome*: ${sponsorship.sponsor.name}\n*Departamento*: ${departments}\n*Descrição*: ${sponsorship.description || "Não informado"}\n*Tipo*: ${sponsorship.type}\n*Email*: ${sponsorship.sponsor.mail_address || "Não informado"}\n*Telefone*: ${sponsorship.sponsor.phone || "Não informado"}\n\nEntre em contato para saber mais detalhes! 🐶🦴`;
+
+            return api.post("/messages/sendText/Evolution-teste-api", {
+                number: "5511930144580",
                 text: messageText
             });
         })
