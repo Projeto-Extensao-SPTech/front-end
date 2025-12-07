@@ -86,7 +86,7 @@ export default function Auth() {
         }
 
         try {
-            const response = await fetch('http://localhost:7000/message/sendText/default', {
+            const response = await fetch('http://localhost:7000/messages/sendText/api-manager', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody)
@@ -233,8 +233,6 @@ export default function Auth() {
             }
         }
 
-        setIsLoading(true)
-
         try {
             if (isLogin) {
                 await loginUser(formData, alertUtils)
@@ -245,9 +243,7 @@ export default function Auth() {
             }
         } catch (error) {
             alertUtils.error("Erro!", error.message || "Ocorreu um erro. Tente novamente.")
-        } finally {
-            setIsLoading(false)
-        }
+        } 
     }
 
     const switchMode = (mode) => {
