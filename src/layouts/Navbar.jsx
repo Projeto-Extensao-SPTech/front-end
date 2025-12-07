@@ -105,7 +105,7 @@ export default function Navbar({ variant = 'blue' }) {
                         )}
                     </Link>
                     
-                    {user?.isAdmin && (
+                    {user?.is_admin && (
                         <Link
                             to="/dashboard"
                             className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
@@ -285,7 +285,7 @@ export default function Navbar({ variant = 'blue' }) {
                     )}
                 </Link>
                 
-                {user?.isAdmin && (
+                {user?.is_admin && (
                     <Link
                         to="/dashboard"
                         onClick={() => setMenu(false)}
