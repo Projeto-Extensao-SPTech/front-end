@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 function InputField({ field, value, onChange }) {
@@ -44,10 +44,11 @@ function InputField({ field, value, onChange }) {
     );
 }
 
-function FormButton({ children, onClick }) {
+function FormButton({ children, onClick, disabled }) {
     return (
         <button
             onClick={onClick}
+            disabled={disabled}
             className="w-64 bg-[#FFB114] text-white rounded-lg py-2 mt-4 hover:bg-[#ffd175] transition-colors duration-300 font-bold"
         >
             {children}
@@ -64,11 +65,8 @@ function RadioOption({ id, checked, onChange, label }) {
     );
 }
 
-function Informacoes({ onNext }) {
-    const [formData, setFormData] = useState({
-        nomeProduto: "", quantidade: "", categoria: "", estado: "", descricao: ""
-    });
-
+function Informacoes({ data, updateData, onNext }) {
+    
     const fields = [
         { label: "Nome do Produto", type: "text", name: "nomeProduto", component: "input", fullWidth: true },
         { label: "Categoria", type: "select", name: "categoria", component: "select", options: ["Alimento", "Medicamento", "Vestimentas", "Materiais de Construção"], fullWidth: true },
@@ -77,7 +75,7 @@ function Informacoes({ onNext }) {
         { label: "Descrição", type: "text", name: "descricao", component: "textarea", fullWidth: true }
     ];
 
-    const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const handleChange = (e) => updateData(e.target.name, e.target.value);
 
     return (
         <div className="text-center space-y-6 w-full">
@@ -86,17 +84,15 @@ function Informacoes({ onNext }) {
 
             <form className="flex flex-wrap w-full gap-4 justify-between">
                 {fields.map(f => (
-                    <InputField key={f.name} field={f} value={formData[f.name]} onChange={handleChange} />
+                    <InputField key={f.name} field={f} value={data[f.name]} onChange={handleChange} />
                 ))}
             </form>
 
             <FormButton onClick={e => {
                 e.preventDefault();
 
-                for (const key in formData) {
-                    if (key !== "descricao" && !formData[key]) {
-                        return alert(`Por favor, preencha o campo "${key}"`);
-                    }
+                if (!data.nomeProduto || !data.categoria || !data.quantidade || !data.estado || !data.descricao) {
+                    return alert("Por favor, preencha todos os campos antes de avançar!");
                 }
 
                 onNext();
@@ -107,9 +103,12 @@ function Informacoes({ onNext }) {
     );
 }
 
-function EnviarFoto({ onNext }) {
-    const [foto, setFoto] = useState(null);
-    const handleFileChange = (e) => setFoto(e.target.files[0]);
+function EnviarFoto({ data, updateData, onNext }) {
+    const handleFileChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            updateData("foto", e.target.files[0]);
+        }
+    };
 
     return (
         <div className="text-center space-y-6 w-full">
@@ -118,8 +117,8 @@ function EnviarFoto({ onNext }) {
 
             <div className="flex flex-col items-center justify-center w-full mt-4">
                 <label htmlFor="foto" className="cursor-pointer w-72 h-64 bg-gray-200 rounded-2xl flex flex-col items-center justify-center hover:bg-gray-300 transition">
-                    {foto ? (
-                        <img src={URL.createObjectURL(foto)} alt="Pré-visualização" className="w-full h-full object-contain rounded-2xl" />
+                    {data.foto ? (
+                        <img src={URL.createObjectURL(data.foto)} alt="Pré-visualização" className="w-full h-full object-contain rounded-2xl" />
                     ) : (
                         <>
                             <img src="/img-doacao-livre-upload-photo.png" alt="Ícone de câmera" className="w-24 h-24 mb-10" />
@@ -134,33 +133,98 @@ function EnviarFoto({ onNext }) {
 
             <FormButton onClick={e => {
                 e.preventDefault();
-                if (!foto) return alert("Por favor, selecione uma foto antes de avançar!");
+        
                 onNext();
             }}>Avançar</FormButton>
         </div>
     );
 }
 
-function Envio({ onNext }) {
-    const [sendType, setSendType] = useState("");
-    const [collectionPointSelected, setCollectionPointSelected] = useState();
-    const [formData, setFormData] = useState({ cep_origem: "", cep_destino: "13580-000" });
+function Envio({ data, updateData, onNext }) {
+    const [collectionPoints, setCollectionPoints] = useState([]);
+    const [ loading, setLoading ] = useState(false);
+   
 
-    const fields = [
-        { label: "CEP de Origem", type: "text", name: "cep_origem", component: "input", fullWidth: true },
-        { label: "CEP de Destino", type: "text", name: "cep_destino", component: "input", fullWidth: true }
-    ];
+    useEffect(() => {
+            const fetchPoints = async () => {
+                try {
+                    // Tenta pegar o token do localStorage (ajuste a chave conforme seu login)
+                    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+                    
+                    const response = await fetch("http://localhost:7000/collection-centers", {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            // Se a rota for protegida, envie o token:
+                            "Authorization": `Bearer ${token}` 
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        setCollectionPoints(data);
+                    }
+                } catch (error) {
+                    console.error("Erro ao buscar pontos:", error);
+                }
+            };
+            fetchPoints();
+        }, []);
 
-    const [collectionPoints] = useState([
-        { id: 1, formattedAddress: "Rua XV de Novembro, 120 - Centro, São Paulo - SP", name: "Associação Esperança" },
-        { id: 2, formattedAddress: "Avenida Santo Amaro, 3450 - Brooklin, São Paulo - SP", name: "Instituto Cuidar Bem" },
-        { id: 3, formattedAddress: "Rua Itaquera, 980 - Vila Carmosina, São Paulo - SP", name: "Abrigo São Francisco" },
-        { id: 4, formattedAddress: "Rua da Consolação, 500 - Consolação, São Paulo - SP", name: "Lar dos Amigos" },
-        { id: 5, formattedAddress: "Av. Paulista, 1578 - Bela Vista, São Paulo - SP", name: "Instituto Vida Nova" }
-    ]);
+    const handleChange = (e) => updateData(e.target.name, e.target.value);
 
-    const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-    const handleRadioChange = (value) => setSendType(prev => (prev === value ? "" : value));
+    const handleRadioChange = (tipo) =>{
+        updateData("sendType", tipo);
+        if(tipo === "envio") updateData("pontoColetaId", null);
+        if(tipo === "ponto de coleta") {
+            updateData("cep_origem", "");
+            updateData("cep_destino", "");
+        }
+    };
+
+    const handleFinalSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        const payload = {
+             name: data.nomeProduto,
+            type: data.categoria,
+            amount: parseInt(data.quantidade),
+            description: data.descricao,
+            shippingMethod: data.tipoEnvio === "envio" ? "Correios" : "Ponto de Coleta",
+            collectionCenterId: data.pontoColetaId || null
+        }
+
+        try{
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            if (!token) {
+                alert("Você precisa estar logado para fazer uma doação.");
+                setLoading(false);
+                return;
+            }
+        
+        const response = await fetch("http://localhost:7000/donations", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        })
+        if(response.ok){
+            onNext();
+        }
+        else{
+            const errorData = await response.json();
+            alert("Erro ao enviar doação: " + errorData.message);
+        }
+        } catch (error) {
+            console.error("Erro ao enviar doação:", error);
+            alert("Ocorreu um erro ao enviar a doação. Por favor, tente novamente mais tarde.");
+        } finally {
+            setLoading(false);
+        }    
+    }
 
     return (
         <div className="text-center space-y-6 w-full">
@@ -169,66 +233,51 @@ function Envio({ onNext }) {
 
             <form className="flex flex-col w-full gap-4">
                 <div className="flex items-center justify-center text-left gap-4">
-                    <RadioOption id="pontoColeta" checked={sendType === "ponto de coleta"} onChange={() => handleRadioChange("ponto de coleta")} label="Levar ao ponto de coleta" />
-                    <RadioOption id="envio" checked={sendType === "envio"} onChange={() => handleRadioChange("envio")} label="Enviar para o abrigo" />
+                    <RadioOption id="pontoColeta" checked={data.tipoEnvio === "ponto de coleta"} onChange={() => handleRadioChange("ponto de coleta")} label="Levar ao ponto de coleta" />
+                    <RadioOption id="envio" checked={data.tipoEnvio === "envio"} onChange={() => handleRadioChange("envio")} label="Enviar para o abrigo" />
                 </div>
 
-                {sendType === "envio" && (
-                    <>
-                        <div className="flex flex-wrap gap-4 mt-4">
-                            {fields.map(f => (
-                                <InputField key={f.name} field={f} value={formData[f.name]} onChange={handleChange} />
-                            ))}
-                            <p className="text-sm text-white/80 font-normal">
-                                *Esse CEP se refere ao local onde se encontra o abrigo Dog Feliz
-                            </p>
+                {data.tipoEnvio === "envio" && (
+                      <div className="flex flex-wrap gap-4 mt-4">
+                        <InputField field={{ label: "CEP Origem", name: "cep_origem", component: "input", fullWidth: true }} value={data.cep_origem} onChange={handleChange} />
+                        <InputField field={{ label: "CEP Destino (Abrigo)", name: "cep_destino", component: "input", fullWidth: true }} value={data.cep_destino} onChange={handleChange} />
+                        
+                        <div className="w-full flex justify-center mt-4">
+                            <FormButton onClick={handleFinalSubmit} disabled={loading}>
+                                {loading ? "Enviando..." : "Finalizar Doação"}
+                            </FormButton>
                         </div>
-                        <div className="flex flex-col justify-center items-start gap-1 bg-[#D9D9D9] rounded-2xl p-4">
-                            <p className="text-[#052759]">Prazo de entrega: </p>
-                            <p className="text-[#052759]">Preço base para envio: </p>
-                            <p className="text-[#052759] font-normal">*Cálculo realizado por meio da API Oficial dos Correios</p>
-                        </div>
-
-                        <div className="flex justify-center mt-4">
-                            <FormButton onClick={e => { e.preventDefault(); onNext(); }}>Avançar</FormButton>
-                        </div>
-                    </>
+                    </div>
                 )}
 
-                {sendType === "ponto de coleta" && (
+                {data.tipoEnvio === "ponto de coleta" && (
                     <>
                         <div className="flex justify-center flex-col items-center mt-4 w-full">
                             <p className="text-lg text-white/80 font-normal mb-2">Escolha um ponto de coleta</p>
                             <div className="flex flex-col gap-2 w-full max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-[#FFB114] scrollbar-track-[#E5E7EB] rounded-md p-2">
+                                
+                                {collectionPoints.length === 0 && <p className="text-white">Carregando pontos...</p>}
                                 {collectionPoints.map(p => (
                                     <div
                                         key={p.id}
-                                        onClick={() => setCollectionPointSelected(p.id)}
-                                        className={`flex flex-col items-start rounded-md p-3 w-full transition-colors duration-200 ${collectionPointSelected === p.id ? "bg-white border-2 border-[#FFB114]" : "bg-[#d9d9d9] hover:bg-white"}`}
+                                        onClick={() => updateData("pontoColetaId",p.id)}
+                                        className={`flex flex-col items-start rounded-md p-3 w-full transition-colors duration-200 ${data.collectionCenterId === p.id ? "bg-white border-2 border-[#FFB114]" : "bg-[#d9d9d9] hover:bg-white"}`}
                                     >
                                         <p className="text-[#052759] font-bold">{p.name}</p>
-                                        <p className="text-[#052759] font-normal text-sm">{p.formattedAddress}</p>
-                                    </div>
+                                    {p.address && (
+                                        <p className="text-[#052759] font-normal text-sm">
+                                            {p.address.street}, {p.address.number} - {p.address.city}/{p.address.state}
+                                        </p>
+                                    )}
+                                       </div>
                                 ))}
                             </div>
                         </div>
 
                         <div className="flex justify-center mt-4">
-                            <FormButton onClick={e => {
-                                e.preventDefault();
-                                if (!sendType) return alert("Por favor, selecione um método de envio.");
-
-                                if (sendType === "envio") {
-                                    if (!formData.cep_origem) return alert("Por favor, preencha o CEP de Origem.");
-                                    if (!formData.cep_destino) return alert("Por favor, preencha o CEP de Destino.");
-                                }
-
-                                if (sendType === "ponto de coleta" && !collectionPointSelected) {
-                                    return alert("Por favor, selecione um ponto de coleta.");
-                                }
-
-                                onNext();
-                            }}>Avançar</FormButton>
+                             <FormButton onClick={handleFinalSubmit} disabled={loading}>
+                                {loading ? "Enviando..." : "Finalizar Doação"}
+                            </FormButton>
                         </div>
                     </>
                 )}
@@ -276,7 +325,25 @@ function Identificador({ steps, currentIndex }) {
 
 export default function DoacaoLivre() {
     const [step, setStep] = useState(0);
-    const nextStep = () => setStep(prev => Math.min(prev + 1, 3));
+    // const nextStep = () => setStep(prev => Math.min(prev + 1, 3));
+
+     const [formData, setFormData] = useState({
+        nomeProduto: "",
+        categoria: "",
+        quantidade: "",
+        estado: "",
+        descricao: "",
+        foto: null, // Guarda o arquivo, mas o backend atual ainda não salva
+        tipoEnvio: "", // "envio" ou "ponto de coleta"
+        pontoColetaId: null,
+        cep_origem: "",
+        cep_destino: "13580-000" // Fixo do abrigo
+    });
+
+    const updateFormData = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    }
+    const nextStep = () => setStep(prev => prev + 1);
 
     const steps = [
         { key: "sobre", label: "Sobre a doação" },
@@ -289,9 +356,9 @@ export default function DoacaoLivre() {
         <div className="flex min-h-screen overflow-hidden">
             <div className="flex flex-col w-1/2 bg-[#052759] text-white border-l rounded-r-3xl items-center justify-center p-8 gap-6">
                 <div className="w-full max-w-md">
-                    {step === 0 && <Informacoes onNext={nextStep} />}
-                    {step === 1 && <EnviarFoto onNext={nextStep} />}
-                    {step === 2 && <Envio onNext={nextStep} />}
+                    {step === 0 && <Informacoes data={formData} updateData={updateFormData} onNext={nextStep} />}
+                    {step === 1 && <EnviarFoto data={formData} updateData={updateFormData} onNext={nextStep} />}
+                    {step === 2 && <Envio data={formData} updateData={updateFormData} onNext={nextStep} />}
                     {step === 3 && <Agradecimento />}
                 </div>
             </div>
