@@ -34,7 +34,7 @@ export default function CadastroNotificacao() {
     }, [form.tipo])
 
     function formatFeira(feira) {
-        const date = feira.fairDate.split("-").reverse().join("/")
+        const date = feira.fair_date.split("-").reverse().join("/")
         const { street, number, city, state } = feira.address
         const addressFormatted = `${street}, n° ${number} | ${city}/${state}`
         return `${date} - ${addressFormatted}`

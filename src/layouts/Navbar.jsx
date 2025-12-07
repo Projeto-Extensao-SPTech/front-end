@@ -117,7 +117,7 @@ export default function Navbar({ variant = 'blue' }) {
                         </Link>
                     )}
                     
-                    {user?.isAdmin && (
+                    {user?.is_admin && (
                         <div
                             className="relative"
                             onMouseEnter={() => setCadastrosOpen(true)}
@@ -298,7 +298,7 @@ export default function Navbar({ variant = 'blue' }) {
                     </Link>
                 )}
 
-                {user?.isAdmin && (
+                {user?.is_admin && (
                     <div className="flex flex-col gap-4 mt-2 bg-white/10 rounded-2xl p-6 mx-4">
                         <div className="text-[#FCAD0B] font-bold text-lg mb-2">CADASTROS</div>
 
