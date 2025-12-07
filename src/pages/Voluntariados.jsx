@@ -17,22 +17,25 @@ export default function Voluntariados() {
         calendario: ''
     })
 
+    
     useEffect(() => {
         const token = sessionStorage.getItem("USER_DATA")
 
         if (token) {
             const jsonData = JSON.parse(token)
+            console.log("JSON DATA COMPLETO:", jsonData);
 
-             setFormData(prev => ({
-            ...prev,
-            name: jsonData?.name || '',
-            email: jsonData?.email || '',
-            cpf: jsonData?.cpf || '',
-            whatsapp: jsonData?.whatsapp || ''
-        }));
-    }
-}, []);
+            setFormData(prev => ({
+                ...prev,
+                name: jsonData?.name || '',
+                email: jsonData?.mail_address || '',
+                cpf: jsonData?.document || '',
+                whatsapp: jsonData?.phone || ''
+            }))
+        }
+    }, [])
 
+    
     useEffect(() => {
         const fp = flatpickr("#calendario", {
             locale: Portuguese,
@@ -40,16 +43,98 @@ export default function Voluntariados() {
             minDate: "today",
             disableMobile: true,
             onChange: (dates) => {
-                const dataFormatada = dates.length > 0 ? flatpickr.formatDate(dates[0], "d/m/Y") : ''
+                const dataFormatada =
+                    dates.length > 0 ? flatpickr.formatDate(dates[0], "d/m/Y") : ''
+
                 setFormData(prev => ({ ...prev, calendario: dataFormatada }))
             }
         })
         return () => fp.destroy()
     }, [])
 
+  
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+
+        try {
+        const token = sessionStorage.getItem("USER_DATA");
+
+        if (!token) {
+            alert("Você precisa estar logado para se voluntariar.");
+            return;
+        }
+
+        const jsonData = JSON.parse(token);
+        console.log("JSON DATA:", jsonData);
+        const userId = jsonData?.id;
+
+        if (!userId) {
+            alert("ID de usuário não encontrado. Faça login novamente.");
+            return;
+        }
+
+       
+        const [dia, mes, ano] = formData.calendario.split("/");
+        const isoDate = `${ano}-${mes}-${dia}`;
+
+        const payload = {
+            user_id: userId,
+            message: formData.message,
+            available_date: isoDate
+        };
+
+        
+        console.log("Payload enviado:", payload);
+
+        const response = await api.post("/volunteers", payload);
+
+        console.log("Voluntário cadastrado:", response.data);
+        alert("Cadastro enviado com sucesso!");
+
+        await sendWhatsApp(isoDate);
+        alert("Mensagem enviada pelo WhatsApp!");
+
+    } catch (error) {
+        console.error("Erro ao cadastrar voluntário:", error);
+        alert("Ocorreu um erro ao enviar o cadastro.");
+    }
+}
+
     const handleChange = (e) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
     }
+
+    
+    // -------------------------------
+    const sendWhatsApp = async () => {
+    
+    const token = sessionStorage.getItem("USER_DATA");
+    if (!token) return alert("Você precisa estar logado para enviar a mensagem.");
+    
+    const user = JSON.parse(token);
+
+    
+    const msg = `Olá!\nSou um voluntário interessado! 🐶\n\n` +
+                `Nome: ${user.name || formData.name}\n` +
+                `Email: ${user.mail_address || formData.email}\n` +
+                `Mensagem: ${formData.message || "Não informado"}\n` +
+                `Data disponível: ${formData.calendario}`;
+
+    const beneficiaryNumber = `5511992005715`;
+    const payload = {
+        number: beneficiaryNumber,
+        text: msg
+    };
+
+    const instance = "default"; 
+    try {
+        const response = await api.post(`/messages/sendText/${instance}`, payload);
+        console.log("Mensagem enviada com sucesso:", response.data);
+    } catch (error) {
+        console.error("Erro ao enviar WhatsApp:", error);
+        alert("Ocorreu um erro ao enviar a mensagem pelo WhatsApp.");
+    }
+}
 
     const InputComIcone = ({ icon: Icon, name, placeholder, type = "text" }) => (
         <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden">
@@ -67,17 +152,14 @@ export default function Voluntariados() {
         </div>
     )
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        console.log("Voluntário cadastrado:", formData)
-    }
-
     return (
         <div className="min-h-screen bg-[#F0F0F0] flex flex-col items-center py-8">
 
             <div className="text-center mb-8">
                 <h1 className="text-2xl font-black text-[#052759] mb-2">Quero ser Voluntário</h1>
-                <p className="text-[#052759] text-sm">Faça parte de uma causa muito importante  e ajude um "aumigo" a encontrar um lar!</p>
+                <p className="text-[#052759] text-sm">
+                    Faça parte de uma causa muito importante e ajude um "aumigo" a encontrar um lar!
+                </p>
             </div>
 
             <div className="w-11/12 max-w-5xl bg-[#052759] p-6 rounded-xl shadow-lg grid lg:grid-cols-2 gap-8 relative">
@@ -137,7 +219,6 @@ export default function Voluntariados() {
                     />
 
                     <div className="text-center space-y-3">
-
                         <div className="inline-block bg-[#FCAD0B] px-3 py-1 rounded-full shadow-md">
                             <span className="text-[#052759] font-bold text-xs">Por que me voluntariar?</span>
                         </div>
@@ -145,7 +226,7 @@ export default function Voluntariados() {
                         <h2 className="text-xl font-black text-white">Transforme vidas!</h2>
 
                         <p className="text-sm text-white leading-relaxed">
-                            Ser voluntário é transformar compaixão em ação. 
+                            Ser voluntário é transformar compaixão em ação.
                         </p>
                         <p className="text-sm text-white leading-relaxed">
                             Cada carinho, passeio ou cuidado
@@ -159,6 +240,7 @@ export default function Voluntariados() {
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     )
