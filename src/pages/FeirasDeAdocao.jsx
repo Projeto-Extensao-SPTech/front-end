@@ -28,18 +28,26 @@ export default function FeirasDeAdocao() {
 
     const [headerRef, headerVisible] = useScrollReveal(0.1);
     const [paginationRef, paginationVisible] = useScrollReveal(0.1);
-    const [feiraCardsRef, feiraCardsVisible] = useScrollReveal(0.1);
+       const [feiraCardsRef, feiraCardsVisible] = useScrollReveal(0.1);
     const [petsRef, petsVisible] = useScrollReveal(0.1);
 
     const [feiraSelecionada, setFeiraSelecionada] = useState(0);
     const [paginaAtual, setPaginaAtual] = useState(1);
     const [feiras, setFeiras] = useState([]);
 
+    function selectText() {
+        if (feiras.length === 0) {
+            return "Nenhuma feira de adoção disponível no momento.";
+        } else {
+            return "Veja abaixo os pets disponíveis na feira selecionada:";
+        }
+    }
+
     async function getFairs() {
         try {
             const response = await api.get('/feiras');
-            const data = response.data.map(feiras => ({
-                ...feiras,
+            const data = response.data.map(feira => ({
+                ...feira,
                 card_image: randomImage()
             }));
             setFeiras(data);
@@ -145,19 +153,22 @@ export default function FeirasDeAdocao() {
                                 );
                             })}
                         </div>
-
                     </div>
                 </div>
             </div>
 
+            {/* ------ CORRIGIDO AQUÍ ------ */}
             <div
                 ref={petsRef}
                 className={`max-w-7xl mx-auto transition-all duration-700
                     ${petsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}
                 `}
             >
-                <h2 className="text-2xl lg:text-3xl font-bold text-white text-center mb-8">
-                    Veja abaixo quais serão os pets presentes na Feira selecionada!
+                <h2
+                    className="text-2xl lg:text-3xl font-bold text-white text-center mb-8"
+                    style={{ fontFamily: 'Poppins, sans-serif' }}
+                >
+                    {selectText()}
                 </h2>
 
                 <div className="flex justify-center">
@@ -168,6 +179,8 @@ export default function FeirasDeAdocao() {
                     </div>
                 </div>
             </div>
+            {/* ------ FIM DAS CORREÇÕES ------ */}
+
         </div>
     );
 }
@@ -206,18 +219,23 @@ function CardFeira({ feira, isSelected, onClick }) {
         <div
             onClick={onClick}
             className={`min-w-[320px] lg:min-w-0 bg-white rounded-2xl p-6 shadow-2xl cursor-pointer transform transition-all duration-300 hover:scale-105 relative
-                ${isSelected ? 'scale-105' : ''}
+                ${isSelected ? "scale-105" : ""}
                 shadow-[inset_0_8px_30px_0_rgba(0,0,0,0.4)]
             `}
             style={{ height: '380px' }}
         >
-            <Button className="absolute -top-2 -right-4 bg-[#FCAD0B] text-[#052759] text-sm font-bold" onClick={fairInterest}>
+            <Button
+                className="absolute -top-2 -right-4 bg-[#FCAD0B] text-[#052759] text-sm font-bold"
+                onClick={fairInterest}
+            >
                 Tenho interesse
             </Button>
 
-            <div className="absolute -bottom-9 left-1/2 transform -translate-x-1/2 w-5 h-5 rounded-full transition-all duration-300 
-                ${isSelected ? 'bg-white' : 'bg-white/40'}
-            " />
+            <div
+                className={`absolute -bottom-9 left-1/2 transform -translate-x-1/2 w-5 h-5 rounded-full transition-all duration-300 
+                    ${isSelected ? "bg-white" : "bg-white/40"}
+                `}
+            />
 
             <div className="text-left mb-6">
                 <span className="text-[#052759] font-normal text-2xl">

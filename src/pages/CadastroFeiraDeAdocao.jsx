@@ -7,6 +7,7 @@ import Button from '../components/ui/Button'
 import { useAlertUtils } from '../hooks/useAlertUtils';
 import { handleHttpFeedback } from '../js/utils/handleHttpFeedback';
 import { api } from '../api/apiUserService';
+import { buscarCep } from '../api/apiCep';
 
 const FotoPreview = React.memo(({ foto, index, onRemove }) => (
   <div className="relative group">
@@ -25,7 +26,7 @@ const FotoPreview = React.memo(({ foto, index, onRemove }) => (
   </div>
 ));
 
-const InputComIcone = React.memo(({ icon: Icon, name, placeholder, type = "text", value, onChange }) => (
+const InputComIcone = React.memo(({ icon: Icon, name, placeholder, type = "text", value, onChange, onBlur }) => (
   <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden">
     <span className="p-3 text-[#052759]">
       <Icon className="text-lg" />
@@ -37,6 +38,7 @@ const InputComIcone = React.memo(({ icon: Icon, name, placeholder, type = "text"
       className="w-full pr-3 py-3 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white"
       value={value || ''}
       onChange={onChange}
+      onBlur={onBlur}
     />
   </div>
 ));
@@ -63,6 +65,32 @@ export default function CadastroFeiraDeAdocao() {
   const handleChange = useCallback((e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   }, []);
+
+  const handleBuscaCep = useCallback(async (cepValue) => {
+    const cepLimpo = cepValue.replace(/\D/g, '');
+
+    if (cepLimpo.length !== 8) {
+      return;
+    }
+
+    try {
+      const resultado = await buscarCep(cepValue);
+      
+      setFormData(prev => ({
+        ...prev,
+        rua: resultado.logradouro || '',
+        complemento: resultado.complemento || '',
+        cidade: resultado.localidade || '',
+        estado: resultado.uf || '',
+        pais: 'Brasil'
+      }));
+
+      alert.sucesso('CEP encontrado!', 'Endereço preenchido automaticamente.');
+    } catch (error) {
+      alert.erro('CEP não encontrado', 'Verifique o CEP informado e tente novamente.');
+      console.error('Erro ao buscar CEP:', error);
+    }
+  }, [alert]);
 
   const removerFoto = useCallback((index) => {
     setFormData(prev => ({
@@ -247,7 +275,14 @@ export default function CadastroFeiraDeAdocao() {
           </div>
 
           <div className="space-y-6">
-            <InputComIcone icon={FaMapPin} name="cep" placeholder="CEP:" value={formData.cep} onChange={handleChange} />
+            <InputComIcone 
+              icon={FaMapPin} 
+              name="cep" 
+              placeholder="CEP:" 
+              value={formData.cep} 
+              onChange={handleChange}
+              onBlur={(e) => handleBuscaCep(e.target.value)}
+            />
             <InputComIcone icon={FaHome} name="rua" placeholder="Rua:" value={formData.rua} onChange={handleChange} />
             <InputComIcone icon={FaMapPin} name="numero" placeholder="Número:" type="number" value={formData.numero} onChange={handleChange} />
             <InputComIcone icon={FaHome} name="complemento" placeholder="Complemento:" value={formData.complemento} onChange={handleChange} />
