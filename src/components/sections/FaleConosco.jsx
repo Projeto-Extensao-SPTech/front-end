@@ -1,9 +1,41 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { api } from "../../api/apiUserService"
 import { handleHttpFeedback } from '../../js/utils/handleHttpFeedback'
 import { useAlertUtils } from '../../hooks/useAlertUtils'
 
+function useScrollReveal(threshold = 0.1) {
+    const [isVisible, setIsVisible] = useState(false)
+    const ref = useRef(null)
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true)
+                }
+            },
+            { threshold }
+        )
+
+        if (ref.current) {
+            observer.observe(ref.current)
+        }
+
+        return () => {
+            if (ref.current) {
+                observer.unobserve(ref.current)
+            }
+        }
+    }, [threshold])
+
+    return [ref, isVisible]
+}
+
 export default function FaleConosco() {
+    const [titleRef, titleVisible] = useScrollReveal(0.1)
+    const [formRef, formVisible] = useScrollReveal(0.1)
+    const [socialRef, socialVisible] = useScrollReveal(0.1)
+
     const [formData, setFormData] = useState({
         nome: '',
         email: '',
@@ -15,7 +47,6 @@ export default function FaleConosco() {
     const handleSubmit = async (e) => {
         e.preventDefault()
         console.log('Dados do formulário:', formData)
-
 
         alert.loading("Enviando sua mensagem", "Não saia da página ou recarregue a sessão!")
         try {
@@ -66,7 +97,14 @@ export default function FaleConosco() {
 
             <div className="max-w-6xl mx-auto px-4 lg:px-8 relative z-10">
 
-                <div className="text-center mb-4">
+                <div 
+                    ref={titleRef}
+                    className={`text-center mb-4 transition-all duration-700 ${
+                        titleVisible 
+                            ? 'opacity-100 translate-y-0' 
+                            : 'opacity-0 -translate-y-8'
+                    }`}
+                >
                     <h2 className="text-xl lg:text-2xl font-black text-white mb-1 leading-tight">
                         Fale Conosco
                     </h2>
@@ -74,7 +112,14 @@ export default function FaleConosco() {
 
                 <div className="grid lg:grid-cols-2 gap-4 items-start">
 
-                    <div className="bg-white rounded-xl p-4 shadow-2xl">
+                    <div 
+                        ref={formRef}
+                        className={`bg-white rounded-xl p-4 shadow-2xl transition-all duration-700 ${
+                            formVisible 
+                                ? 'opacity-100 translate-x-0' 
+                                : 'opacity-0 -translate-x-12'
+                        }`}
+                    >
                         <div className="flex items-center gap-2 mb-3">
                             <div className="w-8 h-8 bg-gradient-to-br from-[#FCAD0B] to-[#f8b83d] rounded-lg flex items-center justify-center shadow-lg">
                                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,7 +192,14 @@ export default function FaleConosco() {
                         </form>
                     </div>
 
-                    <div className="space-y-3">
+                    <div 
+                        ref={socialRef}
+                        className={`space-y-3 transition-all duration-700 ${
+                            socialVisible 
+                                ? 'opacity-100 translate-x-0' 
+                                : 'opacity-0 translate-x-12'
+                        }`}
+                    >
 
                         <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
                             <h3 className="text-base font-bold text-white mb-2 flex items-center gap-2">
