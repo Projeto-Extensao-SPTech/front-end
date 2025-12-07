@@ -157,7 +157,7 @@ export default function Voluntariados() {
         text: msg
     };
 
-    const instance = "default"; 
+    const instance = "api-manager"; 
     try {
         const response = await api.post(`/messages/sendText/${instance}`, payload);
         console.log("Mensagem enviada com sucesso:", response.data);
