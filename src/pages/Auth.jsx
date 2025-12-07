@@ -7,21 +7,17 @@ import { CardNovaSenha } from "../components/sections/CardNovaSenha"
 import { CardSenhaRedefinida } from "../components/sections/CardSenhaRedefinida"
 import { CardVerificarCodigo } from "../components/sections/CardVerificarCodigo"
 import { api, setHeaderParam } from "../api/apiUserService"
+import { maskCPF, maskCNPJ, maskTelefone, maskCEP } from "../js/utils/formatter";
 
 export default function Auth() {
-
     const alertUtils = useAlertUtils()
-
-    const [cepCarregando, setCepCarregando] = useState(false)
-    const [cepErro, setCepErro] = useState(null)
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
     const initialMode = searchParams.get('mode') || 'login'
-
     const [isLogin, setIsLogin] = useState(initialMode === 'login')
     const [cadastroStep, setCadastroStep] = useState(1)
     const [eyeOpen, setEyeOpen] = useState(false)
-    const [tipoPessoa, setTipoPessoa] = useState('fisica')
+    const [tipoPessoa, setTipoPessoa] = useState('PF')
 
     const [formData, setFormData] = useState({
         nome: '',
@@ -36,11 +32,47 @@ export default function Auth() {
         numero: '',
         complemento: ''
     })
-
-    const [isLoading, setIsLoading] = useState(false)
-
     const [etapaRecuperarSenha, setEtapaRecuperarSenha] = useState(0)
     const [codigoVerificacao, setCodigoVerificacao] = useState('')
+
+    useEffect(() => {
+        const mode = searchParams.get('mode') || 'login';
+        setIsLogin(mode === 'login');
+    }, [searchParams]);
+
+    const handleInputMaskedChange = (e) => {
+        const { name, value } = e.target
+
+        let masked = value
+        let clean = value.replace(/\D/g, '')
+
+        if (name === "documento") {
+            masked = tipoPessoa === "PF" ? maskCPF(value) : maskCNPJ(value)
+            clean = clean.substring(0, tipoPessoa === "PF" ? 11 : 14)
+        }
+
+        if (name === "telefone") {
+            masked = maskTelefone(value)
+            clean = clean.substring(0, 11)
+        }
+
+        if (name === "cep") {
+            masked = maskCEP(value)
+            clean = clean.substring(0, 8)
+        }
+
+        setFormData((prev) => ({
+            ...prev,
+            [name]: clean
+        }))
+
+        e.target.value = masked
+    }
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target
+        setFormData(prev => ({ ...prev, [name]: value }))
+    }
 
     const recuperacaoSenhaEnviar = async () => {
         const codigo = Math.floor(1000 + Math.random() * 9000).toString()
@@ -96,8 +128,6 @@ export default function Auth() {
         const cepLimpo = formData.cep.replace(/\D/g, '')
         if (cepLimpo.length === 8) {
             const buscaEndereco = async () => {
-                setCepCarregando(true)
-                setCepErro(null)
                 try {
                     const data = await buscarCep(cepLimpo)
 
@@ -109,23 +139,17 @@ export default function Auth() {
                     }))
 
                 } catch (error) {
-                    setCepErro(error.message)
                     setFormData(prev => ({
                         ...prev,
                         rua: '',
                         municipio: '',
                         estado: ''
                     }))
-                } finally {
-                    setCepCarregando(false)
                 }
             }
 
             buscaEndereco()
-        } else {
-            setCepErro(null)
         }
-
     }, [formData.cep])
 
     useEffect(() => {
@@ -155,9 +179,9 @@ export default function Auth() {
             }
         }
 
-        const telefoneRegex = /^\(?\d{2}\)?\s?9?\d{4}-?\d{4}$/
+        const telefoneRegex = /^\d{10,11}$/
         if (!telefoneRegex.test(formData.telefone)) {
-            return { campo: "telefone", mensagem: "O telefone deve seguir o formato válido, ex: (11) 91234-5678." }
+            return { campo: "telefone", mensagem: "O telefone deve conter apenas números e ter 10 ou 11 dígitos." }
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -238,11 +262,6 @@ export default function Auth() {
         navigate(`/auth?mode=${mode}`)
     }
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target
-        setFormData(prev => ({ ...prev, [name]: value }))
-    }
-
     const handleTipoPessoaChange = (novoTipo) => {
         setTipoPessoa(novoTipo)
         setFormData(prev => ({
@@ -264,7 +283,6 @@ export default function Auth() {
 
                     {etapaRecuperarSenha === 0 ? (
                         <>
-
                             <div className="flex justify-center mb-8 w-full">
                                 <button className={`${isLogin ? 'bg-[#052759] text-[#FCAD0B]' : 'bg-[#FCAD0B] text-[#052759] opacity-70'} cursor-pointer w-24 h-10 rounded-l-xl text-base hover:opacity-90 font-bold`} onClick={() => switchMode('login')}>
                                     Login
@@ -303,6 +321,7 @@ export default function Auth() {
                             )}
 
                             <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 items-center">
+
                                 {!isLogin && cadastroStep === 1 && (
                                     <>
                                         <Input
@@ -312,26 +331,38 @@ export default function Auth() {
                                             value={formData.nome}
                                             onChange={handleInputChange}
                                         />
+
                                         <Input
                                             name="documento"
                                             placeholder={tipoPessoa === 'PF' ? "CPF" : "CNPJ"}
                                             icon="/icons/cpf-icon.svg"
-                                            value={formData.documento}
-                                            onChange={handleInputChange}
+                                            value={tipoPessoa === "PF" ? maskCPF(formData.documento) : maskCNPJ(formData.documento)}
+                                            onChange={handleInputMaskedChange}
                                         />
+
                                         <Input name="email" placeholder="Email" icon="/icons/email-icon.svg" type="email" value={formData.email} onChange={handleInputChange} />
+
                                         <PasswordInput name="senha" placeholder="Senha" value={formData.senha} onChange={handleInputChange} eyeOpen={eyeOpen} setEyeOpen={setEyeOpen} />
-                                        <Input name="telefone" placeholder="Telefone" icon="/icons/phone-icon.svg" value={formData.telefone} onChange={handleInputChange} />
+
+                                        <Input
+                                            name="telefone"
+                                            placeholder="Telefone"
+                                            icon="/icons/phone-icon.svg"
+                                            value={maskTelefone(formData.telefone)}
+                                            onChange={handleInputMaskedChange}
+                                        />
                                     </>
                                 )}
+
                                 {!isLogin && cadastroStep === 2 && (
                                     <>
+                                        <Input
+                                            name="cep"
+                                            placeholder="CEP"
+                                            value={maskCEP(formData.cep)}
+                                            onChange={handleInputMaskedChange}
+                                        />
 
-                                        <div className="w-full max-w-xs h-4 text-center -mt-2">
-                                            {cepCarregando && <span className="text-sm text-gray-500">Buscando CEP...</span>}
-                                            {cepErro && <span className="text-sm text-red-500">{cepErro}</span>}
-                                        </div>
-                                        <Input name="cep" placeholder="CEP" value={formData.cep} onChange={handleInputChange} />
                                         <Input name="estado" placeholder="Estado" value={formData.estado} onChange={handleInputChange} />
                                         <Input name="municipio" placeholder="Município" value={formData.municipio} onChange={handleInputChange} />
                                         <Input name="rua" placeholder="Rua" value={formData.rua} onChange={handleInputChange} />
@@ -339,9 +370,11 @@ export default function Auth() {
                                         <Input name="complemento" placeholder="Complemento" value={formData.complemento} onChange={handleInputChange} />
                                     </>
                                 )}
+
                                 {isLogin && (
                                     <>
                                         <Input name="email" placeholder="Email" icon="/icons/email-icon.svg" type="email" value={formData.email} onChange={handleInputChange} />
+
                                         <PasswordInput name="senha" placeholder="Senha" value={formData.senha} onChange={handleInputChange} eyeOpen={eyeOpen} setEyeOpen={setEyeOpen} />
                                     </>
                                 )}
@@ -365,7 +398,7 @@ export default function Auth() {
                             {etapaRecuperarSenha === 1 && (
                                 <CardRecuperarSenha
                                     telefone={formData.telefone}
-                                    onTelefoneChange={(val) => handleInputChange({ target: { name: 'telefone', value: val } })}
+                                    onTelefoneChange={(val) => handleInputMaskedChange({ target: { name: "telefone", value: val } })}
                                     onSubmit={recuperacaoSenhaEnviar}
                                 />
                             )}
