@@ -9,7 +9,6 @@ import { CardVerificarCodigo } from "../components/sections/CardVerificarCodigo"
 import { api, setHeaderParam } from "../api/apiUserService"
 
 export default function Auth() {
-
     const alertUtils = useAlertUtils()
 
     const [cepCarregando, setCepCarregando] = useState(false)
@@ -81,9 +80,17 @@ export default function Auth() {
         }
     }
 
-    const recuperacaoSenhaAtualizar = (novaSenha) => {
-        console.log("Senha atualizada para:", novaSenha, "para o telefone:", formData.telefone)
-        setEtapaRecuperarSenha(4)
+    const recuperacaoSenhaAtualizar = async (novaSenha) => {
+        alertUtils.loading("Aguarde", "Estamos atualizando a sua senha.")
+        try {
+            await api.patch(JSON.parse(sessionStorage.getItem("USER_DATA")).id)
+            alertUtils.success("Senha atualizada com sucesso", "Atualizamos a sua senha e agora você pode acessar novamente o nosso site.")
+            console.log("Senha atualizada para:", novaSenha, "para o telefone:", formData.telefone)
+            setEtapaRecuperarSenha(4)
+        } catch (error) {
+            console.error("Erro ao atualizar a senha: " + error.message)
+            alertUtils.error("Houve um erro ao atualizar a sua senha", "Tente novamente")
+        }
     }
 
     const recuperacaoSenhaVoltarAoLogin = () => {
