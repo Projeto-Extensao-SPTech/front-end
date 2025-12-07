@@ -1,27 +1,29 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
 import ChartCadastrosMensais from "./ChartCadastrosMensais";
+import { BarChart3, Calendar, MapPin, Users } from "lucide-react";
+import {api} from "../api/apiUserService";
 
 export default function Dashboard() {
-  const [monthInterest, setMonthInterest] = useState(null);
-  const [locationInterest, setLocationInterest] = useState(null);
-  const [volunteerDay, setVolunteerDay] = useState(null);
+  const [monthInterest, setMonthInterest] = useState("-");
+  const [locationInterest, setLocationInterest] = useState("-");
+  const [volunteerDay, setVolunteerDay] = useState("-");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const base = "http://localhost:7000/dashboard";
+        
 
         const [monthResp, locationResp, volunteerResp] = await Promise.all([
-          axios.get(`${base}/month-most-interest`),
-          axios.get(`${base}/location-most-interest`),
-          axios.get(`${base}/day-most-volunteers`)
+          api.get(`dashboard/month-most-interest`),
+          api.get(`dashboard/location-most-interest`),
+          api.get(`dashboard/day-most-volunteers`)
         ]);
 
-        setMonthInterest(monthResp.data?.label || "-"); // mês com maior interesse
-        setLocationInterest(locationResp.data?.label || "-"); // local com maior interesse
-        setVolunteerDay(volunteerResp.data?.day || "-"); // dia da semana com mais voluntários
+        setMonthInterest(monthResp.data?.label || "-");
+        setLocationInterest(locationResp.data?.label || "-");
+        setVolunteerDay(volunteerResp.data?.day || "-");
+
       } catch (err) {
         console.error("Erro carregando KPIs:", err);
       } finally {
@@ -33,93 +35,111 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#ffffff]">
-      <h1
-        className="text-5xl font-extrabold text-[#052759] ml-36"
-        style={{ fontFamily: 'Poppins, sans-serif' }}
-      >
-        Painel de <br />
-        administração
-      </h1>
+    <>
+      <style>{`
+          @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(-10px); }
+              to { opacity: 1; transform: translateY(0); }
+          }
+          @keyframes slideInRight {
+              from { opacity: 0; transform: translateX(30px); }
+              to { opacity: 1; transform: translateX(0); }
+          }
+      `}</style>
 
-      <div className="max-w-[1500px] mx-auto mt-8 grid grid-cols-[2fr_0.70fr] gap-10">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4">
 
-        {/* CARD DO GRÁFICO */}
-        <div className="bg-[#052759] rounded-2xl h-[650px] relative drop-shadow-[0_10px_20px_rgb(0_0_20_/_1)]">
-          <div className="w-full h-28 bg-white rounded-t-2xl flex items-center px-10">
-            <p className="font-extrabold text-4xl text-[#052759]">
-              Volume de cadastros mensal
-            </p>
-          </div>
-
-          <div className="absolute -right-[48px] bottom-20 w-60 overflow-hidden">
-            <img className="h-[320px]" src="img-dog2-dash.png" />
-          </div>
-
-          <div className="mt-[500px]">
-            <ChartCadastrosMensais />
-          </div>
+        {/* TÍTULO */}
+        <div className="max-w-6xl mx-auto mb-3">
+          <h1 className="text-xl md:text-2xl font-bold text-[#052759]" style={{ fontFamily: 'Poppins, sans-serif' }}>
+            Painel de Administração
+          </h1>
+          <p className="text-gray-500 text-xs">Métricas e insights importantes</p>
         </div>
 
-        {/* KPIs */}
-        <div className="flex flex-col gap-9">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-3">
 
-          {/* KPI 1 - Mês com maior interesse */}
-          <div className="w-full h-48 bg-[#052759] rounded-2xl drop-shadow-[0_20px_20px_rgb(0_0_20_/_0.70)]">
-            <div className="w-full h-20 bg-white rounded-xl flex items-center px-4">
-              <p className="font-extrabold text-2xl text-[#052759]">
-                Mês com maior interesse na feira
-              </p>
-            </div>
+          {/* CARD DO GRÁFICO */}
+          <div className="bg-gradient-to-r from-[#052759] via-[#0a3a8a] to-[#1e4fa0] rounded-xl p-4 shadow-xl relative animate-[fadeIn_0.6s_ease-out] overflow-hidden">
 
-            <div className="grid grid-cols-2 h-20">
-              <div className="bg-white rounded-full mt-8 ml-6 w-40 h-10 flex items-center justify-center">
-                <p className="font-extrabold text-xl text-[#052759]">
-                  {loading ? "..." : monthInterest}
-                </p>
+            <div className="bg-white/95 backdrop-blur-sm rounded-lg p-2.5 mb-4 shadow-md border border-blue-100/20 flex items-center gap-2 relative z-10">
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-1.5 rounded-lg">
+                <BarChart3 className="w-4 h-4 text-white" />
               </div>
-              <img className="w-48 mt-[-34px]" src="img-dog-dash.png" />
+              <div>
+                <p className="font-bold text-[#052759]" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                  Cadastros Mensais
+                </p>
+                <p className="text-gray-500 text-xs">Análise do crescimento anual</p>
+              </div>
             </div>
+
+            <div className="h-52 pt-2 pb-4 relative z-10">
+              <ChartCadastrosMensais />
+            </div>
+
+            <img
+              className="absolute bottom-[-20px] right-[-8px] h-40 opacity-80 pointer-events-none"
+              src="img-dog2-dash.png"
+              alt="Ilustração"
+            />
           </div>
 
-          {/* KPI 2 - Local com maior interesse */}
-          <div className="w-full h-48 bg-[#052759] rounded-2xl drop-shadow-[0_20px_20px_rgb(0_0_20_/_0.70)]">
-            <div className="w-full h-20 bg-white rounded-xl flex items-center px-4">
-              <p className="font-extrabold text-2xl text-[#052759]">
-                Local com maior interesse de feiras
-              </p>
+          {/* --- KPIs --- */}
+          <div className="flex flex-col gap-4">
+
+            {/* KPI MÊS */}
+          <div className="bg-gradient-to-r from-[#0f3875] via-[#215dc4] to-[#2a69cf] rounded-xl p-4 shadow-xl relative animate-[fadeIn_0.6s_ease-out] overflow-hidden">
+              <KpiHeader iconBg="from-amber-400 to-orange-500" Icon={Calendar} title="Mês com Maior Interesse" subtitle="Período de maior procura" />
+              <KpiValue label={loading ? "..." : monthInterest} color="from-amber-400 to-orange-500" img="img-dog-dash.png" />
             </div>
 
-            <div className="grid grid-cols-2 h-20">
-              <div className="bg-white rounded-full mt-8 ml-6 w-40 h-10 flex items-center justify-center">
-                <p className="font-extrabold text-xl text-[#052759]">
-                  {loading ? "..." : locationInterest}
-                </p>
-              </div>
-              <img className="w-40 ml-8 mt-[-35px]" src="img-cat-dash.png" />
-            </div>
-          </div>
-
-          {/* KPI 3 - Dia com maior movimentação de voluntários */}
-          <div className="w-full h-48 bg-[#052759] rounded-2xl drop-shadow-[0_20px_20px_rgb(0_0_20_/_0.70)]">
-            <div className="w-full h-20 bg-white rounded-xl flex items-center px-4">
-              <p className="font-extrabold text-2xl text-[#052759]">
-                Dia com maior movimentação de voluntários
-              </p>
+            {/* KPI LOCAL */}
+          <div className="bg-gradient-to-r from-[#0f3875] via-[#215dc4] to-[#2a69cf] rounded-xl p-4 shadow-xl relative animate-[fadeIn_0.6s_ease-out] overflow-hidden">
+              <KpiHeader iconBg="from-emerald-400 to-teal-500" Icon={MapPin} title="Local com Maior Interesse" subtitle="Área mais requisitada" />
+              <KpiValue label={loading ? "..." : locationInterest} color="from-emerald-400 to-teal-500" img="img-cat-dash.png" />
             </div>
 
-            <div className="grid grid-cols-2 h-20">
-              <div className="bg-white rounded-full mt-8 ml-6 w-40 h-10 flex items-center justify-center">
-                <p className="font-extrabold text-xl text-[#052759]">
-                  {loading ? "..." : volunteerDay}
-                </p>
-              </div>
-              <img className="w-32 ml-12 mt-[-28px]" src="img-voluntario-dash.png" />
+            {/* KPI VOLUNTÁRIOS */}
+          <div className="bg-gradient-to-r from-[#0f3875] via-[#215dc4] to-[#2a69cf] rounded-xl p-4 shadow-xl relative animate-[fadeIn_0.6s_ease-out] overflow-hidden">
+              <KpiHeader iconBg="from-purple-400 to-pink-500" Icon={Users} title="Dia com Maior Movimentação" subtitle="Pico de voluntários" />
+              <KpiValue label={loading ? "..." : volunteerDay} color="from-purple-400 to-pink-500" img="img-voluntario-dash.png" />
             </div>
+
           </div>
 
         </div>
+
       </div>
+    </>
+  );
+}
+
+/* --- COMPONENTES INTERNOS DE DESIGN PARA NÃO REPETIR CÓDIGO --- */
+
+function KpiHeader({ Icon, iconBg, title, subtitle }) {
+  return (
+    <div className="bg-white/95 backdrop-blur-sm rounded-lg p-2.5 mb-2 shadow-sm relative flex items-center gap-2">
+      <div className={`bg-gradient-to-br ${iconBg} p-1.5 rounded-lg`}>
+        <Icon className="w-3.5 h-3.5 text-white" />
+      </div>
+      <div>
+        <p className="font-bold text-sm text-[#052759]" style={{ fontFamily: 'Poppins, sans-serif' }}>
+          {title}
+        </p>
+        <p className="text-gray-500 text-xs">{subtitle}</p>
+      </div>
+    </div>
+  );
+}
+
+function KpiValue({ label, img, color }) {
+  return (
+    <div className="flex justify-between items-center relative min-h-[64px]">
+      <div className={`bg-gradient-to-r ${color} rounded-full px-4 py-1.5 shadow-lg`}>
+        <p className="font-bold text-base text-white drop-shadow-md">{label}</p>
+      </div>
+      <img className="absolute bottom-[-12px] right-[-12px] w-20 h-20 object-contain drop-shadow-lg" src={img} />
     </div>
   );
 }
