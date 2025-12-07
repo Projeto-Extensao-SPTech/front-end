@@ -8,6 +8,7 @@ export default function Dashboard() {
   const [locationInterest, setLocationInterest] = useState("-");
   const [volunteerDay, setVolunteerDay] = useState("-");
   const [loading, setLoading] = useState(true);
+  const monthsPtBr = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
   useEffect(() => {
     async function loadData() {
@@ -19,8 +20,8 @@ export default function Dashboard() {
           api.get(`dashboard/location-most-interest`),
           api.get(`dashboard/day-most-volunteers`)
         ]);
-
-        setMonthInterest(monthResp.data?.label || "-");
+        
+        setMonthInterest(formatMonth(monthResp.data?.label));
         setLocationInterest(locationResp.data?.label || "-");
         setVolunteerDay(volunteerResp.data?.day || "-");
 
@@ -33,6 +34,10 @@ export default function Dashboard() {
 
     loadData();
   }, []);
+
+  function formatMonth(monthIndex) {
+    return monthsPtBr[monthIndex-1] || "-";
+  }
 
   return (
     <>
