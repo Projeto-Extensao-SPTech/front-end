@@ -290,55 +290,78 @@ export default function Auth() {
     }
 
     return (
-        <div className="w-full h-[calc(100vh-96px)] flex flex-col bg-[#052759] overflow-hidden">
-            <div className="flex-1 flex items-center justify-center relative overflow-hidden">
+        <div className="w-full min-h-[calc(100vh-96px)] flex flex-col bg-[#052759] overflow-hidden">
+            <div className="flex-1 flex items-center justify-center relative overflow-hidden py-8 px-4">
 
                 <img src="/blob.svg" alt="Blob" className="hidden md:block w-[600px] absolute rotate-45 z-0 -left-40 -bottom-40 opacity-90" />
                 <img src="/blob.svg" alt="Blob" className="hidden md:block w-[700px] absolute rotate-12 z-10 -right-40 -bottom-40 opacity-80" />
                 <img src="/photos/dog-photo-1.svg" alt="Dog" className="hidden md:block w-64 absolute z-20 right-20 bottom-20" />
 
-                <div className="w-full max-w-sm md:max-w-md lg:w-96 min-h-[450px] bg-white rounded-lg shadow-md flex flex-col items-center p-6 z-30 relative mx-4 border border-gray-200">
+                <div className="w-full max-w-sm md:max-w-md backdrop-blur-xl bg-white/95 rounded-3xl shadow-2xl flex flex-col items-center p-4 md:p-5 z-30 relative border border-white/20 transition-all duration-500 max-h-[90vh] overflow-y-auto">
 
                     {etapaRecuperarSenha === 0 ? (
                         <>
-                            <div className="flex justify-center mb-8 w-full">
-                                <button className={`${isLogin ? 'bg-[#052759] text-[#FCAD0B]' : 'bg-[#FCAD0B] text-[#052759] opacity-70'} cursor-pointer w-24 h-10 rounded-l-xl text-base hover:opacity-90 font-bold`} onClick={() => switchMode('login')}>
-                                    Login
-                                </button>
-                                <button className={`${isLogin ? 'bg-[#FCAD0B] text-[#052759] opacity-70' : 'bg-[#052759] text-[#FCAD0B]'} cursor-pointer w-24 h-10 rounded-r-xl text-base hover:opacity-90 font-bold`} onClick={() => switchMode('cadastro')}>
-                                    Cadastro
-                                </button>
+                            <div className="flex justify-center mb-4 w-full relative">
+                                <div className="relative bg-gradient-to-r from-gray-100 to-gray-50 p-1 rounded-2xl shadow-inner">
+                                    <div className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-br from-[#052759] to-[#063a7a] rounded-xl transition-all duration-300 shadow-lg ${isLogin ? 'left-1' : 'left-[calc(50%+2px)]'}`}></div>
+                                    <button 
+                                        className={`relative z-10 w-28 md:w-32 h-11 md:h-12 rounded-xl text-sm  font-bold transition-all duration-300 ${isLogin ? 'text-[#FCAD0B]' : 'text-gray-600'}`} 
+                                        onClick={() => switchMode('login')}
+                                    >
+                                        Login
+                                    </button>
+                                    <button 
+                                        className={`relative z-10 w-28 md:w-32 h-11 md:h-12 rounded-xl text-sm font-bold transition-all duration-300 ${!isLogin ? 'text-[#FCAD0B]' : 'text-gray-600'}`} 
+                                        onClick={() => switchMode('cadastro')}
+                                    >
+                                        Cadastro
+                                    </button>
+                                </div>
                             </div>
 
                             {!isLogin && (
                                 <>
-                                    <div className="flex justify-center mb-4 w-full">
+                                    <div className="flex justify-center mb-3 w-full">
                                         <div className="flex items-center space-x-2">
-                                            <div className={`w-3 h-3 rounded-full ${cadastroStep === 1 ? 'bg-[#052759]' : 'bg-gray-300'}`}></div>
-                                            <div className={`w-3 h-3 rounded-full ${cadastroStep === 2 ? 'bg-[#052759]' : 'bg-gray-300'}`}></div>
+                                            <div className="flex flex-col items-center">
+                                                <div className={`w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300 ${cadastroStep === 1 ? 'bg-gradient-to-br from-[#052759] to-[#063a7a] text-[#FCAD0B] shadow-lg scale-110' : 'bg-gray-200 text-gray-400'}`}>
+                                                    1
+                                                </div>
+                                                <span className="text-[10px] mt-0.5 text-gray-500">Dados</span>
+                                            </div>
+                                            <div className={`h-1 w-10 md:w-12 rounded-full transition-all duration-300 ${cadastroStep === 2 ? 'bg-gradient-to-r from-[#052759] to-[#FCAD0B]' : 'bg-gray-200'}`}></div>
+                                            <div className="flex flex-col items-center">
+                                                <div className={`w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300 ${cadastroStep === 2 ? 'bg-gradient-to-br from-[#052759] to-[#063a7a] text-[#FCAD0B] shadow-lg scale-110' : 'bg-gray-200 text-gray-400'}`}>
+                                                    2
+                                                </div>
+                                                <span className="text-[10px] mt-0.5 text-gray-500">Endereço</span>
+                                            </div>
                                         </div>
                                     </div>
 
                                     {cadastroStep === 1 && (
-                                        <div className="flex justify-center mb-4 w-full">
-                                            <button
-                                                className={`${tipoPessoa === 'PF' ? 'bg-[#052759] text-[#FCAD0B]' : 'bg-[#FCAD0B] text-[#052759] opacity-70'} cursor-pointer w-32 h-8 rounded-l-xl text-sm hover:opacity-90 font-bold`}
-                                                onClick={() => handleTipoPessoaChange('PF')}
-                                            >
-                                                Pessoa Física
-                                            </button>
-                                            <button
-                                                className={`${tipoPessoa === 'PJ' ? 'bg-[#052759] text-[#FCAD0B]' : 'bg-[#FCAD0B] text-[#052759] opacity-70'} cursor-pointer w-32 h-8 rounded-r-xl text-sm hover:opacity-90 font-bold`}
-                                                onClick={() => handleTipoPessoaChange('PJ')}
-                                            >
-                                                Pessoa Jurídica
-                                            </button>
+                                        <div className="flex justify-center mb-3 w-full">
+                                            <div className="relative bg-gradient-to-r from-gray-100 to-gray-50 p-1 rounded-2xl shadow-inner">
+                                                <div className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-br from-[#052759] to-[#063a7a] rounded-xl transition-all duration-300 shadow-lg ${tipoPessoa === 'PF' ? 'left-1' : 'left-[calc(50%+2px)]'}`}></div>
+                                                <button
+                                                    className={`relative z-10 w-28 md:w-32 h-8 md:h-9 rounded-xl text-xs md:text-sm font-bold transition-all duration-300 ${tipoPessoa === 'PF' ? 'text-[#FCAD0B]' : 'text-gray-600'}`}
+                                                    onClick={() => handleTipoPessoaChange('PF')}
+                                                >
+                                                    Pessoa Física
+                                                </button>
+                                                <button
+                                                    className={`relative z-10 w-28 md:w-32 h-8 md:h-9 rounded-xl text-xs md:text-sm font-bold transition-all duration-300 ${tipoPessoa === 'PJ' ? 'text-[#FCAD0B]' : 'text-gray-600'}`}
+                                                    onClick={() => handleTipoPessoaChange('PJ')}
+                                                >
+                                                    Pessoa Jurídica
+                                                </button>
+                                            </div>
                                         </div>
                                     )}
                                 </>
                             )}
 
-                            <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 items-center">
+                            <div className="w-full flex flex-col gap-2.5 items-center" onSubmit={handleSubmit}>
 
                                 {!isLogin && cadastroStep === 1 && (
                                     <>
@@ -397,14 +420,17 @@ export default function Auth() {
                                     </>
                                 )}
 
-                                <button type="submit" className="w-full max-w-xs h-10 bg-[#052759] text-[#FCAD0B] rounded-xl hover:text-[#052759] hover:bg-[#FCAD0B] transition font-bold">
+                                <button 
+                                    onClick={handleSubmit}
+                                    className="w-full h-10 md:h-11 mt-1 bg-gradient-to-r from-[#052759] to-[#063a7a] text-[#FCAD0B] rounded-xl font-bold text-sm  shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+                                >
                                     {isLogin ? "Entrar" : cadastroStep === 1 ? "Continuar" : "Finalizar Cadastro"}
                                 </button>
-                            </form>
+                            </div>
 
                             {isLogin && (
                                 <span onClick={() => setEtapaRecuperarSenha(1)}
-                                    className="border-b border-b-black text-xs text-gray-400 hover:text-black self-end cursor-pointer transition mt-4">
+                                    className="text-xs text-gray-500 hover:text-[#052759] self-end cursor-pointer transition-all duration-200 mt-2 hover:underline">
                                     Esqueci minha senha
                                 </span>
                             )}
@@ -504,13 +530,13 @@ async function loginUser(formData, alertUtils) {
 
 function Input({ name, placeholder, icon, value, onChange, type = "text" }) {
     return (
-        <div className="relative w-full max-w-xs">
-            {icon && <img src={icon} alt="icon" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 opacity-40" />}
+        <div className="relative w-full group">
+            {icon && <img src={icon} alt="icon" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 opacity-40 group-focus-within:opacity-60 transition-opacity duration-200" />}
             <input
                 type={type}
                 name={name}
                 placeholder={placeholder}
-                className={`w-full h-10 py-2 border rounded-lg text-base text-center text-black ${icon ? 'pl-10 pr-4' : 'px-4'}`}
+                className={`w-full h-9 md:h-10 py-2 border-2 border-gray-200 rounded-xl text-sm bg-white transition-all duration-200 focus:border-[#052759] focus:shadow-lg focus:scale-[1.01] outline-none ${icon ? 'pl-10 pr-3 text-left' : 'px-3 text-center'}`}
                 value={value}
                 onChange={onChange}
                 required
@@ -521,13 +547,13 @@ function Input({ name, placeholder, icon, value, onChange, type = "text" }) {
 
 function PasswordInput({ name, placeholder, value, onChange, eyeOpen, setEyeOpen }) {
     return (
-        <div className="relative w-full max-w-xs">
-            <img src="/icons/password-icon.svg" alt="senha" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 opacity-40" />
+        <div className="relative w-full group">
+            <img src="/icons/password-icon.svg" alt="senha" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 opacity-40 group-focus-within:opacity-60 transition-opacity duration-200" />
             <input
                 type={eyeOpen ? "text" : "password"}
                 name={name}
                 placeholder={placeholder}
-                className="w-full h-10 py-2 pl-10 pr-9 border rounded-lg text-base text-center text-black"
+                className="w-full h-9 md:h-10 py-2 pl-10 pr-10 border-2 border-gray-200 rounded-xl text-sm text-left bg-white transition-all duration-200 focus:border-[#052759] focus:shadow-lg focus:scale-[1.01] outline-none"
                 value={value}
                 onChange={onChange}
                 required
@@ -535,7 +561,7 @@ function PasswordInput({ name, placeholder, value, onChange, eyeOpen, setEyeOpen
             <img
                 src={eyeOpen ? "/icons/opened-eye-icon.svg" : "/icons/closed-eye-icon.svg"}
                 alt="eye"
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 opacity-40 cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 opacity-40 cursor-pointer hover:opacity-70 transition-all duration-200 hover:scale-110"
                 onClick={() => setEyeOpen(!eyeOpen)}
             />
         </div>
