@@ -95,19 +95,19 @@ export default function Dashboard() {
 
             {/* KPI MÊS */}
           <div className="bg-gradient-to-r from-[#0f3875] via-[#215dc4] to-[#2a69cf] rounded-xl p-4 shadow-xl relative animate-[fadeIn_0.6s_ease-out] overflow-hidden">
-              <KpiHeader iconBg="from-amber-400 to-orange-500" Icon={Calendar} title="Mês com Maior Interesse" subtitle="Período de maior procura" />
+              <KpiHeader iconBg="from-amber-400 to-orange-500" Icon={Calendar} title="Mês com maior interesse" subtitle="Período de maior procura" />
               <KpiValue label={loading ? "..." : monthInterest} color="from-amber-400 to-orange-500" img="img-dog-dash.png" />
             </div>
 
             {/* KPI LOCAL */}
           <div className="bg-gradient-to-r from-[#0f3875] via-[#215dc4] to-[#2a69cf] rounded-xl p-4 shadow-xl relative animate-[fadeIn_0.6s_ease-out] overflow-hidden">
-              <KpiHeader iconBg="from-emerald-400 to-teal-500" Icon={MapPin} title="Local com Maior Interesse" subtitle="Área mais requisitada" />
+              <KpiHeader iconBg="from-emerald-400 to-teal-500" Icon={MapPin} title="Local com maior interesse" subtitle="Área mais requisitada" />
               <KpiValue label={loading ? "..." : locationInterest} color="from-emerald-400 to-teal-500" img="img-cat-dash.png" />
             </div>
 
             {/* KPI VOLUNTÁRIOS */}
           <div className="bg-gradient-to-r from-[#0f3875] via-[#215dc4] to-[#2a69cf] rounded-xl p-4 shadow-xl relative animate-[fadeIn_0.6s_ease-out] overflow-hidden">
-              <KpiHeader iconBg="from-purple-400 to-pink-500" Icon={Users} title="Dia com Maior Movimentação" subtitle="Pico de voluntários" />
+              <KpiHeader iconBg="from-purple-400 to-pink-500" Icon={Users} title="Dia com maior disponibilidade de voluntários" subtitle="Pico de voluntários" />
               <KpiValue label={loading ? "..." : volunteerDay} color="from-purple-400 to-pink-500" img="img-voluntario-dash.png" />
             </div>
 
