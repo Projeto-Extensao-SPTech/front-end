@@ -1,30 +1,29 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { AlertUtils } from "../js/utils/alertUtils";
-import axios from 'axios';
-import { buscarCep } from "../js/api/cepAPI"
+import { useState, useEffect } from "react"
+import { useNavigate, useSearchParams } from "react-router-dom"
+import { useAlertUtils } from "../hooks/useAlertUtils"
+import { buscarCep } from "../api/apiCep"
 import { CardRecuperarSenha } from "../components/sections/CardRecuperarSenha"
 import { CardNovaSenha } from "../components/sections/CardNovaSenha"
 import { CardSenhaRedefinida } from "../components/sections/CardSenhaRedefinida"
 import { CardVerificarCodigo } from "../components/sections/CardVerificarCodigo"
+import { api, setHeaderParam } from "../api/apiUserService"
+import { maskCPF, maskCNPJ, maskTelefone, maskCEP } from "../js/utils/formatter";
 
 export default function Auth() {
-
-    const [cepCarregando, setCepCarregando] = useState(false);
-    const [cepErro, setCepErro] = useState(null);
-    const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
-    const initialMode = searchParams.get('mode') || 'login';
-
-    const [isLogin, setIsLogin] = useState(initialMode === 'login');
-    const [cadastroStep, setCadastroStep] = useState(1);
-    const [eyeOpen, setEyeOpen] = useState(false);
+    const alertUtils = useAlertUtils()
+    const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
+    const initialMode = searchParams.get('mode') || 'login'
+    const [isLogin, setIsLogin] = useState(initialMode === 'login')
+    const [cadastroStep, setCadastroStep] = useState(1)
+    const [eyeOpen, setEyeOpen] = useState(false)
+    const [tipoPessoa, setTipoPessoa] = useState('PF')
 
     const [formData, setFormData] = useState({
         nome: '',
         email: '',
         senha: '',
-        cpf: '',
+        documento: '',
         telefone: '',
         cep: '',
         estado: '',
@@ -32,190 +31,244 @@ export default function Auth() {
         rua: '',
         numero: '',
         complemento: ''
-    });
+    })
+    const [etapaRecuperarSenha, setEtapaRecuperarSenha] = useState(0)
+    const [codigoVerificacao, setCodigoVerificacao] = useState('')
 
-    const [isLoading, setIsLoading] = useState(false);
+    useEffect(() => {
+        const mode = searchParams.get('mode') || 'login';
+        setIsLogin(mode === 'login');
+    }, [searchParams]);
 
-    const [etapaRecuperarSenha, setEtapaRecuperarSenha] = useState(0);
-    const [codigoVerificacao, setCodigoVerificacao] = useState('');
+    const handleInputMaskedChange = (e) => {
+        const { name, value } = e.target
+
+        let masked = value
+        let clean = value.replace(/\D/g, '')
+
+        if (name === "documento") {
+            masked = tipoPessoa === "PF" ? maskCPF(value) : maskCNPJ(value)
+            clean = clean.substring(0, tipoPessoa === "PF" ? 11 : 14)
+        }
+
+        if (name === "telefone") {
+            masked = maskTelefone(value)
+            clean = clean.substring(0, 11)
+        }
+
+        if (name === "cep") {
+            masked = maskCEP(value)
+            clean = clean.substring(0, 8)
+        }
+
+        setFormData((prev) => ({
+            ...prev,
+            [name]: clean
+        }))
+
+        e.target.value = masked
+    }
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target
+        setFormData(prev => ({ ...prev, [name]: value }))
+    }
 
     const recuperacaoSenhaEnviar = async () => {
-        const codigo = Math.floor(1000 + Math.random() * 9000).toString();
-        setCodigoVerificacao(codigo);
-        const telefoneLimpo = formData.telefone.replace(/\D/g, '');
-        const numeroFormatado = `55${telefoneLimpo}`;
+        const codigo = Math.floor(1000 + Math.random() * 9000).toString()
+        setCodigoVerificacao(codigo)
+        const telefoneLimpo = formData.telefone.replace(/\D/g, '')
+        const numeroFormatado = `55${telefoneLimpo}`
+
+        try {
+            const telefoneCadastrado = await api.get(`/users/exists-by-phone/${telefoneLimpo}`)
+            if (!telefoneCadastrado) {
+                alertUtils.warn("Telefone não encontrado", "Esse telefone não pertence a nenhum usuário cadastrado")
+                return
+            }
+            console.log("Telefone encontrado")
+        } catch (error) {
+            console.log("Erro ao verificar o telefone: ", error.message)
+            alertUtils.error("Não foi possível continuar", "Tente novamente mais tarde.")
+            return
+        }
 
         const requestBody = {
             number: numeroFormatado,
             text: `Abrigo Dog Feliz: Seu código de verificação é: ${codigo}`
         }
+
         try {
-            const response = await fetch('http://localhost:7000/message/sendText/default', {
+            const response = await fetch('http://localhost:7000/messages/sendText/api-manager', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody)
-            });
+            })
 
             if (response.ok) {
-                console.log("Mensagem enviada com sucesso!");
-                setEtapaRecuperarSenha(2);
+                setEtapaRecuperarSenha(2)
             } else {
-                const errorText = await response.text();
-                alert(`Erro ao enviar mensagem: ${errorText}`);
+                const errorText = await response.text()
+                alertUtils.error({ text: `Erro ao enviar mensagem: ${errorText}` })
             }
         }
         catch (error) {
-            console.error("Erro ao enviar mensagem:", error);
-            alert("Erro ao enviar mensagem. Tente novamente mais tarde.");
+            alertUtils.error({ text: "Erro ao enviar mensagem. Tente novamente mais tarde." })
         }
     }
 
     const recuperacaoSenhaVerificarCodigo = (codigoDigitado) => {
         if (codigoDigitado === codigoVerificacao) {
-            setCodigoVerificacao('');
+            setCodigoVerificacao('')
             setEtapaRecuperarSenha(3)
         } else {
-            console.error("Código de verificação inválido.");
-            alert("Código de verificação inválido. Tente novamente.");
+            alertUtils.warn({ text: "Código de verificação inválido. Tente novamente." })
         }
     }
 
-    const recuperacaoSenhaAtualizar = (novaSenha) => {
-        console.log("Senha atualizada para:", novaSenha, "para o telefone:", formData.telefone);
-        setEtapaRecuperarSenha(4);
+    const recuperacaoSenhaAtualizar = async (novaSenha) => {
+        try {
+            await api.patch("/users/update-password", {
+                phone: formData.telefone.replace(/\D/g, ''),
+                password: novaSenha
+            })
+            setEtapaRecuperarSenha(4)
+        } catch (error) {
+            console.error("Erro ao atualizar a senha: " + error.message)
+            alertUtils.error("Não foi possível continuar", "Tente novamente mais tarde.")
+            return
+        }
     }
 
     const recuperacaoSenhaVoltarAoLogin = () => {
-        setEtapaRecuperarSenha(0);
-        setFormData(prev => ({ ...prev, telefone: '', senha: '', email: '' }));
-        switchMode('login');
+        setEtapaRecuperarSenha(0)
+        setFormData(prev => ({ ...prev, telefone: '', senha: '', email: '' }))
+        switchMode('login')
     }
 
     useEffect(() => {
-        const cepLimpo = formData.cep.replace(/\D/g, '');
+        const cepLimpo = formData.cep.replace(/\D/g, '')
         if (cepLimpo.length === 8) {
             const buscaEndereco = async () => {
-                setCepCarregando(true);
-                setCepErro(null);
                 try {
-                    const data = await buscarCep(cepLimpo);
+                    const data = await buscarCep(cepLimpo)
 
                     setFormData(prev => ({
                         ...prev,
                         rua: data.logradouro,
                         municipio: data.localidade,
                         estado: data.uf
-                    }));
+                    }))
 
                 } catch (error) {
-                    setCepErro(error.message);
                     setFormData(prev => ({
                         ...prev,
                         rua: '',
                         municipio: '',
                         estado: ''
-                    }));
-                } finally {
-                    setCepCarregando(false);
+                    }))
                 }
-            };
+            }
 
-            buscaEndereco();
-        } else {
-            setCepErro(null);
+            buscaEndereco()
         }
-
-    }, [formData.cep]);
+    }, [formData.cep])
 
     useEffect(() => {
-        setIsLogin(initialMode === 'login');
-        setCadastroStep(1);
-    }, [initialMode]);
+        setIsLogin(initialMode === 'login')
+        setCadastroStep(1)
+        setTipoPessoa('PF')
+    }, [initialMode])
 
     const validarCampos = () => {
-        if (formData.nome.length < 8 || formData.nome.length > 40) {
-            return { campo: "nome", mensagem: "O nome deve ter entre 8 e 40 caracteres." };
+        if (tipoPessoa === 'PF') {
+            if (formData.nome.length < 8 || formData.nome.length > 40) {
+                return { campo: "nome", mensagem: "O nome deve ter entre 8 e 40 caracteres." }
+            }
+
+            const cpfRegex = /^\d{11}$/
+            if (!cpfRegex.test(formData.documento)) {
+                return { campo: "cpf", mensagem: "O CPF deve conter exatamente 11 números." }
+            }
+        } else {
+            if (formData.nome.length < 5 || formData.nome.length > 100) {
+                return { campo: "nome", mensagem: "A razão social deve ter entre 5 e 100 caracteres." }
+            }
+
+            const cnpjRegex = /^\d{14}$/
+            if (!cnpjRegex.test(formData.documento)) {
+                return { campo: "cpf", mensagem: "O CNPJ deve conter exatamente 14 números." }
+            }
         }
 
-        const cpfRegex = /^\d{11}$/;
-        if (!cpfRegex.test(formData.cpf)) {
-            return { campo: "cpf", mensagem: "O CPF deve conter exatamente 11 números." };
-        }
-
-        const telefoneRegex = /^\(?\d{2}\)?\s?9?\d{4}-?\d{4}$/;
+        const telefoneRegex = /^\d{10,11}$/
         if (!telefoneRegex.test(formData.telefone)) {
-            return { campo: "telefone", mensagem: "O telefone deve seguir o formato válido, ex: (11) 91234-5678." };
+            return { campo: "telefone", mensagem: "O telefone deve conter apenas números e ter 10 ou 11 dígitos." }
         }
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const emailValido = emailRegex.test(formData.email) && formData.email.length >= 8 && formData.email.length <= 100;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        const emailValido = emailRegex.test(formData.email) && formData.email.length >= 8 && formData.email.length <= 100
         if (!emailValido) {
-            return { campo: "email", mensagem: "O e-mail deve ter formato válido e entre 8 e 100 caracteres." };
+            return { campo: "email", mensagem: "O e-mail deve ter formato válido e entre 8 e 100 caracteres." }
         }
 
         if (formData.senha.length < 8) {
-            return { campo: "senha", mensagem: "A senha deve ter pelo menos 8 caracteres." };
+            return { campo: "senha", mensagem: "A senha deve ter pelo menos 8 caracteres." }
         }
 
-        const obrigatoriosEndereco = ['cep', 'estado', 'municipio', 'rua', 'numero'];
-        const faltandoEndereco = obrigatoriosEndereco.filter(campo => !formData[campo]);
+        const obrigatoriosEndereco = ['cep', 'estado', 'municipio', 'rua', 'numero']
+        const faltandoEndereco = obrigatoriosEndereco.filter(campo => !formData[campo])
         if (faltandoEndereco.length > 0) {
-            return { campo: "endereco", mensagem: `Preencha todos os campos de endereço: ${faltandoEndereco.join(', ')}` };
+            return { campo: "endereco", mensagem: `Preencha todos os campos de endereço: ${faltandoEndereco.join(', ')}` }
         }
 
-        return null;
-    };
+        return null
+    }
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        e.preventDefault()
 
         if (!isLogin && cadastroStep === 1) {
-            const erro = validarCampos();
+            const erro = validarCampos()
             if (erro && ["nome", "email", "senha", "cpf", "telefone"].includes(erro.campo)) {
-                console.log(`Erro no campo ${erro.campo}: ${erro.mensagem}`);
-                AlertUtils.error(`Erro no campo ${erro.campo}`, erro.mensagem);
-                return;
+                alertUtils.error(`Erro no campo ${erro.campo}`, erro.mensagem)
+                return
             }
 
-            setCadastroStep(2);
-            return;
+            setCadastroStep(2)
+            return
         }
 
         if (!isLogin && cadastroStep === 2) {
-            const erro = validarCampos();
+            const erro = validarCampos()
             if (erro) {
-                console.log(`Erro no campo ${erro.campo}: ${erro.mensagem}`);
-                AlertUtils.error(`Erro no campo ${erro.campo}`, erro.mensagem);
-                return;
+                alertUtils.error(`Erro no campo ${erro.campo}`, erro.mensagem)
+                return
             }
         }
-
-        setIsLoading(true);
 
         try {
             if (isLogin) {
-                await loginUser(formData);
-                navigate('/');
+                await loginUser(formData, alertUtils)
+                navigate('/')
             } else {
-                await cadastroUser(formData);
-                navigate('/auth?mode=login');
+                await cadastroUser(formData, tipoPessoa, alertUtils)
+                navigate('/auth?mode=login')
             }
         } catch (error) {
-            AlertUtils.error("Erro!", error.message || "Ocorreu um erro. Tente novamente.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
+            alertUtils.error("Erro!", error.message || "Ocorreu um erro. Tente novamente.")
+        } 
+    }
 
     const switchMode = (mode) => {
-        setIsLogin(mode === 'login');
-        setCadastroStep(1);
+        setIsLogin(mode === 'login')
+        setCadastroStep(1)
+        setTipoPessoa('PF')
         setFormData({
             nome: '',
             email: '',
             senha: '',
-            cpf: '',
+            documento: '',
             telefone: '',
             cep: '',
             estado: '',
@@ -223,17 +276,21 @@ export default function Auth() {
             rua: '',
             numero: '',
             complemento: ''
-        });
-        navigate(`/auth?mode=${mode}`);
-    };
+        })
+        navigate(`/auth?mode=${mode}`)
+    }
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+    const handleTipoPessoaChange = (novoTipo) => {
+        setTipoPessoa(novoTipo)
+        setFormData(prev => ({
+            ...prev,
+            nome: '',
+            documento: ''
+        }))
+    }
 
     return (
-        <div className="w-full h-[calc(100vh-96px)] flex flex-col bg-white overflow-hidden">
+        <div className="w-full h-[calc(100vh-96px)] flex flex-col bg-[#052759] overflow-hidden">
             <div className="flex-1 flex items-center justify-center relative overflow-hidden">
 
                 <img src="/blob.svg" alt="Blob" className="hidden md:block w-[600px] absolute rotate-45 z-0 -left-40 -bottom-40 opacity-90" />
@@ -244,7 +301,6 @@ export default function Auth() {
 
                     {etapaRecuperarSenha === 0 ? (
                         <>
-
                             <div className="flex justify-center mb-8 w-full">
                                 <button className={`${isLogin ? 'bg-[#052759] text-[#FCAD0B]' : 'bg-[#FCAD0B] text-[#052759] opacity-70'} cursor-pointer w-24 h-10 rounded-l-xl text-base hover:opacity-90 font-bold`} onClick={() => switchMode('login')}>
                                     Login
@@ -255,32 +311,76 @@ export default function Auth() {
                             </div>
 
                             {!isLogin && (
-                                <div className="flex justify-center mb-4 w-full">
-                                    <div className="flex items-center space-x-2">
-                                        <div className={`w-3 h-3 rounded-full ${cadastroStep === 1 ? 'bg-[#052759]' : 'bg-gray-300'}`}></div>
-                                        <div className={`w-3 h-3 rounded-full ${cadastroStep === 2 ? 'bg-[#052759]' : 'bg-gray-300'}`}></div>
+                                <>
+                                    <div className="flex justify-center mb-4 w-full">
+                                        <div className="flex items-center space-x-2">
+                                            <div className={`w-3 h-3 rounded-full ${cadastroStep === 1 ? 'bg-[#052759]' : 'bg-gray-300'}`}></div>
+                                            <div className={`w-3 h-3 rounded-full ${cadastroStep === 2 ? 'bg-[#052759]' : 'bg-gray-300'}`}></div>
+                                        </div>
                                     </div>
-                                </div>
+
+                                    {cadastroStep === 1 && (
+                                        <div className="flex justify-center mb-4 w-full">
+                                            <button
+                                                className={`${tipoPessoa === 'PF' ? 'bg-[#052759] text-[#FCAD0B]' : 'bg-[#FCAD0B] text-[#052759] opacity-70'} cursor-pointer w-32 h-8 rounded-l-xl text-sm hover:opacity-90 font-bold`}
+                                                onClick={() => handleTipoPessoaChange('PF')}
+                                            >
+                                                Pessoa Física
+                                            </button>
+                                            <button
+                                                className={`${tipoPessoa === 'PJ' ? 'bg-[#052759] text-[#FCAD0B]' : 'bg-[#FCAD0B] text-[#052759] opacity-70'} cursor-pointer w-32 h-8 rounded-r-xl text-sm hover:opacity-90 font-bold`}
+                                                onClick={() => handleTipoPessoaChange('PJ')}
+                                            >
+                                                Pessoa Jurídica
+                                            </button>
+                                        </div>
+                                    )}
+                                </>
                             )}
 
                             <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 items-center">
+
                                 {!isLogin && cadastroStep === 1 && (
                                     <>
-                                        <Input name="nome" placeholder="Nome completo" icon="/icons/user-icon.svg" value={formData.nome} onChange={handleInputChange} />
+                                        <Input
+                                            name="nome"
+                                            placeholder={tipoPessoa === 'PF' ? "Nome completo" : "Razão Social"}
+                                            icon="/icons/user-icon.svg"
+                                            value={formData.nome}
+                                            onChange={handleInputChange}
+                                        />
+
+                                        <Input
+                                            name="documento"
+                                            placeholder={tipoPessoa === 'PF' ? "CPF" : "CNPJ"}
+                                            icon="/icons/cpf-icon.svg"
+                                            value={tipoPessoa === "PF" ? maskCPF(formData.documento) : maskCNPJ(formData.documento)}
+                                            onChange={handleInputMaskedChange}
+                                        />
+
                                         <Input name="email" placeholder="Email" icon="/icons/email-icon.svg" type="email" value={formData.email} onChange={handleInputChange} />
+
                                         <PasswordInput name="senha" placeholder="Senha" value={formData.senha} onChange={handleInputChange} eyeOpen={eyeOpen} setEyeOpen={setEyeOpen} />
-                                        <Input name="cpf" placeholder="CPF" icon="/icons/cpf-icon.svg" value={formData.cpf} onChange={handleInputChange} />
-                                        <Input name="telefone" placeholder="Telefone" icon="/icons/phone-icon.svg" value={formData.telefone} onChange={handleInputChange} />
+
+                                        <Input
+                                            name="telefone"
+                                            placeholder="Telefone"
+                                            icon="/icons/phone-icon.svg"
+                                            value={maskTelefone(formData.telefone)}
+                                            onChange={handleInputMaskedChange}
+                                        />
                                     </>
                                 )}
+
                                 {!isLogin && cadastroStep === 2 && (
                                     <>
+                                        <Input
+                                            name="cep"
+                                            placeholder="CEP"
+                                            value={maskCEP(formData.cep)}
+                                            onChange={handleInputMaskedChange}
+                                        />
 
-                                        <div className="w-full max-w-xs h-4 text-center -mt-2">
-                                            {cepCarregando && <span className="text-sm text-gray-500">Buscando CEP...</span>}
-                                            {cepErro && <span className="text-sm text-red-500">{cepErro}</span>}
-                                        </div>
-                                        <Input name="cep" placeholder="CEP" value={formData.cep} onChange={handleInputChange} />
                                         <Input name="estado" placeholder="Estado" value={formData.estado} onChange={handleInputChange} />
                                         <Input name="municipio" placeholder="Município" value={formData.municipio} onChange={handleInputChange} />
                                         <Input name="rua" placeholder="Rua" value={formData.rua} onChange={handleInputChange} />
@@ -288,9 +388,11 @@ export default function Auth() {
                                         <Input name="complemento" placeholder="Complemento" value={formData.complemento} onChange={handleInputChange} />
                                     </>
                                 )}
+
                                 {isLogin && (
                                     <>
                                         <Input name="email" placeholder="Email" icon="/icons/email-icon.svg" type="email" value={formData.email} onChange={handleInputChange} />
+
                                         <PasswordInput name="senha" placeholder="Senha" value={formData.senha} onChange={handleInputChange} eyeOpen={eyeOpen} setEyeOpen={setEyeOpen} />
                                     </>
                                 )}
@@ -310,11 +412,11 @@ export default function Auth() {
 
                     ) : (
 
-                        <> {/* Este lado já estava correto */}
+                        <>
                             {etapaRecuperarSenha === 1 && (
                                 <CardRecuperarSenha
                                     telefone={formData.telefone}
-                                    onTelefoneChange={(val) => handleInputChange({ target: { name: 'telefone', value: val } })}
+                                    onTelefoneChange={(val) => handleInputMaskedChange({ target: { name: "telefone", value: val } })}
                                     onSubmit={recuperacaoSenhaEnviar}
                                 />
                             )}
@@ -338,18 +440,20 @@ export default function Auth() {
                 </div>
             </div>
         </div>
-    );
+    )
 }
 
-async function cadastroUser(formData) {
-    AlertUtils.loading("Cadastrando usuário...", "Aguarde um momento");
+async function cadastroUser(formData, tipoPessoa, alertUtils) {
+
+    alertUtils.loading("Cadastrando usuário...", "Aguarde um momento")
+
     try {
         const requestBody = {
             name: formData.nome,
-            document: formData.cpf,
+            document: formData.documento,
             phone: formData.telefone,
             address: {
-                zipCode: formData.cep,
+                zip_code: formData.cep,
                 state: formData.estado,
                 city: formData.municipio,
                 street: formData.rua,
@@ -357,41 +461,46 @@ async function cadastroUser(formData) {
                 number: formData.numero,
                 country: "Brasil"
             },
-            email: formData.email,
-            password: formData.senha
-        };
+            mail_address: formData.email,
+            password: formData.senha,
+            type: tipoPessoa
+        }
+        console.log("Dados da requisição: ", requestBody)
+        const response = await api.post('/auth/register', requestBody)
 
-        console.log("Dados envviados: ", JSON.stringify(requestBody))
-
-        const response = await axios.post('http://localhost:7000/auth/register', requestBody);
-        AlertUtils.close();
-        await AlertUtils.success("Cadastro realizado com sucesso!", "Bem-vindo ao abrigo dog feliz 🐶");
-        return response.data;
+        alertUtils.close()
+        await alertUtils.success("Cadastro realizado com sucesso!", "Bem-vindo ao abrigo dog feliz 🐶")
+        return response.data
     } catch (error) {
-        AlertUtils.close();
-        await AlertUtils.error("Tentativa de cadastro falhou!", "Verifique os dados informados e tente novamente.");
-        throw new Error(error.message);
+        alertUtils.close()
+        await alertUtils.error("Erro!", "Tentativa de cadastro falhou!", "Verifique os dados informados e tente novamente.")
+        throw new Error(error.message)
     }
 }
 
-async function loginUser(formData) {
-    AlertUtils.loading("Realizando login...", "Aguarde um momento");
+async function loginUser(formData, alertUtils) {
+    alertUtils.loading("Realizando login...", "Aguarde um momento")
+
     try {
-        const response = await axios.post('http://localhost:7000/auth/login', {
-            email: formData.email,
+        const response = await api.post('/auth/login', {
+            mail_address: formData.email,
             password: formData.senha
-        });
+        })
 
-        AlertUtils.close();
-        AlertUtils.success("Login realizado com sucesso!", "Bem vindo de volta 🐾");
-        return response.data;
+        alertUtils.close()
+        alertUtils.success("Login realizado com sucesso!", "Bem vindo de volta 🐾")
+
+        const data = response.data;
+        sessionStorage.setItem("USER_DATA", JSON.stringify(data));
+        setHeaderParam("Authorization", `Bearer ${data.token}`);
+        window.location.href = '/';
+        return data;
     } catch (error) {
-        AlertUtils.close();
-        await AlertUtils.error("Falha no login!", "Verifique suas credenciais e tente novamente.");
-        throw new Error(error.message);
+        alertUtils.close()
+        await alertUtils.error("Falha no login!", "Verifique suas credenciais e tente novamente.")
+        throw new Error(error.message)
     }
 }
-
 
 function Input({ name, placeholder, icon, value, onChange, type = "text" }) {
     return (
@@ -407,7 +516,7 @@ function Input({ name, placeholder, icon, value, onChange, type = "text" }) {
                 required
             />
         </div>
-    );
+    )
 }
 
 function PasswordInput({ name, placeholder, value, onChange, eyeOpen, setEyeOpen }) {
@@ -430,5 +539,5 @@ function PasswordInput({ name, placeholder, value, onChange, eyeOpen, setEyeOpen
                 onClick={() => setEyeOpen(!eyeOpen)}
             />
         </div>
-    );
+    )
 }

@@ -2,294 +2,373 @@ import { useState, useEffect } from 'react'
 import flatpickr from 'flatpickr'
 import 'flatpickr/dist/flatpickr.min.css'
 import { Portuguese } from 'flatpickr/dist/l10n/pt.js'
-import { FaRegClock, FaCalendarAlt, FaMapMarkerAlt, FaEnvelope } from 'react-icons/fa'
-import { FaRegBell, FaUser, FaSignInAlt, FaHeart } from 'react-icons/fa'
-import { useNavigate } from 'react-router-dom'
+import { FaCalendarAlt, FaPaw, FaBell, FaEnvelope, FaClock, FaPlus, FaTrash } from 'react-icons/fa'
+import Button from '../components/ui/Button'
+import { api } from '../api/apiUserService'
+import { handleHttpFeedback } from '../js/utils/handleHttpFeedback'
+import { useAlertUtils } from '../hooks/useAlertUtils'
 
+export default function CadastroNotificacao() {
+    const alert = useAlertUtils()
 
-const Header = () => {
-  const primaryBlue = '#052759';
-  const primaryYellow = '#FCAD0B';
+    const [form, setForm] = useState({
+        tipo: '',
+        data: '',
+        mensagem: '',
+        id_feira: ''
+    })
 
+    const [notificacoes, setNotificacoes] = useState([
+        { id: 1, quantidade: '1', unidade: 'dias' }
+    ])
 
-  const navItems = [
-    { name: 'SOBRE', active: false },
-    { name: 'FEIRAS DE ADOÇÃO', active: false },
-    { name: 'DOAÇÃO', active: false },
-    { name: 'VOLUNTARIADO', active: false },
-    { name: 'CADASTROS', active: true },
-    { name: 'PATROCINADORES', active: false },
-  ];
+    const [feiras, setFeiras] = useState([])
 
-  return (
-    <header className="bg-white sticky top-0 z-50 shadow-md">
-      <div className="flex justify-between items-center h-20 px-4 lg:px-12" style={{ backgroundColor: primaryBlue }}>
+    useEffect(() => {
+        if (form.tipo === "FAIR") {
+            buscarFeiras()
+        } else {
+            setFeiras([])
+            setForm(prev => ({ ...prev, id_feira: '' }))
+        }
+    }, [form.tipo])
 
-       
-        <div className="flex items-center space-x-2">
-          <div className="p-2 rounded-full" style={{ backgroundColor: primaryYellow }}>
-            <FaHeart className="text-xl" style={{ color: primaryBlue }} />
-          </div>
-        </div>
+    function formatFeira(feira) {
+        const date = feira.fair_date.split("-").reverse().join("/")
+        const { street, number, city, state } = feira.address
+        const addressFormatted = `${street}, n° ${number} | ${city}/${state}`
+        return `${date} - ${addressFormatted}`
+    }
 
-       
-        <nav className="hidden md:flex flex-grow justify-start ml-12 space-x-8 h-full items-center">
-          {navItems.map((item) => (
-            <a
-              key={item.name}
-              href={`#${item.name.toLowerCase().replace(/ /g, '-')}`}
-              className={`h-full flex items-center text-sm font-bold transition-colors ${item.active
-                  ? `text-white border-b-4 border-white`
-                  : `text-white hover:text-gray-300`
-                }`}
+    useEffect(() => {
+        const calendario = flatpickr("#data-evento", {
+            locale: Portuguese,
+            dateFormat: "d/m/Y",
+            minDate: "today",
+            disableMobile: true,
+            onChange: (datas) => {
+                const dataFormatada = datas.length > 0 ? flatpickr.formatDate(datas[0], "d/m/Y") : ''
+                setForm(prev => ({ ...prev, data: dataFormatada }))
+            },
+        })
+
+        return () => calendario.destroy()
+    }, [])
+
+    const atualizarForm = (e) => {
+        const { name, value } = e.target
+
+        setForm(prev => ({
+            ...prev,
+            [name]: name === "id_feira" ? Number(value) : value
+        }))
+    }
+
+    const atualizarNotificacao = (id, campo, valor) => {
+        setNotificacoes(prev =>
+            prev.map(notif =>
+                notif.id === id ? { ...notif, [campo]: valor } : notif
+            )
+        )
+    }
+
+    const adicionarNotificacao = () => {
+        const novoId = Math.max(...notificacoes.map(n => n.id), 0) + 1
+        setNotificacoes(prev => [...prev, { id: novoId, quantidade: '1', unidade: 'dias' }])
+    }
+
+    const removerNotificacao = (id) => {
+        if (notificacoes.length > 1) {
+            setNotificacoes(prev => prev.filter(notif => notif.id !== id))
+        }
+    }
+
+    function formatDate(dateStr, currentSplit, desiredSplit) {
+        const parts = dateStr.split(currentSplit)
+        if (parts.length !== 3) return dateStr
+
+        if (parts[0].length === 2) {
+            const [day, month, year] = parts
+            return `${year}${desiredSplit}${month}${desiredSplit}${day}`
+        }
+
+        if (parts[0].length === 4) {
+            const [year, month, day] = parts
+            return `${day}${desiredSplit}${month}${desiredSplit}${year}`
+        }
+
+        return dateStr
+    }
+
+    async function buscarFeiras() {
+        try {
+            const result = await api.get("/feiras/future")
+            if (result.status == 200) {
+                const data = result.data
+                console.log("Feiras obtidas: ", data)
+                setFeiras(data)
+            } else {
+                alert.warn(
+                    "Ops, não foi possível carregar a lista de feiras!",
+                    "No momento não existem feiras disponíveis para associar à notificação. Cadastre uma nova feira e tente novamente."
+                )
+                setForm(prev => ({
+                    ...prev,
+                    tipo: ''
+                }))
+            }
+        } catch (error) {
+            console.log("Erro ao coletar feiras:", error)
+            handleHttpFeedback(alert, error)
+        }
+    }
+
+    const enviarFormulario = async (e) => {
+        e.preventDefault()
+
+        alert.loading("Aguarde", "Estamos cadastrando a sua notificação...")
+
+        const dados = {
+            type: form.tipo,
+            event_date: formatDate(form.data, "/", "-"),
+            message: form.mensagem,
+            fair_id: form.id_feira,
+            recurrences: notificacoes.map(it => Number(it.quantidade)),
+        }
+
+        try {
+            const result = await api.post("/notifications", dados)
+            console.log("Resultado: ", result)
+
+            handleHttpFeedback(alert, result, {
+                successTitle: "Notificação criada!",
+                successMessage:
+                    `A notificação foi cadastrada com sucesso para os dias: ` +
+                    result.data.recurrences.map(r => formatDate(r, "-", "/")).join(", ") + "!"
+            })
+
+        } catch (error) {
+            console.error("Erro ao enviar:", error)
+
+            handleHttpFeedback(alert, error.response ?? error, {
+                errorTitle: "Erro ao criar notificação",
+                errorMessage: error.response?.data?.message || "Não foi possível criar a notificação."
+            })
+        }
+    }
+
+    const SelectComIcone = ({ icone: Icone, nome, opcoes, valor, onChange, placeholder }) => (
+        <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden relative">
+            <span className="p-3 text-[#052759]">
+                <Icone className="text-lg" />
+            </span>
+
+            <select
+                name={nome}
+                className="w-full pr-10 py-3 text-sm text-[#052759] focus:outline-none font-medium pl-3 bg-white appearance-none cursor-pointer"
+                value={valor === null ? "" : valor}
+                onChange={onChange}
             >
-              {item.name}
-            </a>
-          ))}
-        </nav>
+                {placeholder && (
+                    <option value="" disabled hidden>
+                        {placeholder}
+                    </option>
+                )}
 
-       
-        <div className="flex items-center space-x-4">
-          <button className="text-white p-2 rounded-full hover:bg-white/10 transition-colors">
-            <FaRegBell className="text-xl" />
-          </button>
-          <button className="text-white p-2 rounded-full hover:bg-white/10 transition-colors">
-            <div className="relative w-7 h-7 flex items-center justify-center">
-              <div className="absolute w-6 h-6 rounded-full" style={{ backgroundColor: primaryYellow }}></div>
-              <FaUser className="text-base relative z-10" style={{ color: primaryBlue }} />
+                {opcoes.map(opcao => (
+                    <option key={opcao.value} value={opcao.value}>
+                        {opcao.label}
+                    </option>
+                ))}
+            </select>
+
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <div className="w-2 h-2 border-r-2 border-b-2 border-[#052759] rotate-45"></div>
             </div>
-          </button>
-          <button className="p-3 rounded-md transition-colors" style={{ backgroundColor: primaryYellow, color: primaryBlue }}>
-            <FaSignInAlt className="text-xl font-bold" />
-          </button>
         </div>
-      </div>
-    </header>
-  );
-};
+    )
 
+    return (
+        <div className="min-h-screen bg-[#F0F0F0] flex flex-col items-center py-8">
 
-function CalendarioStyles() {
-  return (
-    <style>{`
-      .flatpickr-calendar {
-        background-color: white; 
-        border-radius: 8px;
-        box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
-        border: none; 
-        width: 75%;
-        max-width: none;
-        position: relative !important;
-        transform: none !important;
-        padding: 0;
-        margin: 0;
-      }
-      .flatpickr-months {
-        background-color: #052759;
-        border-radius: 8px 8px 0 0;
-        padding: 6px 0;
-        display: flex; 
-        justify-content: space-between;
-        align-items: center;
-      }
-      .flatpickr-current-month,
-      .flatpickr-current-month span {
-        color: white !important;
-      }
-      .flatpickr-day {
-        color: #052759;
-        font-weight: 600;
-        padding: 0;
-      }
-      .flatpickr-day:hover, .flatpickr-day:focus {
-        background: #FCAD0B;
-        color: white;
-        border-radius: 50%;
-        border: none;
-      }
-      .flatpickr-day.selected {
-        background: #052759;
-        color: white;
-        border-radius: 50%;
-        border: none;
-      }
-      .flatpickr-day.today {
-        border: 1px solid #052759;
-        border-radius: 50%;
-        color: #052759;
-      }
-    `}</style>
-  );
-}
-
-
-const IconInput = ({ icon: Icon, placeholder, value, onChange, type = 'text', rows = 1, id }) => {
-  const primaryBlue = '#052759';
-
-  return (
-    <div className={`flex items-start border border-[${primaryBlue}] rounded-lg bg-white overflow-hidden`}>
-      <span className={`p-3 text-[${primaryBlue}] flex-shrink-0 ${rows > 1 ? 'self-start' : 'self-center'}`}>
-        <Icon className="text-xl" />
-      </span>
-
-      {rows > 1 ? (
-        <textarea
-          id={id}
-          name={id}  
-          placeholder={placeholder}
-          rows={rows}
-          className={`w-full h-full pr-3 py-3 text-sm text-[${primaryBlue}] rounded-r-lg focus:outline-none resize-none placeholder-[${primaryBlue}] font-medium pl-3`}
-          value={value}
-          onChange={onChange}
-        />
-      ) : (
-        <input
-          id={id}
-          type={type}
-          name={id} 
-          placeholder={placeholder}
-          className={`w-full pr-3 py-3 text-sm text-[${primaryBlue}] rounded-r-lg focus:outline-none placeholder-[${primaryBlue}] font-medium pl-3`}
-          value={value}
-          onChange={onChange}
-        />
-      )}
-    </div>
-  );
-};
-
-
-export default function CadastroFeiraAdocao() {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    horaEvento: '14:00 às 18:00',
-    dataHoraEvento: '17/09/2025',
-    localizacao: '',
-    mensagem: '',
-  });
-
-  const [selectedDates, setSelectedDates] = useState(["17/09/2025"]);
-
-  useEffect(() => {
-    const fp = flatpickr("#calendario-container", {
-      locale: Portuguese,
-      dateFormat: "d/m/Y",
-      minDate: "today",
-      inline: true,
-      disableMobile: true,
-      mode: "multiple",
-      defaultDate: ["2025-09-17"],
-      onChange: (selectedDatesArr) => {
-        setSelectedDates(selectedDatesArr.map(date => flatpickr.formatDate(date, "d/m/Y")));
-        setFormData(prev => ({ ...prev, dataHoraEvento: selectedDatesArr.length > 0 ? flatpickr.formatDate(selectedDatesArr[0], "d/m/Y") : '' }));
-      },
-    });
-
-    return () => fp.destroy();
-  }, []);
-
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Dados da Feira de Adoção:', formData);
-    console.log('Datas selecionadas:', selectedDates);
-  };
-
-  return (
-    <div className="relative min-h-screen flex flex-col items-center pt-0 pb-20" style={{ backgroundColor: '#F0F0F0' }}>
-      <CalendarioStyles />
-
-
-      <div className="flex flex-col items-center pt-8 px-4">
-        <h1 className="text-3xl font-black mb-3 text-center text-[#052759]">
-          Cadastrar Feira de Adoção
-        </h1>
-        <h2 className="font-bold mb-6 text-center text-[#052759]">
-          Cadastre aqui as Feiras de Adoção que irão ocorrer nos próximos dias!
-        </h2>
-      </div>
-
-
-<div
-  className="w-11/12 max-w-5xl p-8 lg:p-12 bg-white rounded-xl shadow-md border border-gray-100 relative z-10"
-  style={{ paddingBottom: '10rem'}} 
->        
-        <h2 className="text-2xl font-bold text-[#052759] mb-8 text-center">
-          Informações sobre a Feira de Adoção
-        </h2>
-
-        <form onSubmit={handleSubmit} className="grid lg:grid-cols-2 gap-8">
-
-          <div className="flex flex-col gap-6 min-h-[300px]">
-            <IconInput
-              icon={FaRegClock}
-              placeholder="Hora do evento: 14:00 às 18:00"
-              value={formData.horaEvento}
-              onChange={handleChange}
-              id="horaEvento"
-            />
-            <div className="flex items-center border border-[#052759] rounded-lg bg-white overflow-hidden">
-              <span className="p-3 text-[#052759] flex items-center justify-center flex-shrink-0">
-                <FaCalendarAlt className="text-xl" />
-              </span>
-              <input
-                type="text"
-                name="dataHoraEvento"
-                placeholder="Data/Hora do evento:"
-                value={formData.dataHoraEvento}
-                readOnly
-                className="w-full pr-3 py-3 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3"
-              />
-              <span className="p-3 text-[#052759] flex-shrink-0 flex items-center justify-center cursor-pointer">
-                <span className="text-sm">▼</span>
-              </span>
+            <div className="text-center mb-8">
+                <h1 className="text-2xl font-black text-[#052759] mb-2">
+                    Cadastrar Notificação
+                </h1>
+                <p className="text-[#052759] text-sm">
+                    Existe algum evento ou necessidade? Notifique aqui seus usuários cadastrados!
+                </p>
             </div>
-            <div id="calendario-container" className="w-full border border-gray-200 rounded-xl " />
-          </div>
 
+            <div className="w-11/12 max-w-5xl bg-[#052759] p-8 rounded-xl shadow-lg relative">
 
-          <div className="flex flex-col gap-6">
-            <IconInput
-              icon={FaMapMarkerAlt}
-              placeholder="Localização da feira:"
-              value={formData.localizacao}
-              onChange={handleChange}
-              rows={8}
-              id="localizacao"
-            />
-            <IconInput
-              icon={FaEnvelope}
-              placeholder="Mensagem:"
-              value={formData.mensagem}
-              onChange={handleChange}
-              rows={8}
-              id="mensagem"
-            />
-            <button
-              onClick={() => navigate("/")}
-              type="submit"
-              className="mt-4 w-full bg-[#052759] text-lg text-white font-bold py-3 rounded-lg hover:bg-[#023582] transition-colors shadow-md"
-            >
-              Cadastrar Feira
-            </button>
+                <form onSubmit={enviarFormulario} className="grid lg:grid-cols-2 gap-8 items-start">
 
+                    <div className="space-y-6">
 
-          </div>
-        </form>
+                        <SelectComIcone
+                            key={1}
+                            icone={FaBell}
+                            nome="tipo"
+                            valor={form.tipo}
+                            onChange={atualizarForm}
+                            placeholder="Selecione o tipo da notificação"
+                            opcoes={[
+                                { value: 'FAIR', label: 'Feira de Adoção' },
+                                { value: 'DONATION', label: 'Precisamos de Doações' },
+                                { value: 'VOLUNTEER', label: 'Precisamos de Voluntários' },
+                                { value: 'GENERAL', label: 'Outro' }
+                            ]}
+                        />
 
-        <img
-          src="/img-cadastro.png"
-          alt="Cachorrinho olhando para cima"
-          className="absolute bottom-0 left-0 object-contain z-0 pointer-events-none"
-          style={{
-            width: '320px',
-            maxHeight: '290px'
-          }}
-        />
-      </div>
+                        {form.tipo == 'FAIR' && (
+                            <SelectComIcone
+                                key={2}
+                                icone={FaPaw}
+                                nome="id_feira"
+                                valor={form.id_feira}
+                                onChange={atualizarForm}
+                                placeholder="Selecione uma feira para associar a notificação"
+                                opcoes={feiras.map(feira => ({
+                                    value: feira.id,
+                                    label: formatFeira(feira)
+                                }))}
+                            />
+                        )}
 
+                        <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white">
+                            <span className="p-3 text-[#052759]">
+                                <FaCalendarAlt className="text-lg" />
+                            </span>
+                            <input
+                                id="data-evento"
+                                name="data"
+                                placeholder="Data do Evento:"
+                                className="w-full pr-3 py-3 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white cursor-pointer"
+                                value={form.data}
+                                onChange={atualizarForm}
+                            />
+                        </div>
 
+                        <div className="flex items-start border-2 border-[#052759] rounded-lg bg-white min-h-[220px]">
+                            <span className="p-3 text-[#052759] self-start">
+                                <FaEnvelope className="text-lg" />
+                            </span>
+                            <textarea
+                                name="mensagem"
+                                placeholder="Mensagem"
+                                className="w-full pr-3 py-3 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white resize-none"
+                                value={form.mensagem}
+                                onChange={atualizarForm}
+                                rows={4}
+                            />
+                        </div>
+                    </div>
 
-    </div>
-  );
+                    <div className="space-y-6">
+
+                        <div className="bg-white rounded-xl p-6 border-2 border-[#052759] h-full flex flex-col">
+
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-[#052759] font-bold flex items-center gap-2 text-lg">
+                                    <FaClock className="text-[#FCAD0B] text-xl" />
+                                    Agendar Notificações
+                                </h3>
+                                <button
+                                    type="button"
+                                    onClick={adicionarNotificacao}
+                                    className="flex items-center gap-2 bg-[#FCAD0B] text-[#052759] px-4 py-2.5 rounded-lg hover:bg-[#FFD166] transition-colors font-bold text-sm"
+                                >
+                                    <FaPlus className="text-sm" />
+                                    Adicionar
+                                </button>
+                            </div>
+
+                            <p className="text-sm text-[#525252] mb-4">Enviada com antecedência de: </p>
+
+                            <div className="flex-1 overflow-y-auto max-h-32 pr-3 space-y-4 custom-scrollbar">
+                                {notificacoes.map((notif) => (
+                                    <div key={notif.id} className="bg-[#F8F9FA] rounded-lg p-4 border border-[#052759]/20 relative group">
+
+                                        {notificacoes.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => removerNotificacao(notif.id)}
+                                                className="absolute -bottom-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <FaTrash className="text-xs" />
+                                            </button>
+                                        )}
+
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex-1">
+                                                <div className="flex max-h-60 items-center border border-[#052759] rounded-lg bg-white overflow-hidden">
+                                                    <select
+                                                        name={`quantidade-${notif.id}`}
+                                                        className="w-full px-4 py-2.5 text-sm text-[#052759] focus:outline-none font-medium bg-white appearance-none cursor-pointer"
+                                                        value={notif.quantidade}
+                                                        onChange={(e) => atualizarNotificacao(notif.id, 'quantidade', e.target.value)}
+                                                    >
+                                                        <option value="1">1</option>
+                                                        <option value="2">2</option>
+                                                        <option value="3">3</option>
+                                                        <option value="4">4</option>
+                                                        <option value="5">5</option>
+                                                        <option value="6">6</option>
+                                                        <option value="7">7</option>
+                                                    </select>
+                                                    <div className="pr-3 pointer-events-none">
+                                                        <div className="w-1.5 h-1.5 border-r border-b border-[#052759] rotate-45"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="flex items-center justify-center border border-[#052759] rounded-lg bg-white overflow-hidden">
+                                                    <span className="w-full px-4 py-2.5 text-sm text-[#052759] font-medium text-center">
+                                                        dias
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="mt-6 pt-4 border-t border-[#052759]/20">
+                                <Button
+                                    type="submit"
+                                    className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#FCAD0B] hover:bg-[#052759] hover:[#052759] text-sm mx-auto w-full py-4"
+                                >
+                                    Agendar Notificações
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <img
+                    src="/img-cadastro.png"
+                    alt="Cachorrinho"
+                    className="absolute bottom-0 left-0 w-40 max-h-32 object-contain pointer-events-none"
+                />
+            </div>
+
+            <style jsx>{`
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 8px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: #f1f1f1;
+                    border-radius: 10px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #052759;
+                    border-radius: 10px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: #FCAD0B;
+                }
+            `}</style>
+        </div>
+    )
 }
