@@ -3,9 +3,12 @@ import flatpickr from 'flatpickr'
 import 'flatpickr/dist/flatpickr.min.css'
 import { Portuguese } from 'flatpickr/dist/l10n/pt.js'
 import { FaRegUser, FaEnvelope, FaWhatsapp, FaIdCard, FaPaw, FaCalendarAlt } from 'react-icons/fa'
+import { useAlertUtils } from '../hooks/useAlertUtils';
+import { handleHttpFeedback } from '../js/utils/handleHttpFeedback';
 import Button from '../components/ui/Button'
 
 function useScrollReveal(threshold = 0.1) {
+    
     const [isVisible, setIsVisible] = useState(false)
     const ref = useRef(null)
 
@@ -35,6 +38,7 @@ function useScrollReveal(threshold = 0.1) {
 import { api } from '../api/apiUserService'
 
 export default function Voluntariados() {
+    const alert = useAlertUtils();
 
     const [headerRef, headerVisible] = useScrollReveal(0.1)
     const [formRef, formVisible] = useScrollReveal(0.1)
@@ -91,7 +95,10 @@ export default function Voluntariados() {
         const token = sessionStorage.getItem("USER_DATA");
 
         if (!token) {
-            alert("Você precisa estar logado para se voluntariar.");
+           handleHttpFeedback(alert, {
+                errorTitle: "Erro de autenticação",
+                errorMessage: "Você precisa estar logado para se voluntariar.",
+            })
             return;
         }
 
@@ -100,7 +107,10 @@ export default function Voluntariados() {
         const userId = jsonData?.id;
 
         if (!userId) {
-            alert("ID de usuário não encontrado. Faça login novamente.");
+            handleHttpFeedback(alert, {
+                errorTitle: "Erro de autenticação",
+                errorMessage: "ID do usuário não encontrado. Faça login novamente.",
+            });
             return;
         }
 
@@ -120,28 +130,37 @@ export default function Voluntariados() {
         const response = await api.post("/volunteers", payload);
 
         console.log("Voluntário cadastrado:", response.data);
-        alert("Cadastro enviado com sucesso!");
+        handleHttpFeedback(alert, response, {
+            successTitle: "Cadastro realizado",
+            successMessage: "Obrigado por se voluntariar! Entraremos em contato em breve.",
+        });
 
         await sendWhatsApp(isoDate);
-        alert("Mensagem enviada pelo WhatsApp!");
+        handleHttpFeedback(alert, response, {
+            successTitle: "Mensagem enviada",
+            successMessage: "Uma mensagem de desejo de voluntariado foi enviada via WhatsApp para nossa equipe.",
+        });
 
     } catch (error) {
         console.error("Erro ao cadastrar voluntário:", error);
-        alert("Ocorreu um erro ao enviar o cadastro.");
+         handleHttpFeedback(alert, error.response, {
+            errorTitle: "Erro no cadastro",
+            errorMessage: "Ocorreu um erro ao realizar seu cadastro. Tente novamente mais tarde.",
+        });
     }
 }
 
     const handleChange = (e) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
     }
-
     
-    // -------------------------------
     const sendWhatsApp = async () => {
     
     const token = sessionStorage.getItem("USER_DATA");
-    if (!token) return alert("Você precisa estar logado para enviar a mensagem.");
-    
+    if (!token) return handleHttpFeedback(alert, {
+        errorTitle: "Erro de autenticação",
+        errorMessage: "Você precisa estar logado para enviar a mensagem pelo WhatsApp.",
+    });
     const user = JSON.parse(token);
 
     
@@ -151,7 +170,7 @@ export default function Voluntariados() {
                 `Mensagem: ${formData.message || "Não informado"}\n` +
                 `Data disponível: ${formData.calendario}`;
 
-    const beneficiaryNumber = `5511992005715`;
+    const beneficiaryNumber = `5511930144580`;
     const payload = {
         number: beneficiaryNumber,
         text: msg
@@ -162,8 +181,11 @@ export default function Voluntariados() {
         const response = await api.post(`/messages/sendText/${instance}`, payload);
         console.log("Mensagem enviada com sucesso:", response.data);
     } catch (error) {
-        console.error("Erro ao enviar WhatsApp:", error);
-        alert("Ocorreu um erro ao enviar a mensagem pelo WhatsApp.");
+        console.error("Erro ao enviar WhatsApp:", error.response);
+        handleHttpFeedback(alert, {
+            errorTitle: "Erro ao enviar mensagem",
+            errorMessage: "Não foi possível enviar a mensagem via WhatsApp. Tente novamente mais tarde.",
+        });
     }
 }
 
