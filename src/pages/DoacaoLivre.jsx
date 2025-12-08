@@ -318,7 +318,6 @@ function Envio({ data, updateData, onNext }) {
     updateData("pontoColetaId", point.id);
     updateData("cep_destino", point.address.zipCode);
 
-    // Calcula automaticamente usando o CEP FIXO até o Ponto selecionado
     handleCalculateFreight(cep_fixo_usuario, point.address.zipCode);
   };
 
