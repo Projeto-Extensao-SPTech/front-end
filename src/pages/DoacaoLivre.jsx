@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/apiUserService";
-import { useAlertUtils } from "../hooks/useAlertUtils"
+import { useAlertUtils } from "../hooks/useAlertUtils";
 
 function InputField({ field, value, onChange }) {
   return (
@@ -85,7 +85,7 @@ function RadioOption({ id, checked, onChange, label }) {
 }
 
 function Informacoes({ data, updateData, onNext }) {
-   const alertUtils = useAlertUtils()
+  const alertUtils = useAlertUtils();
   const fields = [
     {
       label: "Nome do Produto",
@@ -243,16 +243,21 @@ function EnviarFoto({ data, updateData, onNext }) {
 }
 
 function Envio({ data, updateData, onNext }) {
-   const alertUtils = useAlertUtils()
+  const alertUtils = useAlertUtils();
   const [collectionPoints, setCollectionPoints] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [freightInfo, setFreightInfo] = useState(null);
+
+  const cep_fixo_usuario = "01414-001";
 
   useEffect(() => {
     const fetchPoints = async () => {
       try {
         const storedData = sessionStorage.getItem("USER_DATA");
         const token = storedData ? JSON.parse(storedData).token : null;
-        const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+        const config = token
+          ? { headers: { Authorization: `Bearer ${token}` } }
+          : {};
 
         const response = await api.get("/collection-centers", config);
         setCollectionPoints(response.data);
@@ -267,22 +272,64 @@ function Envio({ data, updateData, onNext }) {
 
   const handleRadioChange = (tipo) => {
     updateData("tipoEnvio", tipo);
+    setFreightInfo(null); 
     if (tipo === "envio") updateData("pontoColetaId", null);
     if (tipo === "ponto de coleta") {
-      updateData("cep_origem", "");
-      updateData("cep_destino", "");
+      updateData("cep_origem", cep_fixo_usuario);
+      updateData("cep_destino", collectionPoints[0]?.address.zipCode || "");
+      setFreightInfo(null);
     }
   };
+
+  const handleCalculateFreight = async () => {
+    if (!data.cep_origem || !data.cep_destino) {
+      alertUtils.warn("Atenção", "Preencha os dois CEPs para calcular.");
+      return;
+    }
+    const storedData = sessionStorage.getItem("USER_DATA");
+    const token = storedData ? JSON.parse(storedData).token : null;
+    const config = token
+      ? { headers: { Authorization: `Bearer ${token}` } }
+      : {};
+    alertUtils.loading("Calculando...", "Consultando opções de entrega");
+    try {
+      const response = await api.get(
+        `/shipment/calculate_origem_destination?origin=${data.cep_origem}&destination=${data.cep_destino}`,
+        config
+      );
+      setFreightInfo(response.data);
+      alertUtils.close();
+    } catch (error) {
+      alertUtils.close();
+      console.error("Erro ao calcular frete:", error);
+    }
+  };
+
+  const handleManualFreight = (e) => {
+    e.preventDefault();
+    if (!data.cep_origem || !data.cep_destino) {
+      alertUtils.warn("Atenção", "Preencha os dois CEPs.");
+      return;
+    }
+    handleCalculateFreight(data.cep_origem, data.cep_destino);
+  }
+
+    const handlePointClick = (point) => {
+    updateData("pontoColetaId", point.id);
+    updateData("cep_destino", point.address.zipCode);
+
+    // Calcula automaticamente usando o CEP FIXO até o Ponto selecionado
+    handleCalculateFreight(cep_fixo_usuario, point.address.zipCode);
+  };
+
 
   const handleFinalSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-
     try {
-
       const storedData = sessionStorage.getItem("USER_DATA");
-      
+
       if (!storedData) {
         alertUtils.warn("Sessão expirada. Por favor, faça login novamente.");
         setLoading(false);
@@ -291,14 +338,17 @@ function Envio({ data, updateData, onNext }) {
       const token = JSON.parse(storedData).token;
 
       const formData = new FormData();
-      
+
       formData.append("name", data.nomeProduto);
       formData.append("type", data.categoria);
       formData.append("amount", parseInt(data.quantidade));
       formData.append("state", data.estado);
       formData.append("description", data.descricao);
-      formData.append("shippingMethod", data.tipoEnvio === "envio" ? "Correios" : "Ponto de Coleta");
-      
+      formData.append(
+        "shippingMethod",
+        data.tipoEnvio === "envio" ? "Correios" : "Ponto de Coleta"
+      );
+
       if (data.pontoColetaId) {
         formData.append("collectionCenterId", data.pontoColetaId);
       }
@@ -307,26 +357,56 @@ function Envio({ data, updateData, onNext }) {
         formData.append("image", data.foto);
       }
 
-    
       await api.post("/donations", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data"
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
+      alertUtils.success("Sucesso!", "Doação realizada com sucesso!");
 
-      onNext(); 
-
+      onNext();
     } catch (error) {
       console.error("Erro no envio:", error);
       const msg = error.response?.data || "Erro desconhecido.";
-      alertUtils.error("Erro ao enviar doação: " + (typeof msg === 'object' ? JSON.stringify(msg) : msg));
+      alertUtils.error(
+        "Erro ao enviar doação: " +
+          (typeof msg === "object" ? JSON.stringify(msg) : msg)
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  
+
+  const FreightResultCard = () => {
+    if (!freightInfo) return null;
+    return (
+        <div className="flex flex-col items-center bg-white/20 p-4 rounded-lg border border-white/30 animate-fade-in mt-4 w-full">
+            <p className="text-white font-bold text-lg">
+                {data.tipoEnvio === "envio" ? "Estimativa de Entrega" : "Custo Estimado de Deslocamento"}
+            </p>
+            <div className="flex gap-8 mt-2">
+                <div className="text-center">
+                    <span className="block text-xs text-white/70">Valor</span>
+                    <span className="text-[#FFB114] font-bold text-xl">
+                        {Number(freightInfo.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    </span>
+                </div>
+                <div className="text-center">
+                    <span className="block text-xs text-white/70">Prazo</span>
+                    <span className="text-white font-bold text-xl">
+                        {freightInfo.deliveryTime} dias
+                    </span>
+                </div>
+            </div>
+            <p className="text-xs text-white/50 mt-2">
+               {data.tipoEnvio === "ponto de coleta" && `CEP do Usuário (${cep_fixo_usuario})`}
+            </p>
+        </div>
+    );
+  };
+
   return (
     <div className="text-center space-y-6 w-full">
       <h2 className="text-2xl text-white font-bold">Doação Livre</h2>
@@ -373,6 +453,25 @@ function Envio({ data, updateData, onNext }) {
               onChange={handleChange}
             />
 
+            {/* <div className="w-full flex justify-center">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleCalculateFreight();
+                }}
+                className="text-white text-sm underline hover:text-[#FFB114] transition-colors"
+              >
+                Calcular Frete e Prazo
+              </button>
+            </div> */}
+             <div className="w-full flex justify-center">
+                <button onClick={handleManualFreight} className="text-white text-sm underline hover:text-[#FFB114] transition-colors">
+                    Calcular Frete e Prazo
+                </button>
+            </div>
+
+            <FreightResultCard /> 
+
             <div className="w-full flex justify-center mt-4">
               <FormButton onClick={handleFinalSubmit} disabled={loading}>
                 {loading ? "Enviando..." : "Finalizar Doação"}
@@ -380,6 +479,8 @@ function Envio({ data, updateData, onNext }) {
             </div>
           </div>
         )}
+
+
 
         {data.tipoEnvio === "ponto de coleta" && (
           <>
@@ -394,7 +495,8 @@ function Envio({ data, updateData, onNext }) {
                 {collectionPoints.map((p) => (
                   <div
                     key={p.id}
-                    onClick={() => updateData("pontoColetaId", p.id)}
+                   // onClick={() => updateData("pontoColetaId", p.id)}
+                   onClick={()=> handlePointClick(p)}
                     className={`flex flex-col items-start rounded-md p-3 w-full transition-colors duration-200 ${
                       data.collectionCenterId === p.id
                         ? "bg-white border-2 border-[#FFB114]"
@@ -412,6 +514,8 @@ function Envio({ data, updateData, onNext }) {
                 ))}
               </div>
             </div>
+
+            <FreightResultCard />
 
             <div className="flex justify-center mt-4">
               <FormButton onClick={handleFinalSubmit} disabled={loading}>
@@ -499,7 +603,6 @@ function Identificador({ steps, currentIndex }) {
 }
 
 export default function DoacaoLivre() {
-
   const [step, setStep] = useState(0);
   // const nextStep = () => setStep(prev => Math.min(prev + 1, 3));
 
@@ -510,7 +613,7 @@ export default function DoacaoLivre() {
     estado: "",
     descricao: "",
     foto: null, // Guarda o arquivo, mas o backend atual ainda não salva
-    tipoEnvio: "", 
+    tipoEnvio: "",
     pontoColetaId: null,
     cep_origem: "",
     cep_destino: "09609-000", // Fixo do abrigo
