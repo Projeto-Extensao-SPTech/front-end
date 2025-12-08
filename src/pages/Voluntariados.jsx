@@ -3,9 +3,12 @@ import flatpickr from 'flatpickr'
 import 'flatpickr/dist/flatpickr.min.css'
 import { Portuguese } from 'flatpickr/dist/l10n/pt.js'
 import { FaRegUser, FaEnvelope, FaWhatsapp, FaIdCard, FaPaw, FaCalendarAlt } from 'react-icons/fa'
+import { useAlertUtils } from '../hooks/useAlertUtils';
+import { handleHttpFeedback } from '../js/utils/handleHttpFeedback';
 import Button from '../components/ui/Button'
 
 function useScrollReveal(threshold = 0.1) {
+    
     const [isVisible, setIsVisible] = useState(false)
     const ref = useRef(null)
 
@@ -32,8 +35,10 @@ function useScrollReveal(threshold = 0.1) {
 
     return [ref, isVisible]
 }
+import { api } from '../api/apiUserService'
 
 export default function Voluntariados() {
+    const alert = useAlertUtils();
 
     const [headerRef, headerVisible] = useScrollReveal(0.1)
     const [formRef, formVisible] = useScrollReveal(0.1)
@@ -47,6 +52,25 @@ export default function Voluntariados() {
         calendario: ''
     })
 
+    
+    useEffect(() => {
+        const token = sessionStorage.getItem("USER_DATA")
+
+        if (token) {
+            const jsonData = JSON.parse(token)
+            console.log("JSON DATA COMPLETO:", jsonData);
+
+            setFormData(prev => ({
+                ...prev,
+                name: jsonData?.name || '',
+                email: jsonData?.mail_address || '',
+                cpf: jsonData?.document || '',
+                whatsapp: jsonData?.phone || ''
+            }))
+        }
+    }, [])
+
+    
     useEffect(() => {
         const fp = flatpickr("#calendario", {
             locale: Portuguese,
@@ -54,16 +78,116 @@ export default function Voluntariados() {
             minDate: "today",
             disableMobile: true,
             onChange: (dates) => {
-                const dataFormatada = dates.length > 0 ? flatpickr.formatDate(dates[0], "d/m/Y") : ''
+                const dataFormatada =
+                    dates.length > 0 ? flatpickr.formatDate(dates[0], "d/m/Y") : ''
+
                 setFormData(prev => ({ ...prev, calendario: dataFormatada }))
             }
         })
         return () => fp.destroy()
     }, [])
 
+  
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+
+        try {
+        const token = sessionStorage.getItem("USER_DATA");
+
+        if (!token) {
+           handleHttpFeedback(alert, {
+                errorTitle: "Erro de autenticação",
+                errorMessage: "Você precisa estar logado para se voluntariar.",
+            })
+            return;
+        }
+
+        const jsonData = JSON.parse(token);
+        console.log("JSON DATA:", jsonData);
+        const userId = jsonData?.id;
+
+        if (!userId) {
+            handleHttpFeedback(alert, {
+                errorTitle: "Erro de autenticação",
+                errorMessage: "ID do usuário não encontrado. Faça login novamente.",
+            });
+            return;
+        }
+
+       
+        const [dia, mes, ano] = formData.calendario.split("/");
+        const isoDate = `${ano}-${mes}-${dia}`;
+
+        const payload = {
+            user_id: userId,
+            message: formData.message,
+            available_date: isoDate
+        };
+
+        
+        console.log("Payload enviado:", payload);
+
+        const response = await api.post("/volunteers", payload);
+
+        console.log("Voluntário cadastrado:", response.data);
+        handleHttpFeedback(alert, response, {
+            successTitle: "Cadastro realizado",
+            successMessage: "Obrigado por se voluntariar! Entraremos em contato em breve.",
+        });
+
+        await sendWhatsApp(isoDate);
+        handleHttpFeedback(alert, response, {
+            successTitle: "Mensagem enviada",
+            successMessage: "Uma mensagem de desejo de voluntariado foi enviada via WhatsApp para nossa equipe.",
+        });
+
+    } catch (error) {
+        console.error("Erro ao cadastrar voluntário:", error);
+         handleHttpFeedback(alert, error.response, {
+            errorTitle: "Erro no cadastro",
+            errorMessage: "Ocorreu um erro ao realizar seu cadastro. Tente novamente mais tarde.",
+        });
+    }
+}
+
     const handleChange = (e) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
     }
+    
+    const sendWhatsApp = async () => {
+    
+    const token = sessionStorage.getItem("USER_DATA");
+    if (!token) return handleHttpFeedback(alert, {
+        errorTitle: "Erro de autenticação",
+        errorMessage: "Você precisa estar logado para enviar a mensagem pelo WhatsApp.",
+    });
+    const user = JSON.parse(token);
+
+    
+    const msg = `Olá!\nSou um voluntário interessado! 🐶\n\n` +
+                `Nome: ${user.name || formData.name}\n` +
+                `Email: ${user.mail_address || formData.email}\n` +
+                `Mensagem: ${formData.message || "Não informado"}\n` +
+                `Data disponível: ${formData.calendario}`;
+
+    const beneficiaryNumber = `5511930144580`;
+    const payload = {
+        number: beneficiaryNumber,
+        text: msg
+    };
+
+    const instance = "api-manager"; 
+    try {
+        const response = await api.post(`/messages/sendText/${instance}`, payload);
+        console.log("Mensagem enviada com sucesso:", response.data);
+    } catch (error) {
+        console.error("Erro ao enviar WhatsApp:", error.response);
+        handleHttpFeedback(alert, {
+            errorTitle: "Erro ao enviar mensagem",
+            errorMessage: "Não foi possível enviar a mensagem via WhatsApp. Tente novamente mais tarde.",
+        });
+    }
+}
 
     const InputComIcone = ({ icon: Icon, name, placeholder, type = "text" }) => (
         <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden">
@@ -80,11 +204,6 @@ export default function Voluntariados() {
             />
         </div>
     )
-
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        console.log("Voluntário cadastrado:", formData)
-    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#F5F5F5] to-[#E8E8E8]">
@@ -238,6 +357,7 @@ export default function Voluntariados() {
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     )
