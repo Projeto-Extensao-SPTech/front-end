@@ -81,7 +81,7 @@ export default function Auth() {
         const numeroFormatado = `55${telefoneLimpo}`
 
         try {
-            const telefoneCadastrado = await api.get(`/exists-by-phone/${telefoneLimpo}`)
+            const telefoneCadastrado = await api.get(`/users/exists-by-phone/${telefoneLimpo}`)
             if (!telefoneCadastrado) {
                 alertUtils.warn("Telefone não encontrado", "Esse telefone não pertence a nenhum usuário cadastrado")
                 return
@@ -90,6 +90,7 @@ export default function Auth() {
         } catch (error) {
             console.log("Erro ao verificar o telefone: ", error.message)
             alertUtils.error("Não foi possível continuar", "Tente novamente mais tarde.")
+            return
         }
 
         const requestBody = {
@@ -126,17 +127,16 @@ export default function Auth() {
     }
 
     const recuperacaoSenhaAtualizar = async (novaSenha) => {
-        alertUtils.loading("Aguarde", "Estamos atualizando a sua senha.")
         try {
-            await api.patch("/users", {
+            await api.patch("/users/update-password", {
                 phone: formData.telefone.replace(/\D/g, ''),
                 password: novaSenha
             })
-            alertUtils.success("Senha atualizada com sucesso", "Atualizamos a sua senha e agora você pode acessar novamente o nosso site.")
             setEtapaRecuperarSenha(4)
         } catch (error) {
             console.error("Erro ao atualizar a senha: " + error.message)
             alertUtils.error("Não foi possível continuar", "Tente novamente mais tarde.")
+            return
         }
     }
 

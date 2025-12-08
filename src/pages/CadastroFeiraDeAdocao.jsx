@@ -75,7 +75,6 @@ export default function CadastroFeiraDeAdocao() {
 
     try {
       const resultado = await buscarCep(cepValue);
-      
       setFormData(prev => ({
         ...prev,
         rua: resultado.logradouro || '',
@@ -84,10 +83,10 @@ export default function CadastroFeiraDeAdocao() {
         estado: resultado.uf || '',
         pais: 'Brasil'
       }));
+      alert.success('CEP encontrado!', 'Endereço preenchido automaticamente.');
 
-      alert.sucesso('CEP encontrado!', 'Endereço preenchido automaticamente.');
     } catch (error) {
-      alert.erro('CEP não encontrado', 'Verifique o CEP informado e tente novamente.');
+      alert.error('CEP não encontrado', 'Verifique o CEP informado e tente novamente.');
       console.error('Erro ao buscar CEP:', error);
     }
   }, [alert]);
