@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/apiUserService";
+import { useAlertUtils } from "../hooks/useAlertUtils"
 
 function InputField({ field, value, onChange }) {
   return (
@@ -84,6 +85,7 @@ function RadioOption({ id, checked, onChange, label }) {
 }
 
 function Informacoes({ data, updateData, onNext }) {
+   const alertUtils = useAlertUtils()
   const fields = [
     {
       label: "Nome do Produto",
@@ -160,7 +162,7 @@ function Informacoes({ data, updateData, onNext }) {
             !data.estado ||
             !data.descricao
           ) {
-            return alert(
+            return alertUtils.warn(
               "Por favor, preencha todos os campos antes de avançar!"
             );
           }
@@ -241,6 +243,7 @@ function EnviarFoto({ data, updateData, onNext }) {
 }
 
 function Envio({ data, updateData, onNext }) {
+   const alertUtils = useAlertUtils()
   const [collectionPoints, setCollectionPoints] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -281,13 +284,12 @@ function Envio({ data, updateData, onNext }) {
       const storedData = sessionStorage.getItem("USER_DATA");
       
       if (!storedData) {
-        alert("Sessão expirada. Por favor, faça login novamente.");
+        alertUtils.warn("Sessão expirada. Por favor, faça login novamente.");
         setLoading(false);
         return;
       }
       const token = JSON.parse(storedData).token;
 
-      // --- CRIAÇÃO DO FORMDATA ---
       const formData = new FormData();
       
       formData.append("name", data.nomeProduto);
@@ -305,7 +307,7 @@ function Envio({ data, updateData, onNext }) {
         formData.append("image", data.foto);
       }
 
-      // Envia para o backend
+    
       await api.post("/donations", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -313,12 +315,12 @@ function Envio({ data, updateData, onNext }) {
         }
       });
 
-      onNext(); // Sucesso!
+      onNext(); 
 
     } catch (error) {
       console.error("Erro no envio:", error);
       const msg = error.response?.data || "Erro desconhecido.";
-      alert("Erro ao enviar doação: " + (typeof msg === 'object' ? JSON.stringify(msg) : msg));
+      alertUtils.error("Erro ao enviar doação: " + (typeof msg === 'object' ? JSON.stringify(msg) : msg));
     } finally {
       setLoading(false);
     }
@@ -497,6 +499,7 @@ function Identificador({ steps, currentIndex }) {
 }
 
 export default function DoacaoLivre() {
+
   const [step, setStep] = useState(0);
   // const nextStep = () => setStep(prev => Math.min(prev + 1, 3));
 
