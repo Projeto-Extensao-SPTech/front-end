@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
-
+import { api } from '../api/apiUserService'
+import { useAlertUtils } from '../hooks/useAlertUtils'
 
 function Apoiar({ areasApoio, toggleArea, onNext }) {
+    const alertUtils = useAlertUtils();
     const checkBoxes = [
         { label: "Financeiramente", id: "financeiramente" },
         { label: "Alimentos", id: "alimentos" },
@@ -39,7 +40,7 @@ function Apoiar({ areasApoio, toggleArea, onNext }) {
                     if (areasApoio.length > 0) {
                         onNext();
                     } else {
-                        alert("Por favor, selecione ao menos uma área de apoio para continuar.");
+                        alertUtils.error("Erro", "Por favor, selecione ao menos uma área de apoio para continuar.");
                     }
                 }}
                 className="w-64 bg-[#FFB114] text-white rounded-lg py-2 mt-6 hover:bg-[#ffd175] transition-colors duration-300 font-bold"
@@ -51,6 +52,16 @@ function Apoiar({ areasApoio, toggleArea, onNext }) {
 }
 
 function Descricao({ descricao, setDescricao, onNext }) {
+    const alertUtils = useAlertUtils();
+
+    const handleSubmit = () => {
+        if (!descricao.trim()) {
+            alertUtils.error("Campo obrigatório", "Por favor, descreva como você pode ajudar a instituição.");
+            return;
+        }
+        onNext();
+    };
+
     return (
         <div className="text-center space-y-6 w-full">
             <h2 className="text-2xl text-white font-bold">Seja um Patrocinador</h2>
@@ -64,7 +75,7 @@ function Descricao({ descricao, setDescricao, onNext }) {
             />
 
             <button
-                onClick={onNext}
+                onClick={handleSubmit}
                 className="w-64 bg-[#FFB114] text-white rounded-lg py-2 mt-4 hover:bg-[#ffd175] transition-colors duration-300 font-bold"
             >
                 Finalizar
@@ -143,6 +154,7 @@ function Indicador({ currentStep }) {
 }
 
 export default function Patrocinadores() {
+    const alertUtils = useAlertUtils();
     const [currentStep, setCurrentStep] = useState('apoio')
 
     // estados elevados (agregam dados de todos os passos)
@@ -165,7 +177,8 @@ export default function Patrocinadores() {
                     areasApoio,
                     descricao
                 }
-                sendSponsor(aggregated)
+                // passa callback para resetar em caso de erro
+                sendSponsor(aggregated, alertUtils, () => setCurrentStep('apoio'))
             }
             setCurrentStep(steps[currentIndex + 1])
         }
@@ -208,11 +221,10 @@ export default function Patrocinadores() {
 }
 
 // CÓDIGO DEDICADO AO CRUD DE PATROCINADORES (SPONSORS) NA APLICAÇÃO
-function sendSponsor(formData) {
+function sendSponsor(formData, alertUtils, onError) {
     if (!formData) return;
 
-    // Pega os dados do usuário logado do sessionStorage
-    const SESSION_KEY = "APP_USER";
+    const SESSION_KEY = "USER_DATA";
     let user = null;
 
     try {
@@ -220,12 +232,14 @@ function sendSponsor(formData) {
         user = raw ? JSON.parse(raw) : null;
     } catch (err) {
         console.error("Erro ao ler sessionStorage:", err);
-        alert("Você precisa estar logado para se tornar um patrocinador.");
+        alertUtils.forbidden("Houve um erro.", "Você precisa estar logado para se tornar um patrocinador.");
+        if (onError) onError();
         return;
     }
 
     if (!user || !user.id) {
-        alert("Você precisa estar logado para se tornar um patrocinador.");
+        alertUtils.forbidden("Houve um erro.", "Você precisa estar logado para se tornar um patrocinador.");
+        if (onError) onError();
         return;
     }
 
@@ -234,26 +248,29 @@ function sendSponsor(formData) {
 
     const sponsorshipPayload = {
         sponsor_id: user.id,
-        type: user.type || "PF", // Dado padrão é PF caso não exista
+        type: user.type || "PF",
         description: formData.descricao || "Sem descrição fornecida",
         department: getSponsorshipDepartment(formData.areasApoio)
     };
 
     console.log("Enviando sponsorship:", sponsorshipPayload);
 
+    let createdSponsorshipId = null;
+
     // Envia a sponsorship
-    axios.post("http://localhost:3000/sponsorships", sponsorshipPayload)
+    api.post("/sponsorships", sponsorshipPayload)
         .then(sponsorshipResponse => {
             console.log("Sponsorship created:", sponsorshipResponse.data);
 
-            const sponsorship = sponsorshipResponse.data
+            const sponsorship = sponsorshipResponse.data;
+            createdSponsorshipId = sponsorship.id; 
 
-            // Envia notificação via WhatsApp
             const departments = getSponsorshipDepartment(formData.areasApoio);
+
             const messageText = `Olá Andressa,\nTemos uma nova proposta de Patrocinador! 😻\n\n*Nome*: ${sponsorship.sponsor.name}\n*Departamento*: ${departments}\n*Descrição*: ${sponsorship.description || "Não informado"}\n*Tipo*: ${sponsorship.type}\n*Email*: ${sponsorship.sponsor.email || "Não informado"}\n*Telefone*: ${sponsorship.sponsor.phone || "Não informado"}\n\nEntre em contato para saber mais detalhes! 🐶🦴`;
 
-            return axios.post("http://localhost:7000/messages/sendText/Evolution-teste-api", {
-                number: "5511978704169",
+            return api.post("/messages/sendText/Evolution-teste-api", {
+                number: "5511930144580",
                 text: messageText
             });
         })
@@ -261,11 +278,29 @@ function sendSponsor(formData) {
             console.log("WhatsApp message sent:", messageResponse.data);
         })
         .catch(error => {
-            console.error("Erro no envio de patrocínio:", error);
+            console.error("Erro no fluxo de patrocínio:", error);
+
             if (error.response) {
                 console.error("Resposta do servidor:", error.response.data);
             }
-            alert("Ocorreu um erro ao enviar sua proposta. Tente novamente.");
+
+            if (createdSponsorshipId) {
+                console.log("Cancelando sponsorship criado devido ao erro. ID:", createdSponsorshipId);
+
+                api.delete(`/sponsorships/${createdSponsorshipId}`)
+                    .then(() => {
+                        console.log("Sponsorship deletado com sucesso (rollback)");
+                        alertUtils.error("Ocorreu um erro ao enviar sua proposta.", "A operação foi cancelada. Tente novamente mais tarde.");
+                    })
+                    .catch(deleteError => {
+                        console.error("Erro ao deletar sponsorship (rollback falhou):", deleteError);
+                        alertUtils.error("Ocorreu um erro crítico.", "Tente novamente mais tarde ou nos envie um e-mail.");
+                    });
+            } else {
+                alertUtils.error("Ocorreu um erro ao enviar sua proposta.", "Tente novamente mais tarde.");
+            }
+            // Retorna para a tela inicial (Apoiar) em caso de erro
+            if (onError) onError();
         });
 }
 
