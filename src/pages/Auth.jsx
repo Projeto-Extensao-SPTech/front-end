@@ -80,6 +80,18 @@ export default function Auth() {
         const telefoneLimpo = formData.telefone.replace(/\D/g, '')
         const numeroFormatado = `55${telefoneLimpo}`
 
+        try {
+            const telefoneCadastrado = await api.get(`/exists-by-phone/${telefoneLimpo}`)
+            if (!telefoneCadastrado) {
+                alertUtils.warn("Telefone não encontrado", "Esse telefone não pertence a nenhum usuário cadastrado")
+                return
+            }
+            console.log("Telefone encontrado")
+        } catch (error) {
+            console.log("Erro ao verificar o telefone: ", error.message)
+            alertUtils.error("Não foi possível continuar", "Tente novamente mais tarde.")
+        }
+
         const requestBody = {
             number: numeroFormatado,
             text: `Abrigo Dog Feliz: Seu código de verificação é: ${codigo}`
@@ -116,13 +128,15 @@ export default function Auth() {
     const recuperacaoSenhaAtualizar = async (novaSenha) => {
         alertUtils.loading("Aguarde", "Estamos atualizando a sua senha.")
         try {
-            await api.patch(JSON.parse(sessionStorage.getItem("USER_DATA")).id)
+            await api.patch("/users", {
+                phone: formData.telefone.replace(/\D/g, ''),
+                password: novaSenha
+            })
             alertUtils.success("Senha atualizada com sucesso", "Atualizamos a sua senha e agora você pode acessar novamente o nosso site.")
-            console.log("Senha atualizada para:", novaSenha, "para o telefone:", formData.telefone)
             setEtapaRecuperarSenha(4)
         } catch (error) {
             console.error("Erro ao atualizar a senha: " + error.message)
-            alertUtils.error("Houve um erro ao atualizar a sua senha", "Tente novamente")
+            alertUtils.error("Não foi possível continuar", "Tente novamente mais tarde.")
         }
     }
 
@@ -456,7 +470,6 @@ async function cadastroUser(formData, tipoPessoa, alertUtils) {
 
         alertUtils.close()
         await alertUtils.success("Cadastro realizado com sucesso!", "Bem-vindo ao abrigo dog feliz 🐶")
-
         return response.data
     } catch (error) {
         alertUtils.close()
