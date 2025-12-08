@@ -249,10 +249,7 @@ function Envio({ data, updateData, onNext }) {
       try {
         const storedData = sessionStorage.getItem("USER_DATA");
         const token = storedData ? JSON.parse(storedData).token : null;
-
-        const config = token
-          ? { headers: { Authorization: `Bearer ${token}` } }
-          : {};
+        const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
 
         const response = await api.get("/collection-centers", config);
         setCollectionPoints(response.data);
@@ -278,47 +275,56 @@ function Envio({ data, updateData, onNext }) {
     e.preventDefault();
     setLoading(true);
 
-    const payload = {
-            name: data.nomeProduto,
-            type: data.categoria,
-            amount: parseInt(data.quantidade),
-            state: data.estado, 
-            description: data.descricao,
-            shippingMethod: data.tipoEnvio === "envio" ? "Correios" : "Ponto de Coleta",
-            collectionCenterId: data.pontoColetaId || null,
-    }
 
     try {
-      const storedData = sessionStorage.getItem("USER_DATA");
 
+      const storedData = sessionStorage.getItem("USER_DATA");
+      
       if (!storedData) {
         alert("Sessão expirada. Por favor, faça login novamente.");
         setLoading(false);
-        return; 
+        return;
+      }
+      const token = JSON.parse(storedData).token;
+
+      // --- CRIAÇÃO DO FORMDATA ---
+      const formData = new FormData();
+      
+      formData.append("name", data.nomeProduto);
+      formData.append("type", data.categoria);
+      formData.append("amount", parseInt(data.quantidade));
+      formData.append("state", data.estado);
+      formData.append("description", data.descricao);
+      formData.append("shippingMethod", data.tipoEnvio === "envio" ? "Correios" : "Ponto de Coleta");
+      
+      if (data.pontoColetaId) {
+        formData.append("collectionCenterId", data.pontoColetaId);
       }
 
-      const userData = JSON.parse(storedData);
-      const token = userData.token;
+      if (data.foto) {
+        formData.append("image", data.foto);
+      }
 
-      await api.post("/donations", payload, {
+      // Envia para o backend
+      await api.post("/donations", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-        },
+          "Content-Type": "multipart/form-data"
+        }
       });
 
-      onNext(); // Sucesso! Avança para agradecimento
+      onNext(); // Sucesso!
+
     } catch (error) {
       console.error("Erro no envio:", error);
-      const msg = error.response?.data || "Erro desconhecido";
-      alert(
-        "Erro ao enviar doação: " +
-          (typeof msg === "object" ? JSON.stringify(msg) : msg)
-      );
+      const msg = error.response?.data || "Erro desconhecido.";
+      alert("Erro ao enviar doação: " + (typeof msg === 'object' ? JSON.stringify(msg) : msg));
     } finally {
       setLoading(false);
     }
   };
 
+  
   return (
     <div className="text-center space-y-6 w-full">
       <h2 className="text-2xl text-white font-bold">Doação Livre</h2>
