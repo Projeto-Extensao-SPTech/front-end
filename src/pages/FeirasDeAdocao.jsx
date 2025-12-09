@@ -4,6 +4,7 @@ import { parseISO, format } from 'date-fns';
 import Button from '../components/ui/Button';
 import { useAlertUtils } from '../hooks/useAlertUtils';
 import { handleHttpFeedback } from '../js/utils/handleHttpFeedback';
+import { MapPin } from 'lucide-react';
 
 function useScrollReveal(threshold = 0.1) {
     const [isVisible, setIsVisible] = useState(false);
@@ -28,7 +29,7 @@ export default function FeirasDeAdocao() {
 
     const [headerRef, headerVisible] = useScrollReveal(0.1);
     const [paginationRef, paginationVisible] = useScrollReveal(0.1);
-       const [feiraCardsRef, feiraCardsVisible] = useScrollReveal(0.1);
+    const [feiraCardsRef, feiraCardsVisible] = useScrollReveal(0.1);
     const [petsRef, petsVisible] = useScrollReveal(0.1);
 
     const [feiraSelecionada, setFeiraSelecionada] = useState(0);
@@ -157,7 +158,6 @@ export default function FeirasDeAdocao() {
                 </div>
             </div>
 
-            {/* ------ CORRIGIDO AQUÍ ------ */}
             <div
                 ref={petsRef}
                 className={`max-w-7xl mx-auto transition-all duration-700
@@ -179,7 +179,6 @@ export default function FeirasDeAdocao() {
                     </div>
                 </div>
             </div>
-            {/* ------ FIM DAS CORREÇÕES ------ */}
 
         </div>
     );
@@ -218,45 +217,85 @@ function CardFeira({ feira, isSelected, onClick }) {
     return (
         <div
             onClick={onClick}
-            className={`min-w-[320px] lg:min-w-0 bg-white rounded-2xl p-6 shadow-2xl cursor-pointer transform transition-all duration-300 hover:scale-105 relative
-                ${isSelected ? "scale-105" : ""}
+            className={`min-w-[320px] lg:min-w-0 bg-white rounded-2xl p-6 shadow-2xl cursor-pointer transform transition-all duration-500 relative
+                ${isSelected 
+                    ? "scale-105 ring-2 ring-[#FCAD0B] shadow-[0_8px_30px_rgba(252,173,11,0.3)]" 
+                    : "hover:scale-105 ring-2 ring-transparent"
+                }
                 shadow-[inset_0_8px_30px_0_rgba(0,0,0,0.4)]
             `}
             style={{ height: '380px' }}
         >
+
             <Button
-                className="absolute -top-2 -right-4 bg-[#FCAD0B] text-[#052759] text-sm font-bold"
+                className="absolute -top-2 -right-4 bg-[#FCAD0B] text-[#052759] text-sm font-bold z-20"
                 onClick={fairInterest}
             >
                 Tenho interesse
             </Button>
 
             <div
-                className={`absolute -bottom-9 left-1/2 transform -translate-x-1/2 w-5 h-5 rounded-full transition-all duration-300 
-                    ${isSelected ? "bg-white" : "bg-white/40"}
+                className={`absolute -bottom-9 left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full transition-all duration-300 flex items-center justify-center
+                    ${isSelected ? "bg-[#FCAD0B] scale-110" : "bg-white/40"}
                 `}
-            />
+            >
+                {isSelected && (
+                    <div className="w-2.5 h-2.5 bg-white rounded-full"></div>
+                )}
+            </div>
 
-            <div className="text-left mb-6">
-                <span className="text-[#052759] font-normal text-2xl">
-                    {formatDate(feira.fair_date)}
+            <div className="text-left mb-4">
+                <span className="text-[#052759] font-bold text-1xl">
+                    {formatDate(feira.fairDate)}
                 </span>
             </div>
 
-            <div className="text-center">
-                <h3 className="font-semibold text-[#052759] text-xl mb-3">
-                    {formatHour(feira.fair_hour)}
-                </h3>
-                <p className="text-[#052759] text-sm font-normal">
-                    {feira.address.street}, {feira.address.number}
-                </p>
+            <div className="space-y-3 mb-4">
+
+                <div className="bg-gradient-to-r from-[#FCAD0B]/10 to-transparent rounded-lg p-3 border-l-4 border-[#FCAD0B]">
+                    <div className="flex items-center gap-2">
+                        <div className="bg-[#FCAD0B] rounded-md p-1.5">
+                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-[#052759]/50 text-[10px] font-semibold uppercase tracking-wide">Horário</p>
+                            <h3 className="font-bold text-[#052759] text-xl leading-tight">
+                                {formatHour(feira.fairHour)}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-[#052759]/5 to-[#052759]/10 rounded-lg p-3 border border-[#052759]/10">
+                    <div className="flex items-start gap-2">
+                        <div className="bg-[#052759] rounded-md p-1.5 mt-0.5">
+                            <MapPin className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-[#052759]/50 text-[10px] font-semibold uppercase tracking-wide mb-1">Localização</p>
+                            <div className="space-y-1">
+                                <p className="text-[#052759] text-sm font-bold leading-tight break-words">
+                                    {feira.address.street}
+                                </p>
+                                <div className="flex items-center gap-1.5">
+                                    <div className="w-4 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-transparent rounded-full"></div>
+                                    <p className="text-[#052759]/70 text-xs font-semibold">
+                                        Nº {feira.address.number}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div className="flex justify-start mt-8 -ml-6">
+            <div className="flex justify-start -ml-6">
                 <img
                     src={feira.card_image}
                     alt="pet"
-                    className="w-40 h-40 object-cover rounded-r-xl"
+                    className="w-32 h-32 object-cover rounded-r-xl"
                 />
             </div>
         </div>
