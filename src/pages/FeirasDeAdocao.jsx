@@ -35,6 +35,11 @@ export default function FeirasDeAdocao() {
     const [feiraSelecionada, setFeiraSelecionada] = useState(0);
     const [paginaAtual, setPaginaAtual] = useState(1);
     const [feiras, setFeiras] = useState([]);
+    
+    const [feirasInteressadas, setFeirasInteressadas] = useState(() => {
+        const salvo = localStorage.getItem('feiras_interesse_usuario');
+        return salvo ? JSON.parse(salvo) : [];
+    });
 
     function selectText() {
         if (feiras.length === 0) {
@@ -70,6 +75,16 @@ export default function FeirasDeAdocao() {
         ];
         return images[Math.floor(Math.random() * images.length)];
     }
+
+    const marcarComoInteressada = (feiraId) => {
+        if (!feirasInteressadas.includes(feiraId)) {
+            const novasFeiras = [...feirasInteressadas, feiraId];
+            setFeirasInteressadas(novasFeiras);
+            localStorage.setItem('feiras_interesse_usuario', JSON.stringify(novasFeiras));
+        }
+    };
+
+    const jaDemonstrouInteresse = (feiraId) => feirasInteressadas.includes(feiraId);
 
     useEffect(() => {
         getFairs();
@@ -138,6 +153,7 @@ export default function FeirasDeAdocao() {
                             {feirasVisiveis.map((feira, indexNaPagina) => {
                                 const indexGlobal = indiceInicio + indexNaPagina;
                                 const isSelected = feiraSelecionada === indexGlobal;
+                                const jaTemInteresse = jaDemonstrouInteresse(feira.id);
 
                                 return (
                                     <div
@@ -148,7 +164,9 @@ export default function FeirasDeAdocao() {
                                         <CardFeira
                                             feira={feira}
                                             isSelected={isSelected}
+                                            jaTemInteresse={jaTemInteresse}
                                             onClick={() => selecionarFeira(indexGlobal)}
+                                            onRegistrarInteresse={() => marcarComoInteressada(feira.id)}
                                         />
                                     </div>
                                 );
@@ -184,7 +202,7 @@ export default function FeirasDeAdocao() {
     );
 }
 
-function CardFeira({ feira, isSelected, onClick }) {
+function CardFeira({ feira, isSelected, onClick, jaTemInteresse, onRegistrarInteresse }) {
     const alert = useAlertUtils();
 
     function formatHour(iso) {
@@ -206,11 +224,14 @@ function CardFeira({ feira, isSelected, onClick }) {
                 successTitle: "Interesse registrado!",
                 successMessage: `Agradecemos seu interesse na feira de adoção em ${feira.address.street}.`,
             });
+            
+            onRegistrarInteresse();
+            
         } catch (error) {
             handleHttpFeedback(alert, error.response, {
                 errorTitle: "Erro ao registrar interesse",
                 errorMessage: "Não foi possível registrar seu interesse. Tente novamente mais tarde.",
-            })
+            });
         }
     }
 
@@ -228,10 +249,21 @@ function CardFeira({ feira, isSelected, onClick }) {
         >
 
             <Button
-                className="absolute -top-2 -right-4 bg-[#FCAD0B] text-[#052759] text-sm font-bold z-20"
-                onClick={fairInterest}
+                className={`absolute -top-2 -right-4 text-sm font-bold z-20 transition-all duration-300
+                    ${jaTemInteresse 
+                        ? 'bg-green-500 text-white cursor-default' 
+                        : 'bg-[#FCAD0B] text-[#052759] hover:bg-[#FFD166]'
+                    }
+                `}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    if (!jaTemInteresse) {
+                        fairInterest();
+                    }
+                }}
+                disabled={jaTemInteresse}
             >
-                Tenho interesse
+                {jaTemInteresse ? '✓ Interesse registrado!' : 'Tenho interesse'}
             </Button>
 
             <div
