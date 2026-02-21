@@ -37,6 +37,24 @@ function useScrollReveal(threshold = 0.1) {
     return [ref, isVisible]
 }
 
+ function InputComIcone({ icon: Icon, name, placeholder, type = "text", value, onChange }) {
+    return (
+        <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden">
+            <span className="p-2.5 text-[#052759]">
+                <Icon className="text-base" />
+            </span>
+            <input
+                type={type}
+                name={name}
+                placeholder={placeholder}
+                value={value}
+                onChange={onChange}
+                className="w-full pr-2.5 py-2 text-xs text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-2 bg-white"
+            />
+        </div>
+    )
+}
+
 export default function Voluntariados() {
     const alert = useAlertUtils();
 
@@ -189,25 +207,10 @@ export default function Voluntariados() {
         }
     }
 
-    const InputComIcone = ({ icon: Icon, name, placeholder, type = "text" }) => (
-        <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden">
-            <span className="p-2.5 text-[#052759]">
-                <Icon className="text-base" />
-            </span>
-            <input
-                type={type}
-                name={name}
-                placeholder={placeholder}
-                className="w-full pr-2.5 py-2 text-xs text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-2 bg-white"
-                value={formData[name]}
-                onChange={handleChange}
-            />
-        </div>
-    )
+   
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#F5F5F5] to-[#E8E8E8]">
-
 
             <div className="relative bg-gradient-to-br from-[#052759] via-[#0d3a7a] to-[#052759] py-7 overflow-hidden">
                 <div className="absolute inset-0 overflow-hidden opacity-10">
@@ -250,17 +253,38 @@ export default function Voluntariados() {
 
 
                                 <div className="grid md:grid-cols-2 gap-3.5">
-                                    <InputComIcone icon={FaRegUser} name="name" placeholder="Nome completo:" />
 
 
-                                    <InputComIcone icon={FaEnvelope} name="email" placeholder="E-mail:" type="email" />
+                                    <InputComIcone 
+                                    icon={FaRegUser}
+                                    name="name"
+                                    placeholder="Nome completo:" 
+                                    />
+
+
+                                    <InputComIcone 
+                                    icon={FaEnvelope}
+                                    name="email"
+                                    placeholder="E-mail:" 
+                                    type="email" 
+                                    />
+
+
                                 </div>
 
                                 <div className="grid md:grid-cols-2 gap-3.5">
 
-                                    <InputComIcone icon={FaWhatsapp} name="whatsapp" placeholder="WhatsApp (com DDD):" />
+                                    <InputComIcone 
+                                    icon={FaWhatsapp} 
+                                    name="whatsapp" 
+                                    placeholder="WhatsApp (com DDD):" 
+                                    />
 
-                                    <InputComIcone icon={FaIdCard} name="cpf" placeholder="CPF:" />
+                                    <InputComIcone 
+                                    icon={FaIdCard} 
+                                    name="cpf" 
+                                    placeholder="CPF:" />
+
                                 </div>
 
                                 <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white">
