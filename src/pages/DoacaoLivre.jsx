@@ -6,9 +6,8 @@ import { useAlertUtils } from "../hooks/useAlertUtils";
 function InputField({ field, value, onChange }) {
   return (
     <div
-      className={`flex flex-col text-left ${
-        field.fullWidth ? "w-full" : "w-[48%]"
-      }`}
+      className={`flex flex-col text-left ${field.fullWidth ? "w-full" : "w-[48%]"
+        }`}
     >
       <label
         htmlFor={field.name}
@@ -39,7 +38,7 @@ function InputField({ field, value, onChange }) {
           value={value}
           onChange={onChange}
           className="rounded-lg w-full h-16 text-black font-normal p-2 border border-gray-300 focus:border-[#FFB114] focus:outline-none text-sm resize-none"
-          placeholder="Descreva brevemente o item"
+          placeholder="Descreva o estado do item"
         />
       ) : (
         <input
@@ -85,6 +84,7 @@ function RadioOption({ id, checked, onChange, label }) {
 }
 
 function Informacoes({ data, updateData, onNext }) {
+  const storedData = sessionStorage.getItem("USER_DATA");
   const alertUtils = useAlertUtils();
   const fields = [
     {
@@ -167,6 +167,12 @@ function Informacoes({ data, updateData, onNext }) {
             );
           }
 
+          if (storedData === null) {
+            alertUtils.close();
+            alertUtils.warn("Faça o login", "Por favor, faça login ou cadastre-se.");
+            return;
+          }
+
           onNext();
         }}
       >
@@ -177,6 +183,7 @@ function Informacoes({ data, updateData, onNext }) {
 }
 
 function EnviarFoto({ data, updateData, onNext }) {
+  const alertUtils = useAlertUtils();
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       updateData("foto", e.target.files[0]);
@@ -229,9 +236,17 @@ function EnviarFoto({ data, updateData, onNext }) {
         serão mantidos
       </p>
 
+
       <FormButton
         onClick={(e) => {
           e.preventDefault();
+
+          if (!data.foto) {
+            return alertUtils.warn(
+              "Erro ao processar foto",
+              "Por favor, selecione uma foto do item antes de avançar!"
+            );
+          }
 
           onNext();
         }}
@@ -272,7 +287,7 @@ function Envio({ data, updateData, onNext }) {
 
   const handleRadioChange = (tipo) => {
     updateData("tipoEnvio", tipo);
-    setFreightInfo(null); 
+    setFreightInfo(null);
     if (tipo === "envio") updateData("pontoColetaId", null);
     if (tipo === "ponto de coleta") {
       updateData("cep_origem", cep_fixo_usuario);
@@ -292,16 +307,27 @@ function Envio({ data, updateData, onNext }) {
       ? { headers: { Authorization: `Bearer ${token}` } }
       : {};
     alertUtils.loading("Calculando...", "Consultando opções de entrega");
+
     try {
       const response = await api.get(
         `/shipment/calculate_origem_destination?origin=${data.cep_origem}&destination=${data.cep_destino}`,
         config
       );
+
       setFreightInfo(response.data);
+
       alertUtils.close();
+
+      if (response.data.price == null || response.data.price === 0) {
+        return alertUtils.warn(
+          "Aviso!",
+          "Não foi possível calcular o frete, mas você pode prosseguir normalmente. O valor será confirmado depois."
+        );
+      }
+
     } catch (error) {
       alertUtils.close();
-      console.error("Erro ao calcular frete:", error);
+      alertUtils.error("Não foi possível calcular o frete", "Tente novamente mais tarde.");
     }
   };
 
@@ -314,7 +340,7 @@ function Envio({ data, updateData, onNext }) {
     handleCalculateFreight(data.cep_origem, data.cep_destino);
   }
 
-    const handlePointClick = (point) => {
+  const handlePointClick = (point) => {
     updateData("pontoColetaId", point.id);
     updateData("cep_destino", point.address.zipCode);
 
@@ -370,7 +396,7 @@ function Envio({ data, updateData, onNext }) {
       const msg = error.response?.data || "Erro desconhecido.";
       alertUtils.error(
         "Erro ao enviar doação: " +
-          (typeof msg === "object" ? JSON.stringify(msg) : msg)
+        (typeof msg === "object" ? JSON.stringify(msg) : msg)
       );
     } finally {
       setLoading(false);
@@ -381,28 +407,28 @@ function Envio({ data, updateData, onNext }) {
   const FreightResultCard = () => {
     if (!freightInfo) return null;
     return (
-        <div className="flex flex-col items-center bg-white/20 p-4 rounded-lg border border-white/30 animate-fade-in mt-4 w-full">
-            <p className="text-white font-bold text-lg">
-                {data.tipoEnvio === "envio" ? "Estimativa de Entrega" : "Custo Estimado de Deslocamento"}
-            </p>
-            <div className="flex gap-8 mt-2">
-                <div className="text-center">
-                    <span className="block text-xs text-white/70">Valor</span>
-                    <span className="text-[#FFB114] font-bold text-xl">
-                        {Number(freightInfo.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                    </span>
-                </div>
-                <div className="text-center">
-                    <span className="block text-xs text-white/70">Prazo</span>
-                    <span className="text-white font-bold text-xl">
-                        {freightInfo.deliveryTime} dias
-                    </span>
-                </div>
-            </div>
-            <p className="text-xs text-white/50 mt-2">
-               {data.tipoEnvio === "ponto de coleta" && `CEP do Usuário (${cep_fixo_usuario})`}
-            </p>
+      <div className="flex flex-col items-center bg-white/20 p-4 rounded-lg border border-white/30 animate-fade-in mt-4 w-full">
+        <p className="text-white font-bold text-lg">
+          {data.tipoEnvio === "envio" ? "Estimativa de Entrega" : "Custo Estimado de Deslocamento"}
+        </p>
+        <div className="flex gap-8 mt-2">
+          <div className="text-center">
+            <span className="block text-xs text-white/70">Valor</span>
+            <span className="text-[#FFB114] font-bold text-xl">
+              {Number(freightInfo.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            </span>
+          </div>
+          <div className="text-center">
+            <span className="block text-xs text-white/70">Prazo</span>
+            <span className="text-white font-bold text-xl">
+              {freightInfo.deliveryTime} dias
+            </span>
+          </div>
         </div>
+        <p className="text-xs text-white/50 mt-2">
+          {data.tipoEnvio === "ponto de coleta" && `CEP do Usuário (${cep_fixo_usuario})`}
+        </p>
+      </div>
     );
   };
 
@@ -452,24 +478,14 @@ function Envio({ data, updateData, onNext }) {
               onChange={handleChange}
             />
 
-            {/* <div className="w-full flex justify-center">
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleCalculateFreight();
-                }}
-                className="text-white text-sm underline hover:text-[#FFB114] transition-colors"
-              >
+
+            <div className="w-full flex justify-center">
+              <button onClick={handleManualFreight} className="text-white text-sm underline hover:text-[#FFB114] transition-colors">
                 Calcular Frete e Prazo
               </button>
-            </div> */}
-             <div className="w-full flex justify-center">
-                <button onClick={handleManualFreight} className="text-white text-sm underline hover:text-[#FFB114] transition-colors">
-                    Calcular Frete e Prazo
-                </button>
             </div>
 
-            <FreightResultCard /> 
+            <FreightResultCard />
 
             <div className="w-full flex justify-center mt-4">
               <FormButton onClick={handleFinalSubmit} disabled={loading}>
@@ -494,13 +510,12 @@ function Envio({ data, updateData, onNext }) {
                 {collectionPoints.map((p) => (
                   <div
                     key={p.id}
-                   // onClick={() => updateData("pontoColetaId", p.id)}
-                   onClick={()=> handlePointClick(p)}
-                    className={`flex flex-col items-start rounded-md p-3 w-full transition-colors duration-200 ${
-                      data.collectionCenterId === p.id
-                        ? "bg-white border-2 border-[#FFB114]"
-                        : "bg-[#d9d9d9] hover:bg-white"
-                    }`}
+                    // onClick={() => updateData("pontoColetaId", p.id)}
+                    onClick={() => handlePointClick(p)}
+                    className={`flex flex-col items-start rounded-md p-3 w-full transition-colors duration-200 ${data.collectionCenterId === p.id
+                      ? "bg-white border-2 border-[#FFB114]"
+                      : "bg-[#d9d9d9] hover:bg-white"
+                      }`}
                   >
                     <p className="text-[#052759] font-bold">{p.name}</p>
                     {p.address && (
@@ -568,29 +583,26 @@ function Identificador({ steps, currentIndex }) {
           <div key={step.key} className="flex items-start gap-3 z-10">
             <div className="flex flex-col items-center">
               <div
-                className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors duration-200 border-2 ${
-                  done || active
-                    ? "bg-[#052759] border-[#052759] text-white"
-                    : "bg-white border-gray-400 text-gray-400"
-                }`}
+                className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors duration-200 border-2 ${done || active
+                  ? "bg-[#052759] border-[#052759] text-white"
+                  : "bg-white border-gray-400 text-gray-400"
+                  }`}
               />
               {i < steps.length - 1 && (
                 <div
-                  className={`w-[2px] mt-1 transition-colors duration-200 ${
-                    i < currentIndex ? "bg-[#052759]" : "bg-gray-300"
-                  }`}
+                  className={`w-[2px] mt-1 transition-colors duration-200 ${i < currentIndex ? "bg-[#052759]" : "bg-gray-300"
+                    }`}
                   style={{ height: "1.5rem" }}
                 />
               )}
             </div>
             <span
-              className={`text-sm ${
-                active
-                  ? "text-[#052759] font-semibold"
-                  : done
+              className={`text-sm ${active
+                ? "text-[#052759] font-semibold"
+                : done
                   ? "text-[#052759] font-medium"
                   : "text-gray-600"
-              }`}
+                }`}
             >
               {step.label}
             </span>
