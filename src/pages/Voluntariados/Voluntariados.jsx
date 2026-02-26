@@ -1,0 +1,35 @@
+import { useVoluntariados } from "./hooks/useVoluntariados";
+import { useScrollReveal } from "./hooks/useScrollReveal";
+import VoluntariadoHeader from "./components/VoluntariadoHeader";
+import VoluntariadoForm from "./components/VoluntariadoForm";
+import VoluntariadoSidebar from "./components/VoluntariadoSidebar";
+
+export default function Voluntariados() {
+    const { formData, handleChange, handleSubmit } = useVoluntariados();
+    const [headerRef, headerVisible] = useScrollReveal(0.1);
+    const [formRef, formVisible] = useScrollReveal(0.1);
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-[#F5F5F5] to-[#E8E8E8]">
+            <VoluntariadoHeader headerRef={headerRef} headerVisible={headerVisible} />
+
+            <div className="max-w-6xl mx-auto px-4 py-8">
+                <div
+                    ref={formRef}
+                    className={`bg-[#052759] rounded-xl shadow-2xl overflow-hidden transition-all duration-700 ${formVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
+                        }`}
+                >
+                    <div className="grid lg:grid-cols-[1.2fr,0.8fr] gap-0">
+                        <VoluntariadoForm
+                            formData={formData}
+                            onChange={handleChange}
+                            onSubmit={handleSubmit}
+                        />
+
+                        <VoluntariadoSidebar />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
