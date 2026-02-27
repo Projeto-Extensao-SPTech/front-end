@@ -9,7 +9,7 @@ import FeirasDeAdocao from './pages/FeirasDeAdocao';
 import DoacaoLivre from './pages/DoacaoLivre/DoacaoLivre';
 import Dashboard from './pages/Dashboard';
 import Ajudar from './pages/Ajudar';
-import CadastroFeiraDeAdocao from './pages/CadastroFeiraDeAdocao';
+import CadastroFeiraDeAdocao from './pages/CadastroFeiraDeAdocao/CadastroFeiraDeAdocao';
 import CadastroNotificacao from './pages/CadastroNotificacao';
 import Chart from "react-apexcharts";
 
