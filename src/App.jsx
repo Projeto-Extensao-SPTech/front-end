@@ -5,12 +5,12 @@ import Home from './pages/Home';
 import Auth from './pages/Auth/Auth';
 import Voluntariados from './pages/Voluntariados/Voluntariados';
 import Patrocinadores from './pages/Patrocinadores/Patrocinadores';
-import FeirasDeAdocao from './pages/FeirasDeAdocao';
+import FeirasDeAdocao from './pages/FeirasDeAdocao/FeirasDeAdocao';
 import DoacaoLivre from './pages/DoacaoLivre/DoacaoLivre';
-import Dashboard from './pages/Dashboard';
-import Ajudar from './pages/Ajudar';
+import Dashboard from './pages/Dashboard/Dashboard';
+import Ajudar from './pages/Ajudar/Ajudar';
 import CadastroFeiraDeAdocao from './pages/CadastroFeiraDeAdocao/CadastroFeiraDeAdocao';
-import CadastroNotificacao from './pages/CadastroNotificacao';
+import CadastroNotificacao from './pages/CadastroNotificacao/CadastroNotificacao';
 import Chart from "react-apexcharts";
 
 
