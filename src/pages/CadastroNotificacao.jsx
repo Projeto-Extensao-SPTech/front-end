@@ -100,6 +100,34 @@ export default function CadastroNotificacao() {
         return dateStr
     }
 
+    const calcularDatasAgendadas = () => {
+        if (!form.data) return []
+        
+        try {
+            const [dia, mes, ano] = form.data.split('/').map(Number)
+            const dataEvento = new Date(ano, mes - 1, dia)
+            
+            return notificacoes
+                .map(notif => {
+                    const quantidade = Number(notif.quantidade)
+                    const dataAgendada = new Date(dataEvento)
+                    dataAgendada.setDate(dataEvento.getDate() - quantidade)
+                    
+                    const diaFormatado = String(dataAgendada.getDate()).padStart(2, '0')
+                    const mesFormatado = String(dataAgendada.getMonth() + 1).padStart(2, '0')
+                    const anoFormatado = dataAgendada.getFullYear()
+                    
+                    return {
+                        data: `${diaFormatado}/${mesFormatado}/${anoFormatado}`,
+                        diasAntes: quantidade
+                    }
+                })
+                .sort((a, b) => a.diasAntes - b.diasAntes)
+        } catch (error) {
+            return []
+        }
+    }
+
     async function buscarFeiras() {
         try {
             const result = await api.get("/feiras/future")
@@ -188,6 +216,8 @@ export default function CadastroNotificacao() {
         </div>
     )
 
+    const datasAgendadas = calcularDatasAgendadas()
+
     return (
         <div className="min-h-screen bg-[#F0F0F0] flex flex-col items-center py-8">
 
@@ -272,7 +302,7 @@ export default function CadastroNotificacao() {
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-[#052759] font-bold flex items-center gap-2 text-lg">
                                     <FaClock className="text-[#FCAD0B] text-xl" />
-                                    Agendar Notificações
+                                    Agendar as notificações
                                 </h3>
                                 <button
                                     type="button"
@@ -280,11 +310,13 @@ export default function CadastroNotificacao() {
                                     className="flex items-center gap-2 bg-[#FCAD0B] text-[#052759] px-4 py-2.5 rounded-lg hover:bg-[#FFD166] transition-colors font-bold text-sm"
                                 >
                                     <FaPlus className="text-sm" />
-                                    Adicionar
+                                    Adicionar nova notificação
                                 </button>
                             </div>
 
-                            <p className="text-sm text-[#525252] mb-4">Enviada com antecedência de: </p>
+                            <p className="text-sm text-[#525252] mb-4">
+                                Enviar lembretes quantos dias antes do evento?
+                            </p>
 
                             <div className="flex-1 overflow-y-auto max-h-32 pr-3 space-y-4 custom-scrollbar">
                                 {notificacoes.map((notif) => (
@@ -309,13 +341,9 @@ export default function CadastroNotificacao() {
                                                         value={notif.quantidade}
                                                         onChange={(e) => atualizarNotificacao(notif.id, 'quantidade', e.target.value)}
                                                     >
-                                                        <option value="1">1</option>
-                                                        <option value="2">2</option>
-                                                        <option value="3">3</option>
-                                                        <option value="4">4</option>
-                                                        <option value="5">5</option>
-                                                        <option value="6">6</option>
-                                                        <option value="7">7</option>
+                                                        {[1,2,3,4,5,6,7,14,21,30].map(num => (
+                                                            <option key={num} value={num}>{num}</option>
+                                                        ))}
                                                     </select>
                                                     <div className="pr-3 pointer-events-none">
                                                         <div className="w-1.5 h-1.5 border-r border-b border-[#052759] rotate-45"></div>
@@ -325,7 +353,7 @@ export default function CadastroNotificacao() {
                                             <div className="flex-1">
                                                 <div className="flex items-center justify-center border border-[#052759] rounded-lg bg-white overflow-hidden">
                                                     <span className="w-full px-4 py-2.5 text-sm text-[#052759] font-medium text-center">
-                                                        dias
+                                                        dias antes
                                                     </span>
                                                 </div>
                                             </div>
@@ -334,12 +362,39 @@ export default function CadastroNotificacao() {
                                 ))}
                             </div>
 
+                            {/* Pré-visualização das datas agendadas */}
+                            {form.data && datasAgendadas.length > 0 && (
+                                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-[#052759]/20">
+                                    <p className="text-sm font-medium text-[#052759] mb-2">
+                                        📅 Notificações agendadas:
+                                    </p>
+                                    <div className="space-y-1">
+                                        {datasAgendadas.map((item, index) => (
+                                            <p key={index} className="text-xs text-gray-600">
+                                                • {item.data} ({item.diasAntes} {item.diasAntes === 1 ? 'dia antes' : 'dias antes'} do evento)
+                                            </p>
+                                        ))}
+                                        <p className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-200">
+                                            📌 Data do evento: {form.data}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {!form.data && (
+                                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-[#052759]/20">
+                                    <p className="text-xs text-gray-500 italic">
+                                        Selecione uma data do evento para visualizar os lembretes agendados
+                                    </p>
+                                </div>
+                            )}
+
                             <div className="mt-6 pt-4 border-t border-[#052759]/20">
                                 <Button
                                     type="submit"
                                     className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#FCAD0B] hover:bg-[#052759] hover:[#052759] text-sm mx-auto w-full py-4"
                                 >
-                                    Agendar Notificações
+                                    Agendar notificações
                                 </Button>
                             </div>
                         </div>
