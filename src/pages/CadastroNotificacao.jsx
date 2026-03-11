@@ -102,21 +102,21 @@ export default function CadastroNotificacao() {
 
     const calcularDatasAgendadas = () => {
         if (!form.data) return []
-        
+
         try {
             const [dia, mes, ano] = form.data.split('/').map(Number)
             const dataEvento = new Date(ano, mes - 1, dia)
-            
+
             return notificacoes
                 .map(notif => {
                     const quantidade = Number(notif.quantidade)
                     const dataAgendada = new Date(dataEvento)
                     dataAgendada.setDate(dataEvento.getDate() - quantidade)
-                    
+
                     const diaFormatado = String(dataAgendada.getDate()).padStart(2, '0')
                     const mesFormatado = String(dataAgendada.getMonth() + 1).padStart(2, '0')
                     const anoFormatado = dataAgendada.getFullYear()
-                    
+
                     return {
                         data: `${diaFormatado}/${mesFormatado}/${anoFormatado}`,
                         diasAntes: quantidade
@@ -171,8 +171,8 @@ export default function CadastroNotificacao() {
             handleHttpFeedback(alert, result, {
                 successTitle: "Notificação criada!",
                 successMessage:
-                    `A notificação foi cadastrada com sucesso para os dias: ` +
-                    result.data.recurrences.map(r => formatDate(r, "-", "/")).join(", ") + "!"
+                    "A notificação está sendo processada. Ela será criada e enviada em breve!!"
+
             })
 
         } catch (error) {
@@ -341,7 +341,7 @@ export default function CadastroNotificacao() {
                                                         value={notif.quantidade}
                                                         onChange={(e) => atualizarNotificacao(notif.id, 'quantidade', e.target.value)}
                                                     >
-                                                        {[1,2,3,4,5,6,7,14,21,30].map(num => (
+                                                        {[1, 2, 3, 4, 5, 6, 7, 14, 21, 30].map(num => (
                                                             <option key={num} value={num}>{num}</option>
                                                         ))}
                                                     </select>
