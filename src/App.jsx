@@ -2,15 +2,15 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import Navbar from './layouts/Navbar';
 import Home from './pages/Home';
-import Auth from './pages/Auth';
-import Voluntariados from './pages/Voluntariados';
-import Patrocinadores from './pages/Patrocinadores';
-import FeirasDeAdocao from './pages/FeirasDeAdocao';
-import DoacaoLivre from './pages/DoacaoLivre';
-import Dashboard from './pages/Dashboard';  
-import Ajudar from './pages/Ajudar';
-import CadastroFeiraDeAdocao from './pages/CadastroFeiraDeAdocao';
-import CadastroNotificacao from './pages/CadastroNotificacao';
+import Auth from './pages/Auth/Auth';
+import Voluntariados from './pages/Voluntariados/Voluntariados';
+import Patrocinadores from './pages/Patrocinadores/Patrocinadores';
+import FeirasDeAdocao from './pages/FeirasDeAdocao/FeirasDeAdocao';
+import DoacaoLivre from './pages/DoacaoLivre/DoacaoLivre';
+import Dashboard from './pages/Dashboard/Dashboard';
+import Ajudar from './pages/Ajudar/Ajudar';
+import CadastroFeiraDeAdocao from './pages/CadastroFeiraDeAdocao/CadastroFeiraDeAdocao';
+import CadastroNotificacao from './pages/CadastroNotificacao/CadastroNotificacao';
 import Chart from "react-apexcharts";
 
 

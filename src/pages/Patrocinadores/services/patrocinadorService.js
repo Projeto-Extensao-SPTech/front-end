@@ -1,0 +1,132 @@
+import { api } from "../../../api/apiUserService";
+
+export async function sendSponsor(formData, alertUtils, onError) {
+    if (!formData) return;
+
+    const SESSION_KEY = "USER_DATA";
+    let user = null;
+
+    try {
+        const raw = sessionStorage.getItem(SESSION_KEY);
+        user = raw ? JSON.parse(raw) : null;
+    } catch (err) {
+        console.error("Erro ao ler sessionStorage:", err);
+        alertUtils.forbidden(
+            "Houve um erro.",
+            "Você precisa estar logado para se tornar um patrocinador."
+        );
+        if (onError) onError();
+        return;
+    }
+
+    if (!user || !user.id) {
+        alertUtils.forbidden(
+            "Houve um erro.",
+            "Você precisa estar logado para se tornar um patrocinador."
+        );
+        if (onError) onError();
+        return;
+    }
+
+    console.log("Dados do usuário (sessionStorage):", user);
+    console.log("Dados do formulário:", formData);
+
+    const sponsorshipPayload = {
+        sponsor_id: user.id,
+        type: user.type || "PF",
+        description: formData.descricao || "Sem descrição fornecida",
+        department: getSponsorshipDepartment(formData.areasApoio),
+    };
+
+    console.log("Enviando sponsorship:", sponsorshipPayload);
+
+    let createdSponsorshipId = null;
+
+    // Envia a sponsorship
+    api
+        .post("/sponsorships", sponsorshipPayload)
+        .then((sponsorshipResponse) => {
+            console.log("Sponsorship created:", sponsorshipResponse.data);
+
+            const sponsorship = sponsorshipResponse.data;
+            createdSponsorshipId = sponsorship.id;
+
+            const departments = getSponsorshipDepartment(formData.areasApoio);
+
+            const messageText = `Olá Andressa,\nTemos uma nova proposta de Patrocinador! 😻\n\n*Nome*: ${sponsorship.sponsor.name}\n*Departamento*: ${departments}\n*Descrição*: ${sponsorship.description || "Não informado"}\n*Tipo*: ${sponsorship.type}\n*Email*: ${sponsorship.sponsor.email || "Não informado"}\n*Telefone*: ${sponsorship.sponsor.phone || "Não informado"}\n\nEntre em contato para saber mais detalhes! 🐶🦴`;
+
+            return api.post("/messages/sendText/api-manager", {
+                number: "5511930144580",
+                text: messageText,
+            });
+        })
+        .then((messageResponse) => {
+            console.log("WhatsApp message sent:", messageResponse.data);
+        })
+        .catch((error) => {
+            console.error("Erro no fluxo de patrocínio:", error);
+
+            if (error.response) {
+                console.error("Resposta do servidor:", error.response.data);
+            }
+
+            if (createdSponsorshipId) {
+                console.log(
+                    "Cancelando sponsorship criado devido ao erro. ID:",
+                    createdSponsorshipId
+                );
+
+                api
+                    .delete(`/sponsorships/${createdSponsorshipId}`)
+                    .then(() => {
+                        console.log("Sponsorship deletado com sucesso (rollback)");
+                        alertUtils.error(
+                            "Ocorreu um erro ao enviar sua proposta.",
+                            "A operação foi cancelada. Tente novamente mais tarde."
+                        );
+                    })
+                    .catch((deleteError) => {
+                        console.error(
+                            "Erro ao deletar sponsorship (rollback falhou):",
+                            deleteError
+                        );
+                        alertUtils.error(
+                            "Ocorreu um erro crítico.",
+                            "Tente novamente mais tarde ou nos envie um e-mail."
+                        );
+                    });
+            } else {
+                alertUtils.error(
+                    "Ocorreu um erro ao enviar sua proposta.",
+                    "Tente novamente mais tarde."
+                );
+            }
+            // Retorna para a tela inicial (Apoiar) em caso de erro
+            if (onError) onError();
+        });
+}
+
+export function getSponsorshipDepartment(areas) {
+    const areaToDepartmentMap = {
+        financeiramente: "Financeiro",
+        alimentos: "Alimentício",
+        remedios: "Saúde",
+        divulgacao: "Marketing",
+        campanhas: "Marketing",
+        obras: "Infraestrutura",
+        transporte: "Logística",
+        higiene: "Saúde",
+    };
+
+    const areasArray = Array.isArray(areas) ? areas : [areas];
+
+    // Mapeia cada área para o departamento correspondente
+    const departments = areasArray
+        .map((area) => areaToDepartmentMap[area])
+        .filter((dept) => dept !== undefined);
+
+    // Remove duplicatas (ex: Marketing aparece 2x)
+    const uniqueDepartments = [...new Set(departments)];
+
+    return uniqueDepartments.join(", ") || "Não especificado";
+}
