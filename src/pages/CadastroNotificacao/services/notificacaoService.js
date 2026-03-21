@@ -42,9 +42,7 @@ export async function cadastrarNotificacao(formData, notificacoes, alert) {
         handleHttpFeedback(alert, result, {
             successTitle: "Notificação criada!",
             successMessage:
-                `A notificação foi cadastrada com sucesso para os dias: ` +
-                result.data.recurrences.map((r) => formatDate(r, "-", "/")).join(", ") +
-                "!",
+                "A notificação está sendo processada. Ela será criada e enviada em breve!!",
         });
 
         return result;

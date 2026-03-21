@@ -3,7 +3,7 @@ import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import { Portuguese } from "flatpickr/dist/l10n/pt.js";
 import { buscarFeiras, cadastrarNotificacao } from "../services/notificacaoService";
-import { formatFeira } from "../utils/dateFormatter";
+import { formatFeira, calcularDatasAgendadas } from "../utils/dateFormatter";
 
 export default function useCadastroNotificacao(alert) {
     const [form, setForm] = useState({
@@ -93,10 +93,13 @@ export default function useCadastroNotificacao(alert) {
         await cadastrarNotificacao(form, notificacoes, alert);
     };
 
+    const datasAgendadas = calcularDatasAgendadas(form.data, notificacoes);
+
     return {
         form,
         notificacoes,
         feiras,
+        datasAgendadas,
         atualizarForm,
         atualizarNotificacao,
         adicionarNotificacao,

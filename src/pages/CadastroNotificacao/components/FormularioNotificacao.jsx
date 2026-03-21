@@ -36,29 +36,30 @@ export default function FormularioNotificacao({
             )}
 
             <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white">
-                <span className="p-4 text-[#052759]">
+                <span className="p-3 text-[#052759]">
                     <FaCalendarAlt className="text-lg" />
                 </span>
                 <input
                     id="data-evento"
                     name="data"
                     placeholder="Data do Evento:"
-                    className="w-full pr-4 py-4 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white cursor-pointer"
+                    className="w-full pr-3 py-3 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white cursor-pointer"
                     value={form.data}
                     onChange={onChange}
                 />
             </div>
 
-            <div className="flex items-start border-2 border-[#052759] rounded-lg bg-white min-h-[180px]">
-                <span className="p-4 text-[#052759] self-start">
+            <div className="flex items-start border-2 border-[#052759] rounded-lg bg-white min-h-[220px]">
+                <span className="p-3 text-[#052759] self-start">
                     <FaEnvelope className="text-lg" />
                 </span>
                 <textarea
                     name="mensagem"
                     placeholder="Mensagem"
-                    className="w-full pr-4 py-4 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white resize-none h-full"
+                    className="w-full pr-3 py-3 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white resize-none"
                     value={form.mensagem}
                     onChange={onChange}
+                    rows={4}
                 />
             </div>
         </div>

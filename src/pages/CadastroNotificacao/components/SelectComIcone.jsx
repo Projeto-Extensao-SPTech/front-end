@@ -8,13 +8,13 @@ export default function SelectComIcone({
 }) {
     return (
         <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden relative">
-            <span className="p-4 text-[#052759]">
+            <span className="p-3 text-[#052759]">
                 <Icone className="text-lg" />
             </span>
 
             <select
                 name={nome}
-                className="w-full pr-10 py-4 text-sm text-[#052759] focus:outline-none font-medium pl-3 bg-white appearance-none cursor-pointer"
+                className="w-full pr-10 py-3 text-sm text-[#052759] focus:outline-none font-medium pl-3 bg-white appearance-none cursor-pointer"
                 value={valor === null ? "" : valor}
                 onChange={onChange}
             >

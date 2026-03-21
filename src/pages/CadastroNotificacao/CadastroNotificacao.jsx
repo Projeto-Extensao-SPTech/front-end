@@ -10,6 +10,7 @@ export default function CadastroNotificacao() {
         form,
         notificacoes,
         feiras,
+        datasAgendadas,
         atualizarForm,
         atualizarNotificacao,
         adicionarNotificacao,
@@ -41,6 +42,8 @@ export default function CadastroNotificacao() {
                     />
 
                     <AgendadorNotificacoes
+                        form={form}
+                        datasAgendadas={datasAgendadas}
                         notificacoes={notificacoes}
                         onAdicionar={adicionarNotificacao}
                         onRemover={removerNotificacao}
