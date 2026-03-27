@@ -1,5 +1,5 @@
 export default function CardPet({ image, index }) {
-    const imageUrl = `http://localhost:7000/feiras/images/${image}`;
+    const imageUrl = `http://localhost:7000/fairs/images/${image}`;
 
     return (
         <div

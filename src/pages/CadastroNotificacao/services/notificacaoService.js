@@ -4,9 +4,9 @@ import { formatDate } from "../utils/dateFormatter";
 
 export async function buscarFeiras(alert, onError) {
     try {
-        const result = await api.get("/feiras/future");
+        const result = await api.get("/fairs/future?page=0&size=100");
         if (result.status === 200) {
-            const data = result.data;
+            const data = result.data.content;
             console.log("Feiras obtidas: ", data);
             return data;
         } else {

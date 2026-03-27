@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import { getFairs } from "../services/feiraService";
+import { set } from "date-fns";
 
 export default function useFeirasDeAdocao() {
-    const [feiraSelecionada, setFeiraSelecionada] = useState(0);
+    const ITENS_POR_PAGINA = 3;
+
+    const [feiraSelecionada, setFeiraSelecionada] = useState({});
+    const [paginasTotais, setPaginasTotais] = useState(0);
     const [paginaAtual, setPaginaAtual] = useState(1);
     const [feiras, setFeiras] = useState([]);
 
@@ -13,11 +17,30 @@ export default function useFeirasDeAdocao() {
 
     useEffect(() => {
         async function loadFairs() {
-            const data = await getFairs();
-            setFeiras(data);
+            try {
+                const response = await getFairs(
+                    paginaAtual <= 1 ? 0 : (paginaAtual - 1),
+                    ITENS_POR_PAGINA,
+                    "fairDate"
+                );
+
+                if (response.data.length === 0) {
+                    setFeiraSelecionada({});
+                    setFeiras([]);
+                    setPaginasTotais(0);
+                    return;
+                }
+
+                setFeiras(response.data);
+                setPaginasTotais(response.totalPages);
+                setFeiraSelecionada(response.data[0]);
+            } catch (error) {
+                console.error("Erro ao carregar feiras:", error);
+            }
         }
+
         loadFairs();
-    }, []);
+    }, [paginaAtual]);
 
     const marcarComoInteressada = (feiraId) => {
         if (!feirasInteressadas.includes(feiraId)) {
@@ -34,7 +57,10 @@ export default function useFeirasDeAdocao() {
         feirasInteressadas.includes(feiraId);
 
     const selecionarFeira = (index) => setFeiraSelecionada(index);
-    const mudarPagina = (pagina) => setPaginaAtual(pagina);
+
+    const mudarPagina = (pagina) => {
+        setPaginaAtual(pagina);
+    };
 
     function getSelectText() {
         if (feiras.length === 0) {
@@ -53,5 +79,6 @@ export default function useFeirasDeAdocao() {
         marcarComoInteressada,
         jaDemonstrouInteresse,
         getSelectText,
+        paginasTotais
     };
 }
