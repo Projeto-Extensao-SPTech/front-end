@@ -48,20 +48,16 @@ export async function sendSponsor(formData, alertUtils, onError) {
         .then((sponsorshipResponse) => {
             console.log("Sponsorship created:", sponsorshipResponse.data);
 
-            const sponsorship = sponsorshipResponse.data;
-            createdSponsorshipId = sponsorship.id;
+            createdSponsorshipId = sponsorshipResponse.data.id;
 
-            const departments = getSponsorshipDepartment(formData.areasApoio);
+            //
+            // Caso a sponsorship seja criada com sucesso, podemos enviar um e-mail para a beneficiária do abrigo
+            // 
 
-            const messageText = `Olá Andressa,\nTemos uma nova proposta de Patrocinador! 😻\n\n*Nome*: ${sponsorship.sponsor.name}\n*Departamento*: ${departments}\n*Descrição*: ${sponsorship.description || "Não informado"}\n*Tipo*: ${sponsorship.type}\n*Email*: ${sponsorship.sponsor.email || "Não informado"}\n*Telefone*: ${sponsorship.sponsor.phone || "Não informado"}\n\nEntre em contato para saber mais detalhes! 🐶🦴`;
-
-            return api.post("/messages/sendText/api-manager", {
-                number: "5511930144580",
-                text: messageText,
-            });
-        })
-        .then((messageResponse) => {
-            console.log("WhatsApp message sent:", messageResponse.data);
+            alertUtils.success(
+                "Proposta enviada com sucesso!",
+                "Agradecemos seu interesse em apoiar o Abrigo Dog Feliz. Nossa equipe entrará em contato em breve para discutir os próximos passos."
+            );
         })
         .catch((error) => {
             console.error("Erro no fluxo de patrocínio:", error);

@@ -23,7 +23,7 @@ export default function BemVindos() {
 
             <div className="flex flex-col lg:flex-row items-center w-full max-w-screen-2xl mx-auto gap-6 px-4 lg:px-8">
 
-                <div className="w-full lg:w-4/5 bg-[#052759] rounded-2xl overflow-visible p-5 lg:p-6 flex flex-col lg:flex-row items-center shadow-xl lg:h-64">
+                <div className="w-full lg:w-4/5 bg-[#a00b0b] rounded-2xl overflow-visible p-5 lg:p-6 flex flex-col lg:flex-row items-center shadow-xl lg:h-64">
 
                     <div className="flex flex-col text-center gap-3 w-full lg:w-1/2 z-10">
                         <h1 className="font-bold text-3xl lg:text-4xl leading-tight text-white">
