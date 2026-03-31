@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { getFairs } from "../services/feiraService";
-import { set } from "date-fns";
 
 export default function useFeirasDeAdocao() {
     const ITENS_POR_PAGINA = 3;
