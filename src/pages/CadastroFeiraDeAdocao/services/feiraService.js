@@ -12,10 +12,10 @@ export async function cadastrarFeira(formData, alert) {
 
     const fairData = {
         fair_date: convertDateToISO(formData.data),
-        fair_hour: `${convertDateToISO(formData.data)}T${formData.hora}`,
+        fair_hour: `${convertDateToISO(formData.data)}T${formData.horario}`,
         address: {
             zip_code: formData.cep,
-            street: formData.rua,
+            street: formData.logradouro,
             number: formData.numero ? parseInt(formData.numero) : null,
             complement: formData.complemento,
             city: formData.cidade,
