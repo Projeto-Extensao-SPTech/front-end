@@ -1,17 +1,32 @@
-export default function InputComIcone({ icon: Icon, name, placeholder, type = "text", value, onChange }) {
+export default function InputComIcone({
+    icon: Icon,
+    name,
+    placeholder,
+    value,
+    onChange,
+    error,
+}) {
     return (
-        <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white overflow-hidden">
-            <span className="p-2.5 text-[#052759]">
-                <Icon className="text-base" />
-            </span>
-            <input
-                type={type}
-                name={name}
-                placeholder={placeholder}
-                value={value}
-                onChange={onChange}
-                className="w-full pr-2.5 py-2 text-xs text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-2 bg-white"
-            />
+        <div className="w-full">
+            <div
+                className={`flex items-center border-2 rounded-lg bg-white ${
+                    error ? "border-red-500" : "border-[#052759]"
+                }`}
+            >
+                <span className="p-2.5 text-[#052759]">
+                    <Icon />
+                </span>
+
+                <input
+                    name={name}
+                    placeholder={placeholder}
+                    value={value}
+                    onChange={onChange}
+                    className="w-full p-2 text-xs text-[#052759] bg-white outline-none"
+                />
+            </div>
+
+            {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
         </div>
     );
 }

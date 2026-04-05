@@ -8,6 +8,7 @@ export default function CadastroFeiraDeAdocao() {
     const {
         formData,
         fotos,
+        errors,
         handleChange,
         handleBuscaCep,
         handleFotosChange,
@@ -22,25 +23,20 @@ export default function CadastroFeiraDeAdocao() {
                     Cadastrar Feira de Adoção
                 </h1>
                 <p className="text-[#052759] text-sm">
-                    Cadastre aqui as Feiras de Adoção que irão ocorrer nos próximos dias!
+                    Cadastre aqui as Feiras de Adoção!
                 </p>
             </div>
 
             <div className="w-11/12 max-w-5xl bg-[#052759] p-8 rounded-xl shadow-lg relative">
                 <FormularioCadastroFeira
                     formData={formData}
+                    errors={errors}
                     onChange={handleChange}
                     onBuscaCep={handleBuscaCep}
                     fotos={fotos}
                     onFotosChange={handleFotosChange}
                     onRemoverFoto={removerFoto}
                     onSubmit={handleSubmit}
-                />
-
-                <img
-                    src="/img-cadastro.png"
-                    alt="Cachorrinho"
-                    className="absolute bottom-0 left-0 w-40 max-h-32 object-contain pointer-events-none"
                 />
             </div>
         </div>

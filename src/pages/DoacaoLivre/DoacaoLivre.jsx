@@ -27,9 +27,14 @@ export default function DoacaoLivre() {
     } = useDoacaoLivre();
 
     return (
-        <div className="flex min-h-screen overflow-hidden">
-            {/* Painel esquerdo - Formulário */}
-            <div className="flex flex-col w-1/2 bg-[#052759] text-white border-l rounded-r-3xl items-center justify-center p-8 gap-6">
+        <div className="flex flex-col lg:flex-row min-h-screen lg:h-screen overflow-hidden">
+
+            <div className="flex flex-col w-full lg:w-1/2 min-h-screen lg:min-h-0 lg:h-full bg-[#052759] text-white lg:border-l lg:rounded-r-3xl items-center justify-center p-6 sm:p-8 gap-6">
+
+                <div className="lg:hidden w-full max-w-md">
+                    <Identificador steps={STEPS} currentIndex={step} variant="light" />
+                </div>
+
                 <div className="w-full max-w-md">
                     {step === 0 && (
                         <InformacoesStep
@@ -61,8 +66,7 @@ export default function DoacaoLivre() {
                 </div>
             </div>
 
-            {/* Painel direito - Ilustração e indicador */}
-            <div className="flex-1 relative bg-[#EFEFEF] flex items-center">
+            <div className="hidden lg:flex flex-1 relative bg-[#EFEFEF] items-center">
                 <div className="absolute left-8 top-1/2 transform -translate-y-1/2">
                     <Identificador steps={STEPS} currentIndex={step} />
                 </div>
@@ -72,6 +76,7 @@ export default function DoacaoLivre() {
                     className="w-2/3 absolute bottom-0 right-0 opacity-90"
                 />
             </div>
+
         </div>
     );
 }

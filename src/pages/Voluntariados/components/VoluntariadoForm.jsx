@@ -9,7 +9,7 @@ import {
 import Button from "../../../components/ui/Button";
 import InputComIcone from "./InputComIcone";
 
-export default function VoluntariadoForm({ formData, onChange, onSubmit }) {
+export default function VoluntariadoForm({ formData, errors, onChange, onSubmit }) {
     return (
         <div className="p-5 lg:p-7">
             <div className="mb-4">
@@ -21,13 +21,22 @@ export default function VoluntariadoForm({ formData, onChange, onSubmit }) {
 
             <form onSubmit={onSubmit} className="space-y-3.5">
                 <div className="grid md:grid-cols-2 gap-3.5">
-                    <InputComIcone icon={FaRegUser} name="name" placeholder="Nome completo:" />
+                    <InputComIcone
+                        icon={FaRegUser}
+                        name="name"
+                        placeholder="Nome completo:"
+                        value={formData.name}
+                        onChange={onChange}
+                        error={errors?.name}
+                    />
 
                     <InputComIcone
                         icon={FaEnvelope}
                         name="email"
                         placeholder="E-mail:"
-                        type="email"
+                        value={formData.email}
+                        onChange={onChange}
+                        error={errors?.email}
                     />
                 </div>
 
@@ -35,49 +44,52 @@ export default function VoluntariadoForm({ formData, onChange, onSubmit }) {
                     <InputComIcone
                         icon={FaWhatsapp}
                         name="whatsapp"
-                        placeholder="WhatsApp (com DDD):"
+                        placeholder="WhatsApp:"
+                        value={formData.whatsapp}
+                        onChange={onChange}
+                        error={errors?.whatsapp}
                     />
 
-                    <InputComIcone icon={FaIdCard} name="cpf" placeholder="CPF:" />
+                    <InputComIcone
+                        icon={FaIdCard}
+                        name="cpf"
+                        placeholder="CPF:"
+                        value={formData.cpf}
+                        onChange={onChange}
+                        error={errors?.cpf}
+                    />
                 </div>
 
-                <div className="flex items-center border-2 border-[#052759] rounded-lg bg-white">
+                <div className="flex items-center border-2 rounded-lg bg-white border-[#052759]">
                     <span className="p-2.5 text-[#052759]">
-                        <FaCalendarAlt className="text-base" />
+                        <FaCalendarAlt />
                     </span>
                     <input
                         id="calendario"
-                        type="text"
                         name="calendario"
-                        placeholder="Disponibilidade:"
-                        className="w-full pr-2.5 py-2 text-xs text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-2 bg-white cursor-pointer"
                         value={formData.calendario}
-                        onChange={onChange}
                         readOnly
+                        className="w-full p-2 text-xs text-[#052759] bg-white"
+                        placeholder="Disponibilidade"
                     />
                 </div>
 
-                <div className="flex items-start border-2 border-[#052759] rounded-lg bg-white">
+                <div className="flex items-start border-2 rounded-lg bg-white border-[#052759]">
                     <span className="p-2.5 text-[#052759] pt-3">
-                        <FaPaw className="text-base" />
+                        <FaPaw />
                     </span>
                     <textarea
                         name="message"
-                        placeholder="Mensagem (opcional):"
-                        rows="2"
-                        className="w-full pr-2.5 py-2 text-xs text-[#052759] resize-none focus:outline-none placeholder-[#052759] font-medium pl-2 bg-white"
                         value={formData.message}
                         onChange={onChange}
+                        className="w-full p-2 text-xs text-[#052759] resize-none"
+                        placeholder="Mensagem"
                     />
                 </div>
 
-                <Button className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#FCAD0B] hover:bg-[#052759] text-sm w-full py-2.5">
+                <Button className="w-full bg-[#FCAD0B] py-2.5">
                     Tenho interesse
                 </Button>
-
-                <p className="text-xs text-white/70 text-center pt-1">
-                    Ao enviar, você concorda em receber notificações via WhatsApp e E-mail.
-                </p>
             </form>
         </div>
     );
