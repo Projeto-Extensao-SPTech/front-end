@@ -17,7 +17,7 @@ export function handleHttpFeedback(alert, response, message = {}) {
         return;
     }
 
-    if (status === 403) {
+    if (status === 401) {
         alert.forbidden(
             "Ops, parece que você não está logado...",
             "Faça login ou cadastre-se e tente novamente."
