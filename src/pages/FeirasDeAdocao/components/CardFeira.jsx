@@ -80,7 +80,7 @@ export default function CardFeira({
                     </svg>
                 </div>
                 <span className="text-[#052759] font-bold text-xl">
-                    {formatDate(feira.fairDate)}
+                    {formatDate(feira.fair_date)}
                 </span>
             </div>
 
@@ -107,7 +107,7 @@ export default function CardFeira({
                                 Horário
                             </p>
                             <h3 className="font-bold text-[#052759] text-xl leading-tight">
-                                {formatHour(feira.fairHour)}
+                                {formatHour(feira.fair_hour)}
                             </h3>
                         </div>
                     </div>

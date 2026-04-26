@@ -12,10 +12,10 @@ export async function cadastrarFeira(formData, alert) {
 
     const fairData = {
         fair_date: convertDateToISO(formData.data),
-        fair_hour: `${convertDateToISO(formData.data)}T${formData.hora}`,
+        fair_hour: `${convertDateToISO(formData.data)}T${formData.horario}`,
         address: {
             zip_code: formData.cep,
-            street: formData.rua,
+            street: formData.logradouro,
             number: formData.numero ? parseInt(formData.numero) : null,
             complement: formData.complemento,
             city: formData.cidade,
@@ -30,15 +30,16 @@ export async function cadastrarFeira(formData, alert) {
     );
 
     formData.fotos.forEach((foto) => {
-        formDataToSend.append("imagem", foto);
+        formDataToSend.append("image", foto);
     });
 
     try {
-        const response = await api.post("/feiras/cadastrar", formDataToSend);
+        console.log("Enviando dados para cadastro:", fairData);
+        const response = await api.post("/fairs/create", formDataToSend);
 
         handleHttpFeedback(alert, response, {
             successTitle: "Feira cadastrada com sucesso!",
-            successMessage: `A feira de adoção na rua ${formData.rua} foi cadastrada com sucesso.`,
+            successMessage: `A feira de adoção na rua ${formData.logradouro} foi cadastrada com sucesso.`,
         });
 
         return response;

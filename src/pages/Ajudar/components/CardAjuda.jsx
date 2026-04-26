@@ -13,7 +13,6 @@ export default function CardAjuda({
                                 hover:scale-105 transition-all duration-700 cursor-pointer
                                 ${cardVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}
                             `}
-            style={{ fontFamily: "Poppins, sans-serif" }}
         >
             <img
                 src={imagem}

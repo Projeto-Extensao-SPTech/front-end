@@ -18,13 +18,68 @@ export function useVoluntariados() {
         calendario: "",
     });
 
-    // Preencher dados do usuário logado
+    const [errors, setErrors] = useState({});
+
+    const validateField = (name, value) => {
+        let error = "";
+
+        switch (name) {
+            case "name":
+                if (!value.trim()) {
+                    error = "Nome é obrigatório";
+                } else if (value.trim().length < 3) {
+                    error = "Nome muito curto";
+                } else if (!/^[A-Za-zÀ-ÿ\s]+$/.test(value)) {
+                    error = "Nome não pode conter números ou caracteres especiais";
+                }
+                break;
+
+            case "email":
+                if (!value.trim()) {
+                    error = "E-mail é obrigatório";
+                } else if (
+                    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+                ) {
+                    error = "E-mail inválido";
+                }
+                break;
+
+            case "whatsapp":
+                const phone = value.replace(/\D/g, "");
+                if (!phone) {
+                    error = "WhatsApp é obrigatório";
+                } else if (phone.length < 10 || phone.length > 11) {
+                    error = "WhatsApp inválido";
+                }
+                break;
+
+            case "cpf":
+                const cpf = value.replace(/\D/g, "");
+                if (!cpf) {
+                    error = "CPF é obrigatório";
+                } else if (cpf.length !== 11) {
+                    error = "CPF inválido";
+                }
+                break;
+
+            case "calendario":
+                if (!value) {
+                    error = "Selecione uma data";
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        return error;
+    };
+
     useEffect(() => {
         const token = sessionStorage.getItem("USER_DATA");
 
         if (token) {
             const jsonData = JSON.parse(token);
-            console.log("JSON DATA COMPLETO:", jsonData);
 
             setFormData((prev) => ({
                 ...prev,
@@ -36,7 +91,6 @@ export function useVoluntariados() {
         }
     }, []);
 
-    // Inicializar flatpickr
     useEffect(() => {
         const fp = flatpickr("#calendario", {
             locale: Portuguese,
@@ -48,26 +102,59 @@ export function useVoluntariados() {
                     dates.length > 0 ? flatpickr.formatDate(dates[0], "d/m/Y") : "";
 
                 setFormData((prev) => ({ ...prev, calendario: dataFormatada }));
+
+                // valida data ao selecionar
+                setErrors((prev) => ({
+                    ...prev,
+                    calendario: validateField("calendario", dataFormatada),
+                }));
             },
         });
+
         return () => fp.destroy();
     }, []);
 
     const handleChange = (e) => {
-        setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+        const { name, value } = e.target;
+
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+
+        const error = validateField(name, value);
+
+        setErrors((prev) => ({
+            ...prev,
+            [name]: error,
+        }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        const newErrors = {};
+
+        Object.keys(formData).forEach((key) => {
+            const error = validateField(key, formData[key]);
+            if (error) newErrors[key] = error;
+        });
+
+        setErrors(newErrors);
+
+        if (Object.keys(newErrors).length > 0) {
+            alert.error(
+                "Campos inválidos",
+                "Corrija os erros antes de continuar."
+            );
+            return;
+        }
+
         try {
             const token = sessionStorage.getItem("USER_DATA");
 
             if (!token) {
-                handleHttpFeedback(alert, {
-                    errorTitle: "Erro de autenticação",
-                    errorMessage: "Você precisa estar logado para se voluntariar.",
-                });
+                alert.error("Erro", "Você precisa estar logado.");
                 return;
             }
 
@@ -75,41 +162,39 @@ export function useVoluntariados() {
             const userId = jsonData?.id;
 
             if (!userId) {
-                handleHttpFeedback(alert, {
-                    errorTitle: "Erro de autenticação",
-                    errorMessage: "ID do usuário não encontrado. Faça login novamente.",
-                });
+                alert.error("Erro", "Usuário inválido.");
                 return;
             }
 
-            // Converter data para ISO
             const [dia, mes, ano] = formData.calendario.split("/");
             const isoDate = `${ano}-${mes}-${dia}`;
 
-            const response = await cadastrarVoluntario(userId, formData.message, isoDate);
+            const response = await cadastrarVoluntario(
+                userId,
+                formData.message,
+                isoDate
+            );
 
-            console.log("Voluntário cadastrado:", response.data);
             handleHttpFeedback(alert, response, {
                 successTitle: "Cadastro realizado",
-                successMessage: "Obrigado por se voluntariar! Entraremos em contato em breve.",
+                successMessage:
+                    "Obrigado por se voluntariar! Entraremos em contato.",
             });
 
             await enviarWhatsApp(formData, alert);
-            handleHttpFeedback(alert, response, {
-                successTitle: "Mensagem enviada",
-                successMessage: "Uma mensagem de desejo de voluntariado foi enviada via WhatsApp para nossa equipe.",
-            });
+
         } catch (error) {
-            console.error("Erro ao cadastrar voluntário:", error);
             handleHttpFeedback(alert, error.response, {
                 errorTitle: "Erro no cadastro",
-                errorMessage: "Ocorreu um erro ao realizar seu cadastro. Tente novamente mais tarde.",
+                errorMessage:
+                    "Ocorreu um erro ao realizar seu cadastro.",
             });
         }
     };
 
     return {
         formData,
+        errors,
         handleChange,
         handleSubmit,
     };

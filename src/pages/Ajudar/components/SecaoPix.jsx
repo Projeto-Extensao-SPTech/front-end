@@ -9,7 +9,6 @@ export default function SecaoPix({ pixRef, pixVisible }) {
             className={`lg:w-2/5 bg-white rounded-xl p-6 shadow-md flex flex-col gap-6 transition-all duration-700
                             ${pixVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}
                         `}
-            style={{ fontFamily: "Poppins, sans-serif" }}
         >
             <h2 className="text-xl font-bold text-center text-[#052759]">PIX</h2>
 

@@ -20,14 +20,8 @@ export default function FeirasDeAdocao() {
         marcarComoInteressada,
         jaDemonstrouInteresse,
         getSelectText,
+        paginasTotais
     } = useFeirasDeAdocao();
-
-    const CARDS_POR_PAGINA = 3;
-    const totalPaginas = Math.ceil(feiras.length / CARDS_POR_PAGINA);
-
-    const indiceInicio = (paginaAtual - 1) * CARDS_POR_PAGINA;
-    const indiceFim = indiceInicio + CARDS_POR_PAGINA;
-    const feirasVisiveis = feiras.slice(indiceInicio, indiceFim);
 
     return (
         <div className="min-h-screen bg-[#052759] py-8 px-4 lg:px-8 relative overflow-hidden">
@@ -62,7 +56,7 @@ export default function FeirasDeAdocao() {
               `}
                         >
                             <Paginacao
-                                totalPaginas={totalPaginas}
+                                totalPaginas={paginasTotais}
                                 paginaAtual={paginaAtual}
                                 mudarPagina={mudarPagina}
                             />
@@ -77,27 +71,26 @@ export default function FeirasDeAdocao() {
                                 }
               `}
                         >
-                            {feirasVisiveis.map((feira, indexNaPagina) => {
-                                const indexGlobal = indiceInicio + indexNaPagina;
-                                const isSelected = feiraSelecionada === indexGlobal;
-                                const jaTemInteresse = jaDemonstrouInteresse(feira.id);
+                            {feiras.map((feira, indexNaPagina) => {
+                            const isSelected = feiraSelecionada.id === feira.id;
+                            const jaTemInteresse = jaDemonstrouInteresse(feira.id);
 
-                                return (
-                                    <div
-                                        key={feira.id}
-                                        style={{ transitionDelay: `${indexNaPagina * 150}ms` }}
-                                        className="transition-all duration-700"
-                                    >
-                                        <CardFeira
-                                            feira={feira}
-                                            isSelected={isSelected}
-                                            jaTemInteresse={jaTemInteresse}
-                                            onClick={() => selecionarFeira(indexGlobal)}
-                                            onRegistrarInteresse={() => marcarComoInteressada(feira.id)}
-                                        />
-                                    </div>
-                                );
-                            })}
+                            return (
+                                <div
+                                    key={feira.id}
+                                    style={{ transitionDelay: `${indexNaPagina * 150}ms` }}
+                                    className="transition-all duration-700"
+                                >
+                                    <CardFeira
+                                        feira={feira}
+                                        isSelected={isSelected}
+                                        jaTemInteresse={jaTemInteresse}
+                                        onClick={() => selecionarFeira(feira)}
+                                        onRegistrarInteresse={() => marcarComoInteressada(feira.id)}
+                                    />
+                                </div>
+                            );
+                        })}
                         </div>
                     </div>
                 </div>
@@ -118,7 +111,7 @@ export default function FeirasDeAdocao() {
 
                 <div className="flex justify-center">
                     <div className="flex flex-wrap justify-center gap-6 max-w-6xl">
-                        {feiras[feiraSelecionada]?.images?.map((image, index) => (
+                        {feiraSelecionada.images?.map((image, index) => (
                             <CardPet key={index} image={image} index={index} />
                         ))}
                     </div>
