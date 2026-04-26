@@ -1,5 +1,4 @@
 import { api } from "../../../api/apiUserService";
-import { handleHttpFeedback } from "../../../js/utils/handleHttpFeedback";
 
 export async function cadastrarVoluntario(userId, message, availableDate) {
     const payload = {
