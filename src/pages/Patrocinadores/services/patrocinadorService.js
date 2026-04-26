@@ -42,17 +42,12 @@ export async function sendSponsor(formData, alertUtils, onError) {
 
     let createdSponsorshipId = null;
 
-    // Envia a sponsorship
     api
         .post("/sponsorships", sponsorshipPayload)
         .then((sponsorshipResponse) => {
             console.log("Sponsorship created:", sponsorshipResponse.data);
 
             createdSponsorshipId = sponsorshipResponse.data.id;
-
-            //
-            // Caso a sponsorship seja criada com sucesso, podemos enviar um e-mail para a beneficiária do abrigo
-            // 
 
             alertUtils.success(
                 "Proposta enviada com sucesso!",
@@ -97,7 +92,6 @@ export async function sendSponsor(formData, alertUtils, onError) {
                     "Tente novamente mais tarde."
                 );
             }
-            // Retorna para a tela inicial (Apoiar) em caso de erro
             if (onError) onError();
         });
 }
@@ -116,12 +110,10 @@ export function getSponsorshipDepartment(areas) {
 
     const areasArray = Array.isArray(areas) ? areas : [areas];
 
-    // Mapeia cada área para o departamento correspondente
     const departments = areasArray
         .map((area) => areaToDepartmentMap[area])
         .filter((dept) => dept !== undefined);
 
-    // Remove duplicatas (ex: Marketing aparece 2x)
     const uniqueDepartments = [...new Set(departments)];
 
     return uniqueDepartments.join(", ") || "Não especificado";
