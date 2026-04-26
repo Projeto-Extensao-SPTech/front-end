@@ -138,7 +138,7 @@ export default function CardFeira({
                 </div>
             </div>
 
-            <div className="flex justify-start -ml-6">
+            <div className="absolute bottom-0 left-0">
                 <img
                     src={feira.card_image}
                     alt="pet"
