@@ -42,26 +42,17 @@ export async function sendSponsor(formData, alertUtils, onError) {
 
     let createdSponsorshipId = null;
 
-    // Envia a sponsorship
     api
         .post("/sponsorships", sponsorshipPayload)
         .then((sponsorshipResponse) => {
             console.log("Sponsorship created:", sponsorshipResponse.data);
 
-            const sponsorship = sponsorshipResponse.data;
-            createdSponsorshipId = sponsorship.id;
+            createdSponsorshipId = sponsorshipResponse.data.id;
 
-            const departments = getSponsorshipDepartment(formData.areasApoio);
-
-            const messageText = `Olá Andressa,\nTemos uma nova proposta de Patrocinador! 😻\n\n*Nome*: ${sponsorship.sponsor.name}\n*Departamento*: ${departments}\n*Descrição*: ${sponsorship.description || "Não informado"}\n*Tipo*: ${sponsorship.type}\n*Email*: ${sponsorship.sponsor.email || "Não informado"}\n*Telefone*: ${sponsorship.sponsor.phone || "Não informado"}\n\nEntre em contato para saber mais detalhes! 🐶🦴`;
-
-            return api.post("/messages/sendText/api-manager", {
-                number: "5511930144580",
-                text: messageText,
-            });
-        })
-        .then((messageResponse) => {
-            console.log("WhatsApp message sent:", messageResponse.data);
+            alertUtils.success(
+                "Proposta enviada com sucesso!",
+                "Agradecemos seu interesse em apoiar o Abrigo Dog Feliz. Nossa equipe entrará em contato em breve para discutir os próximos passos."
+            );
         })
         .catch((error) => {
             console.error("Erro no fluxo de patrocínio:", error);
@@ -101,7 +92,6 @@ export async function sendSponsor(formData, alertUtils, onError) {
                     "Tente novamente mais tarde."
                 );
             }
-            // Retorna para a tela inicial (Apoiar) em caso de erro
             if (onError) onError();
         });
 }
@@ -120,12 +110,10 @@ export function getSponsorshipDepartment(areas) {
 
     const areasArray = Array.isArray(areas) ? areas : [areas];
 
-    // Mapeia cada área para o departamento correspondente
     const departments = areasArray
         .map((area) => areaToDepartmentMap[area])
         .filter((dept) => dept !== undefined);
 
-    // Remove duplicatas (ex: Marketing aparece 2x)
     const uniqueDepartments = [...new Set(departments)];
 
     return uniqueDepartments.join(", ") || "Não especificado";

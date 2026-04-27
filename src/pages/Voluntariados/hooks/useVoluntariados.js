@@ -4,7 +4,7 @@ import "flatpickr/dist/flatpickr.min.css";
 import { Portuguese } from "flatpickr/dist/l10n/pt.js";
 import { useAlertUtils } from "../../../hooks/useAlertUtils";
 import { handleHttpFeedback } from "../../../js/utils/handleHttpFeedback";
-import { cadastrarVoluntario, enviarWhatsApp } from "../services/voluntarioService";
+import { cadastrarVoluntario } from "../services/voluntarioService";
 
 export function useVoluntariados() {
     const alert = useAlertUtils();
@@ -175,13 +175,11 @@ export function useVoluntariados() {
                 isoDate
             );
 
-            handleHttpFeedback(alert, response, {
+            return handleHttpFeedback(alert, response, {
                 successTitle: "Cadastro realizado",
                 successMessage:
                     "Obrigado por se voluntariar! Entraremos em contato.",
             });
-
-            await enviarWhatsApp(formData, alert);
 
         } catch (error) {
             handleHttpFeedback(alert, error.response, {
