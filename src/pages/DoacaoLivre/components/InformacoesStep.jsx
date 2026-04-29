@@ -1,9 +1,16 @@
+import { useEffect, useState } from "react";
+import { formatBRLCurrency, maskBRLCurrency, parseBRLCurrency } from "../../../js/utils/formatter";
 import { useAlertUtils } from "../../../hooks/useAlertUtils";
 import InputField from "./InputField";
 import FormButton from "./FormButton";
 
 export default function InformacoesStep({ data, updateData, onNext }) {
     const alertUtils = useAlertUtils();
+    const [precoDisplay, setPrecoDisplay] = useState("");
+
+    useEffect(() => {
+        setPrecoDisplay(data.preco ? formatBRLCurrency(data.preco) : "");
+    }, [data.preco]);
 
     const fields = [
         {
@@ -32,6 +39,7 @@ export default function InformacoesStep({ data, updateData, onNext }) {
             name: "quantidade",
             component: "input",
             fullWidth: false,
+            min: 0,
         },
         {
             label: "Estado",
@@ -39,6 +47,21 @@ export default function InformacoesStep({ data, updateData, onNext }) {
             name: "estado",
             component: "select",
             options: ["Novo", "Usado"],
+            fullWidth: false,
+        },
+                {
+            label: "Peso (kg)",
+            type: "number",
+            name: "peso",
+            component: "input",
+            fullWidth: false,
+            min: 0,
+        },
+        {
+            label: "Valor estimado",
+            type: "text",
+            name: "preco",
+            component: "input",
             fullWidth: false,
         },
         {
@@ -52,6 +75,14 @@ export default function InformacoesStep({ data, updateData, onNext }) {
 
     const handleChange = (e) => updateData(e.target.name, e.target.value);
 
+    const handlePriceChange = (e) => {
+        const maskedValue = maskBRLCurrency(e.target.value);
+        const rawValue = parseBRLCurrency(maskedValue);
+
+        setPrecoDisplay(maskedValue);
+        updateData("preco", rawValue === "" ? "" : rawValue.toString());
+    };
+
     const handleNext = (e) => {
         e.preventDefault();
 
@@ -60,6 +91,8 @@ export default function InformacoesStep({ data, updateData, onNext }) {
             !data.categoria ||
             !data.quantidade ||
             !data.estado ||
+            !data.peso ||
+            !data.preco ||
             !data.descricao
         ) {
             return alertUtils.warn(
@@ -82,8 +115,8 @@ export default function InformacoesStep({ data, updateData, onNext }) {
                     <InputField
                         key={f.name}
                         field={f}
-                        value={data[f.name]}
-                        onChange={handleChange}
+                        value={f.name === "preco" ? precoDisplay : data[f.name]}
+                        onChange={f.name === "preco" ? handlePriceChange : handleChange}
                     />
                 ))}
             </form>

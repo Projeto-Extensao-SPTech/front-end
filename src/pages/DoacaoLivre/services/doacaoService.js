@@ -1,4 +1,5 @@
 import { api } from "../../../api/apiUserService";
+import { parseCEP } from "../../../js/utils/formatter";
 
 export async function getCollectionPoints() {
     try {
@@ -16,7 +17,7 @@ export async function getCollectionPoints() {
     }
 }
 
-export async function calculateFreight(cepOrigin, cepDestination) {
+export async function calculateFreight(freightData) {
     try {
         const storedData = sessionStorage.getItem("USER_DATA");
         const token = storedData ? JSON.parse(storedData).token : null;
@@ -24,8 +25,35 @@ export async function calculateFreight(cepOrigin, cepDestination) {
             ? { headers: { Authorization: `Bearer ${token}` } }
             : {};
 
-        const response = await api.get(
-            `/shipment/calculate_origem_destination?origin=${cepOrigin}&destination=${cepDestination}`,
+        const payload = {
+            from: {
+                postal_code: parseCEP(freightData.cep_origem || "")
+            },
+            to: {
+                postal_code: parseCEP(freightData.cep_destino || "")
+            },
+            products: [
+                {
+                    id: "donation",
+                    width: freightData.largura ? parseFloat(freightData.largura) : 0,
+                    height: freightData.altura ? parseFloat(freightData.altura) : 0,
+                    length: freightData.comprimento ? parseFloat(freightData.comprimento) : 0,
+                    weight: freightData.peso ? parseFloat(freightData.peso) : 0,
+                    insuranceValue: freightData.preco ? parseFloat(freightData.preco) : 0,
+                    quantity: freightData.quantidade ? parseInt(freightData.quantidade) : 1,
+                }
+            ],
+            options: {
+                receipt: false,
+                ownHand: false
+            }
+        };
+
+        console.log("Payload para cálculo de frete:", payload);
+
+        const response = await api.post(
+            `/shipment/calculate`,
+            payload,
             config
         );
         return response.data;

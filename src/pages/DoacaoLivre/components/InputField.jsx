@@ -1,8 +1,7 @@
-export default function InputField({ field, value, onChange }) {
+export default function InputField({ field, ...props }) {
     return (
         <div
-            className={`flex flex-col text-left ${field.fullWidth ? "w-full" : "w-[48%]"
-                }`}
+            className={`flex flex-col text-left ${field.fullWidth ? "w-full" : "w-[48%]"}`}
         >
             <label
                 htmlFor={field.name}
@@ -15,8 +14,7 @@ export default function InputField({ field, value, onChange }) {
                 <select
                     id={field.name}
                     name={field.name}
-                    value={value}
-                    onChange={onChange}
+                    {...props}
                     className="rounded-lg w-full text-black font-normal p-2 border border-gray-300 focus:border-[#FFB114] focus:outline-none text-sm"
                 >
                     <option value="">Selecione...</option>
@@ -30,8 +28,7 @@ export default function InputField({ field, value, onChange }) {
                 <textarea
                     id={field.name}
                     name={field.name}
-                    value={value}
-                    onChange={onChange}
+                    {...props}
                     className="rounded-lg w-full h-16 text-black font-normal p-2 border border-gray-300 focus:border-[#FFB114] focus:outline-none text-sm resize-none"
                     placeholder="Descreva brevemente o item"
                 />
@@ -39,9 +36,9 @@ export default function InputField({ field, value, onChange }) {
                 <input
                     id={field.name}
                     name={field.name}
-                    type={field.type}
-                    value={value}
-                    onChange={onChange}
+                    type={field.type}                    
+                    min={field.min}                    
+                    {...props}
                     className="rounded-lg w-full text-black font-normal p-2 border border-gray-300 focus:border-[#FFB114] focus:outline-none text-sm"
                 />
             )}
