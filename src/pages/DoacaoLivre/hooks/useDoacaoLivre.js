@@ -6,8 +6,6 @@ import {
     submitDonation,
 } from "../services/doacaoService";
 
-const CEP_FIXO_USUARIO = "01414-001";
-
 export function useDoacaoLivre() {
     const alertUtils = useAlertUtils();
     const [step, setStep] = useState(0);
@@ -26,9 +24,13 @@ export function useDoacaoLivre() {
         pontoColetaId: null,
         cep_origem: "",
         cep_destino: "09609-000",
+        peso: "",
+        altura: "",
+        largura: "",
+        comprimento: "",
+        preco: ""
     });
 
-    // Buscar pontos de coleta ao montar
     useEffect(() => {
         const fetchPoints = async () => {
             try {
@@ -53,15 +55,33 @@ export function useDoacaoLivre() {
     const nextStep = () => setStep((prev) => prev + 1);
 
     const calculateFreight = async (cepOrigin, cepDestination) => {
-        if (!cepOrigin || !cepDestination) {
-            alertUtils.warn("Atenção", "Preencha os dois CEPs para calcular.");
+        if (
+            !cepOrigin ||
+            !cepDestination || 
+            !formData.peso || 
+            !formData.altura || 
+            !formData.largura || 
+            !formData.comprimento
+        ) {
+            alertUtils.warn("Atenção", "Preencha todos os campos para calcular o frete!");
             return;
         }
 
         alertUtils.loading("Calculando...", "Consultando opções de entrega");
 
         try {
-            const data = await calculateFreightService(cepOrigin, cepDestination);
+            const freightData = {
+                cep_origem: cepOrigin,
+                cep_destino: cepDestination,
+                peso: formData.peso,
+                altura: formData.altura,
+                largura: formData.largura,
+                comprimento: formData.comprimento,
+                quantidade: formData.quantidade,
+                preco: formData.preco
+            };
+            
+            const data = await calculateFreightService(freightData);
             setFreightInfo(data);
             alertUtils.close();
         } catch (error) {
@@ -76,6 +96,33 @@ export function useDoacaoLivre() {
 
         try {
             const storedData = sessionStorage.getItem("USER_DATA");
+
+            if (formData.tipoEnvio === "envio") {
+                if (
+                    !formData.cep_origem ||
+                    !formData.cep_destino ||
+                    !formData.peso ||
+                    !formData.altura ||
+                    !formData.largura ||
+                    !formData.comprimento
+                ) {
+                    alertUtils.warn(
+                        "Atenção",
+                        "Preencha todos os campos de endereço e dimensões para finalizar!"
+                    );
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            if (formData.tipoEnvio === "ponto de coleta" && !formData.pontoColetaId) {
+                alertUtils.warn(
+                    "Atenção",
+                    "Selecione um ponto de coleta para finalizar!"
+                );
+                setLoading(false);
+                return;
+            }
 
             if (!storedData) {
                 alertUtils.warn(
@@ -106,7 +153,6 @@ export function useDoacaoLivre() {
         loading,
         collectionPoints,
         freightInfo,
-        cepUsuario: CEP_FIXO_USUARIO,
         updateFormData,
         nextStep,
         calculateFreight,

@@ -1,4 +1,5 @@
 import { useAlertUtils } from "../../../hooks/useAlertUtils";
+import { maskCEP, parseCEP } from "../../../js/utils/formatter";
 import InputField from "./InputField";
 import FormButton from "./FormButton";
 import RadioOption from "./RadioOption";
@@ -18,9 +19,18 @@ export default function EnvioStep({
 
     const handleChange = (e) => updateData(e.target.name, e.target.value);
 
+    const handleCepChange = (e) => {
+        const maskedValue = maskCEP(e.target.value);
+        const rawValue = parseCEP(maskedValue);
+        updateData(e.target.name, rawValue);
+    };
+
     const handleRadioChange = (tipo) => {
         updateData("tipoEnvio", tipo);
-        if (tipo === "envio") updateData("pontoColetaId", null);
+        if (tipo === "envio") {
+            updateData("pontoColetaId", null);
+            updateData("cep_destino", "09609-000");
+        }
         if (tipo === "ponto de coleta") {
             updateData("cep_origem", cepUsuario);
             updateData("cep_destino", collectionPoints[0]?.address.zipCode || "");
@@ -29,8 +39,15 @@ export default function EnvioStep({
 
     const handleManualFreight = (e) => {
         e.preventDefault();
-        if (!data.cep_origem || !data.cep_destino) {
-            alertUtils.warn("Atenção", "Preencha os dois CEPs.");
+        if (
+            !data.cep_origem ||
+            !data.cep_destino || 
+            !data.peso || 
+            !data.altura || 
+            !data.largura || 
+            !data.comprimento
+        ) {
+            alertUtils.warn("Atenção", "Preencha todos os campos para calcular o frete!");
             return;
         }
         onCalculateFreight(data.cep_origem, data.cep_destino);
@@ -39,7 +56,6 @@ export default function EnvioStep({
     const handlePointClick = (point) => {
         updateData("pontoColetaId", point.id);
         updateData("cep_destino", point.address.zipCode);
-        onCalculateFreight(cepUsuario, point.address.zipCode);
     };
 
     return (
@@ -66,7 +82,7 @@ export default function EnvioStep({
                 </div>
 
                 {data.tipoEnvio === "envio" && (
-                    <div className="flex flex-wrap gap-4 mt-4">
+                    <div className="flex flex-wrap gap-3 mt-4">
                         <InputField
                             field={{
                                 label: "CEP Origem",
@@ -74,8 +90,8 @@ export default function EnvioStep({
                                 component: "input",
                                 fullWidth: true,
                             }}
-                            value={data.cep_origem}
-                            onChange={handleChange}
+                            value={maskCEP(data.cep_origem)}
+                            onChange={handleCepChange}
                         />
                         <InputField
                             field={{
@@ -84,7 +100,41 @@ export default function EnvioStep({
                                 component: "input",
                                 fullWidth: true,
                             }}
-                            value={data.cep_destino}
+                            value={maskCEP(data.cep_destino)}
+                            onChange={handleCepChange}
+                            readOnly={true}
+                        />
+                        <InputField
+                            field={{
+                                label: "Altura (cm)",
+                                name: "altura",
+                                type: "number",
+                                component: "input",
+                                fullWidth: true,
+                                min: 0,
+                            }}
+                            onChange={handleChange}
+                        />
+                        <InputField
+                            field={{
+                                label: "Largura (cm)",
+                                name: "largura",
+                                type: "number",
+                                component: "input",
+                                fullWidth: true,
+                                min: 0,
+                            }}
+                            onChange={handleChange}
+                        />
+                        <InputField
+                            field={{
+                                label: "Comprimento (cm)",
+                                name: "comprimento",
+                                type: "number",
+                                component: "input",
+                                fullWidth: true,
+                                min: 0,
+                            }}
                             onChange={handleChange}
                         />
 
@@ -103,7 +153,7 @@ export default function EnvioStep({
                             cepUsuario={cepUsuario}
                         />
 
-                        <div className="w-full flex justify-center mt-4">
+                        <div className="w-full flex justify-center mt-2">
                             <FormButton onClick={onFinalSubmit} disabled={loading}>
                                 {loading ? "Enviando..." : "Finalizar Doação"}
                             </FormButton>
@@ -125,7 +175,7 @@ export default function EnvioStep({
                                     <div
                                         key={p.id}
                                         onClick={() => handlePointClick(p)}
-                                        className={`flex flex-col items-start rounded-md p-3 w-full transition-colors duration-200 ${data.collectionCenterId === p.id
+                                        className={`flex flex-col items-start rounded-md p-3 w-full transition-colors duration-200 ${data.pontoColetaId === p.id
                                                 ? "bg-white border-2 border-[#FFB114]"
                                                 : "bg-[#d9d9d9] hover:bg-white"
                                             }`}
@@ -141,12 +191,6 @@ export default function EnvioStep({
                                 ))}
                             </div>
                         </div>
-
-                        <FreightResultCard
-                            freightInfo={freightInfo}
-                            tipoEnvio={data.tipoEnvio}
-                            cepUsuario={cepUsuario}
-                        />
 
                         <div className="flex justify-center mt-4">
                             <FormButton onClick={onFinalSubmit} disabled={loading}>
