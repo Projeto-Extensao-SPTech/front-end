@@ -65,15 +65,17 @@ export default function Navbar({ variant = 'blue' }) {
                 </div>
 
                 <nav className="hidden lg:flex flex-row items-center gap-14 h-full text-[14px] font-bold tracking-tightest leading-tight">
-                    <Link
-                        to="/"
-                        className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
-                    >
-                        SOBRE
-                        {location.pathname === '/' && (
-                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
-                        )}
-                    </Link>
+                    {!user && (
+                        <Link
+                            to="/"
+                            className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
+                        >
+                            SOBRE
+                            {location.pathname === '/' && (
+                                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                            )}
+                        </Link>
+                    )}
 
                     <Link
                         to="/feiras-de-adocao"
@@ -104,7 +106,7 @@ export default function Navbar({ variant = 'blue' }) {
                             <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
                         )}
                     </Link>
-                    
+
                     {user?.is_admin && (
                         <Link
                             to="/dashboard"
@@ -116,7 +118,7 @@ export default function Navbar({ variant = 'blue' }) {
                             )}
                         </Link>
                     )}
-                    
+
                     {user?.is_admin && (
                         <div
                             className="relative"
@@ -241,16 +243,18 @@ export default function Navbar({ variant = 'blue' }) {
                     } lg:hidden flex flex-col absolute bg-gradient-to-b from-[#052759] to-[#0a3a8a] text-white left-0 top-full font-bold text-xl text-center pt-8 pb-8 gap-6 w-full h-fit transition-transform duration-300 z-50 shadow-2xl`}
             >
 
-                <Link
-                    to="/"
-                    onClick={() => setMenu(false)}
-                    className="hover:scale-105 transition-all duration-300 font-bold relative py-2"
-                >
-                    SOBRE
-                    {location.pathname === '/' && (
-                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
-                    )}
-                </Link>
+                {!user && (
+                    <Link
+                        to="/"
+                        onClick={() => setMenu(false)}
+                        className="hover:scale-105 transition-all duration-300 font-bold relative py-2"
+                    >
+                        SOBRE
+                        {location.pathname === '/' && (
+                            <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                        )}
+                    </Link>
+                )}
 
                 <Link
                     to="/feiras-de-adocao"
@@ -284,7 +288,7 @@ export default function Navbar({ variant = 'blue' }) {
                         <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
                     )}
                 </Link>
-                
+
                 {user?.is_admin && (
                     <Link
                         to="/dashboard"

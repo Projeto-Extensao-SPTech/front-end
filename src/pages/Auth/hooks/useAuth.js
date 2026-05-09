@@ -31,13 +31,11 @@ export function useAuth() {
         complemento: "",
     });
 
-    // Sincronizar com URL params
     useEffect(() => {
         const mode = searchParams.get("mode") || "login";
         setIsLogin(mode === "login");
     }, [searchParams]);
 
-    // Buscar CEP automaticamente
     useEffect(() => {
         const cepLimpo = formData.cep.replace(/\D/g, "");
         if (cepLimpo.length === 8) {
@@ -134,7 +132,7 @@ export function useAuth() {
         try {
             if (isLogin) {
                 await loginUser(formData, alertUtils);
-                navigate("/");
+                navigate("/feiras-de-adocao");
             } else {
                 await cadastroUser(formData, tipoPessoa, alertUtils);
                 navigate("/auth?mode=login");

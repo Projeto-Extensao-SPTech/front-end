@@ -50,7 +50,13 @@ export async function loginUser(formData, alertUtils) {
         const data = response.data;
         sessionStorage.setItem("USER_DATA", JSON.stringify(data));
         setHeaderParam("Authorization", `Bearer ${data.token}`);
-        window.location.href = '/';
+        
+        if (data.is_admin === 1 || data.is_admin === true) {
+            window.location.href = '/dashboard';
+        } else {
+            window.location.href = '/ajudar';
+        }
+        
         return data;
     } catch (error) {
         alertUtils.close()
