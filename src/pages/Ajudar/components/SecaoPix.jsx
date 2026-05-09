@@ -1,61 +1,77 @@
+import { useState } from "react";
+
+const PIX_KEY = "8242ejwjd32847aisf";
+
 export default function SecaoPix({ pixRef, pixVisible }) {
+    const [copied, setCopied] = useState(false);
+
     const handleCopyPix = () => {
-        navigator.clipboard.writeText("8242ejwjd32847aisf");
+        navigator.clipboard.writeText(PIX_KEY);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2200);
     };
 
     return (
-        <section
+        <div
             ref={pixRef}
-            className={`lg:w-2/5 bg-white rounded-xl p-6 shadow-md flex flex-col gap-6 transition-all duration-700
-                            ${pixVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}
-                        `}
+            className="rounded-[20px] overflow-hidden flex flex-col justify-between p-7"
+            style={{
+                opacity: pixVisible ? 1 : 0,
+                transform: pixVisible ? "translateY(0)" : "translateY(2rem)",
+                transition: "opacity 700ms ease, transform 700ms ease",
+                background: "linear-gradient(160deg, #031c47 0%, #052759 100%)",
+                boxShadow: "0 16px 48px rgba(0,0,0,0.38)",
+                border: "1px solid rgba(255,255,255,0.07)",
+            }}
         >
-            <h2 className="text-xl font-bold text-center text-[#052759]">PIX</h2>
-
-            <div className="text-center">
-                <label className="block text-sm font-medium text-gray-600 mb-1">
-                    Valor referência
-                </label>
-                <div className="inline-flex items-center justify-center gap-2 bg-[#052759] text-white font-semibold text-lg py-2 px-4 rounded-lg">
-                    <span className="text-md">R$ 50,00</span>
-                </div>
-                <p className="text-xs text-gray-500 mt-1 py-1 font-sans">
-                    * R$50 compra 1 saco de ração para ~15 cães
+            <div>
+                <p className="text-[11px] uppercase tracking-widest font-medium mb-1.5"
+                    style={{ color: "rgba(255,255,255,0.4)" }}>
+                    Doe via PIX
+                </p>
+                <p className="text-white text-base font-semibold leading-snug">
+                    Ajude com qualquer valor
                 </p>
             </div>
 
-            <div className="text-center">
-                <label className="block text-sm text-gray-700 mb-1 font-extrabold">
-                    Impacto da sua ajuda
-                </label>
-                <div className="flex justify-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                        <span
-                            key={i}
-                            className="text-xl hover:scale-125 transition-transform duration-300"
-                        >
-                            ❤️
-                        </span>
-                    ))}
+            <div className="text-center py-6">
+                <div className="flex items-start justify-center gap-1">
+                    <span className="text-[14px] font-semibold mt-2" style={{ color: "#fbbf24" }}>R$</span>
+                    <span className="text-[56px] font-extrabold leading-none" style={{ color: "#fbbf24" }}>50</span>
                 </div>
+                <p className="text-[11px] mt-2" style={{ color: "rgba(255,255,255,0.28)" }}>
+                    sugerido · ≈ 1 saco de ração para ~15 cães
+                </p>
             </div>
 
-            <div className="bg-white p-4 rounded-lg shadow-sm flex flex-col gap-3 border border-gray-200 mt-auto">
-                <p className="font-semibold text-sm text-[#052759] text-center">
-                    Chave PIX da ONG
+            <div>
+                <p className="text-[10px] uppercase tracking-[0.08em] font-medium mb-2"
+                    style={{ color: "rgba(255,255,255,0.35)" }}>
+                    Chave PIX
                 </p>
-                <div className="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
-                    <code className="text-xs tracking-wide text-gray-700">
-                        8242ejwjd32847aisf
+                <div
+                    className="flex items-center gap-2 rounded-xl px-3 py-2.5"
+                    style={{
+                        background: "rgba(0,0,0,0.25)",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                    }}
+                >
+                    <code className="flex-1 text-[11px] font-mono truncate"
+                        style={{ color: "rgba(255,255,255,0.6)" }}>
+                        {PIX_KEY}
                     </code>
                     <button
                         onClick={handleCopyPix}
-                        className="bg-[#052759] hover:bg-blue-900 text-white text-xs px-2 py-1 rounded transition"
+                        className="shrink-0 text-[11px] font-semibold px-3 py-1.5 rounded-lg border-none outline-none cursor-pointer transition-all duration-300"
+                        style={{
+                            background: copied ? "#22c55e" : "#fbbf24",
+                            color: copied ? "#fff" : "#78350f",
+                        }}
                     >
-                        Copiar
+                        {copied ? "✓ Copiado" : "Copiar"}
                     </button>
                 </div>
             </div>
-        </section>
+        </div>
     );
 }

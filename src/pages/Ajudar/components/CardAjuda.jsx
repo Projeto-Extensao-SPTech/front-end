@@ -1,34 +1,57 @@
 export default function CardAjuda({
     cardRef,
     cardVisible,
-    imagem,
+    icone,
+    bgInicio,
+    bgFim,
     titulo,
     descricao,
     onSaibaMais,
+    accentColor = "#052759",
 }) {
     return (
         <div
             ref={cardRef}
-            className={`flex-1 flex flex-col lg:flex-row items-center gap-4 bg-white rounded-xl p-6 shadow-md
-                                hover:scale-105 transition-all duration-700 cursor-pointer
-                                ${cardVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}
-                            `}
+            className="bg-white rounded-[20px] overflow-hidden flex flex-col"
+            style={{
+                opacity: cardVisible ? 1 : 0,
+                transform: cardVisible ? "translateY(0)" : "translateY(2rem)",
+                transition: "opacity 700ms ease, transform 700ms ease",
+                boxShadow: "0 12px 40px rgba(0,0,0,0.24)",
+            }}
         >
-            <img
-                src={imagem}
-                alt={titulo}
-                className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
-            />
-            <div className="flex-1 flex flex-col justify-between h-full">
-                <div>
-                    <h3 className="font-bold text-[#052759] mb-1 text-lg">{titulo}</h3>
-                    <p className="text-gray-700 text-sm">{descricao}</p>
+            <div
+                className="h-[120px] flex items-center justify-center shrink-0"
+                style={{ background: `linear-gradient(135deg, ${bgInicio}, ${bgFim})` }}
+            >
+                {icone}
+            </div>
+
+            <div className="flex-1 flex flex-col gap-2.5 p-5 pb-6">
+
+                <div className="flex items-start gap-2">
+                    <div
+                        className="w-2 h-2 rounded-full shrink-0 mt-1"
+                        style={{ background: accentColor }}
+                    />
+                    <h3 className="font-bold text-[#052759] text-[15px] leading-snug m-0">
+                        {titulo}
+                    </h3>
                 </div>
+
+                <p className="text-gray-400 text-[13px] leading-relaxed flex-1 m-0">
+                    {descricao}
+                </p>
+
                 <button
                     onClick={onSaibaMais}
-                    className="bg-[#052759] hover:bg-blue-900 text-white px-4 py-2 rounded text-sm transition mt-3 lg:mt-0 self-start"
+                    className="mt-1.5 text-white border-none outline-none rounded-[11px] py-3 w-full text-[13px] font-semibold cursor-pointer flex items-center justify-center gap-1.5"
+                    style={{ background: accentColor }}
                 >
                     Saiba mais
+                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
                 </button>
             </div>
         </div>
