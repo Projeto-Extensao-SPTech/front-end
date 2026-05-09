@@ -132,7 +132,7 @@ export function useAuth() {
         try {
             if (isLogin) {
                 await loginUser(formData, alertUtils);
-                navigate("/feiras-de-adocao");
+                navigate("/");
             } else {
                 await cadastroUser(formData, tipoPessoa, alertUtils);
                 navigate("/auth?mode=login");
