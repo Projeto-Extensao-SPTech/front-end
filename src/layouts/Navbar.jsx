@@ -77,85 +77,89 @@ export default function Navbar({ variant = 'blue' }) {
                         </Link>
                     )}
 
-                    <Link
-                        to="/feiras-de-adocao"
-                        className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
-                    >
-                        FEIRAS DE ADOÇÃO
-                        {location.pathname === '/feiras-de-adocao' && (
-                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
-                        )}
-                    </Link>
-
-                    <Link
-                        to="/voluntariados"
-                        className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
-                    >
-                        VOLUNTARIADO
-                        {location.pathname === '/voluntariados' && (
-                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
-                        )}
-                    </Link>
-
-                    <Link
-                        to="/ajudar"
-                        className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
-                    >
-                        AJUDAR
-                        {location.pathname === '/ajudar' && (
-                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
-                        )}
-                    </Link>
-
-                    {user?.is_admin && (
-                        <Link
-                            to="/dashboard"
-                            className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
-                        >
-                            PAINEL
-                            {location.pathname === '/dashboard' && (
-                                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
-                            )}
-                        </Link>
-                    )}
-
-                    {user?.is_admin && (
-                        <div
-                            className="relative"
-                            onMouseEnter={() => setCadastrosOpen(true)}
-                            onMouseLeave={() => setCadastrosOpen(false)}
-                        >
-                            <div
-                                className={`bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] cursor-pointer relative p-3 rounded-xl hover:scale-105 transition-all duration-300 ease-in-out text-[#052759] font-bold shadow-lg hover:shadow-xl`}
+                    {location.pathname !== '/auth' && (
+                        <>
+                            <Link
+                                to="/feiras-de-adocao"
+                                className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
                             >
-                                CADASTROS
-                                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-[#FCAD0B] rotate-45"></div>
-                            </div>
+                                FEIRAS DE ADOÇÃO
+                                {location.pathname === '/feiras-de-adocao' && (
+                                    <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                                )}
+                            </Link>
 
-                            {cadastrosOpen && (
-                                <div className="absolute top-full left-1/2 transform -translate-x-1/2  w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 animate-in fade-in-0 zoom-in-95">
-                                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-t border-l border-gray-100"></div>
+                            <Link
+                                to="/voluntariados"
+                                className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
+                            >
+                                VOLUNTARIADO
+                                {location.pathname === '/voluntariados' && (
+                                    <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                                )}
+                            </Link>
 
-                                    <Link
-                                        to="/cadastro-notificacao"
-                                        className="flex items-center px-6 py-4 text-[15px] text-[#052759] hover:bg-gradient-to-r hover:from-[#FCAD0B] hover:to-[#FFD166] hover:text-white transition-all duration-200 group border-b border-gray-100 last:border-b-0"
-                                        onClick={() => setCadastrosOpen(false)}
+                            <Link
+                                to="/ajudar"
+                                className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
+                            >
+                                AJUDAR
+                                {location.pathname === '/ajudar' && (
+                                    <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                                )}
+                            </Link>
+
+                            {user?.is_admin && (
+                                <Link
+                                    to="/dashboard"
+                                    className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
+                                >
+                                    PAINEL
+                                    {location.pathname === '/dashboard' && (
+                                        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                                    )}
+                                </Link>
+                            )}
+
+                            {user?.is_admin && (
+                                <div
+                                    className="relative"
+                                    onMouseEnter={() => setCadastrosOpen(true)}
+                                    onMouseLeave={() => setCadastrosOpen(false)}
+                                >
+                                    <div
+                                        className={`bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] cursor-pointer relative p-3 rounded-xl hover:scale-105 transition-all duration-300 ease-in-out text-[#052759] font-bold shadow-lg hover:shadow-xl`}
                                     >
-                                        <div className="w-2 h-2 bg-[#FCAD0B] rounded-full mr-3 group-hover:bg-white transition-colors"></div>
-                                        Cadastrar Notificação
-                                    </Link>
+                                        CADASTROS
+                                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-[#FCAD0B] rotate-45"></div>
+                                    </div>
 
-                                    <Link
-                                        to="/cadastro-feira-de-adocao"
-                                        className="flex items-center px-6 py-4 text-[15px] text-[#052759] hover:bg-gradient-to-r hover:from-[#FCAD0B] hover:to-[#FFD166] hover:text-white transition-all duration-200 group border-b border-gray-100 last:border-b-0"
-                                        onClick={() => setCadastrosOpen(false)}
-                                    >
-                                        <div className="w-2 h-2 bg-[#FCAD0B] rounded-full mr-3 group-hover:bg-white transition-colors"></div>
-                                        Cadastrar Feira de Adoção
-                                    </Link>
+                                    {cadastrosOpen && (
+                                        <div className="absolute top-full left-1/2 transform -translate-x-1/2  w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 animate-in fade-in-0 zoom-in-95">
+                                            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-t border-l border-gray-100"></div>
+
+                                            <Link
+                                                to="/cadastro-notificacao"
+                                                className="flex items-center px-6 py-4 text-[15px] text-[#052759] hover:bg-gradient-to-r hover:from-[#FCAD0B] hover:to-[#FFD166] hover:text-white transition-all duration-200 group border-b border-gray-100 last:border-b-0"
+                                                onClick={() => setCadastrosOpen(false)}
+                                            >
+                                                <div className="w-2 h-2 bg-[#FCAD0B] rounded-full mr-3 group-hover:bg-white transition-colors"></div>
+                                                Cadastrar Notificação
+                                            </Link>
+
+                                            <Link
+                                                to="/cadastro-feira-de-adocao"
+                                                className="flex items-center px-6 py-4 text-[15px] text-[#052759] hover:bg-gradient-to-r hover:from-[#FCAD0B] hover:to-[#FFD166] hover:text-white transition-all duration-200 group border-b border-gray-100 last:border-b-0"
+                                                onClick={() => setCadastrosOpen(false)}
+                                            >
+                                                <div className="w-2 h-2 bg-[#FCAD0B] rounded-full mr-3 group-hover:bg-white transition-colors"></div>
+                                                Cadastrar Feira de Adoção
+                                            </Link>
+                                        </div>
+                                    )}
                                 </div>
                             )}
-                        </div>
+                        </>
                     )}
                 </nav>
 
@@ -256,72 +260,76 @@ export default function Navbar({ variant = 'blue' }) {
                     </Link>
                 )}
 
-                <Link
-                    to="/feiras-de-adocao"
-                    onClick={() => setMenu(false)}
-                    className="hover:scale-105 transition-all duration-300 font-bold relative py-2"
-                >
-                    FEIRAS DE ADOÇÃO
-                    {location.pathname === '/feiras-de-adocao' && (
-                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
-                    )}
-                </Link>
+                {location.pathname !== '/auth' && (
+                    <>
+                        <Link
+                            to="/feiras-de-adocao"
+                            onClick={() => setMenu(false)}
+                            className="hover:scale-105 transition-all duration-300 font-bold relative py-2"
+                        >
+                            FEIRAS DE ADOÇÃO
+                            {location.pathname === '/feiras-de-adocao' && (
+                                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                            )}
+                        </Link>
 
-                <Link
-                    to="/voluntariados"
-                    onClick={() => setMenu(false)}
-                    className="hover:scale-105 transition-all duration-300 font-bold relative py-2"
-                >
-                    VOLUNTARIADO
-                    {location.pathname === '/voluntariados' && (
-                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
-                    )}
-                </Link>
+                        <Link
+                            to="/voluntariados"
+                            onClick={() => setMenu(false)}
+                            className="hover:scale-105 transition-all duration-300 font-bold relative py-2"
+                        >
+                            VOLUNTARIADO
+                            {location.pathname === '/voluntariados' && (
+                                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                            )}
+                        </Link>
 
-                <Link
-                    to="/ajudar"
-                    onClick={() => setMenu(false)}
-                    className="hover:scale-105 transition-all duration-300 font-bold py-2"
-                >
-                    QUERO AJUDAR
-                    {location.pathname === '/ajudar' && (
-                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
-                    )}
-                </Link>
+                        <Link
+                            to="/ajudar"
+                            onClick={() => setMenu(false)}
+                            className="hover:scale-105 transition-all duration-300 font-bold py-2"
+                        >
+                            QUERO AJUDAR
+                            {location.pathname === '/ajudar' && (
+                                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                            )}
+                        </Link>
 
-                {user?.is_admin && (
-                    <Link
-                        to="/dashboard"
-                        onClick={() => setMenu(false)}
-                        className="hover:scale-105 transition-all duration-300 font-bold py-2"
-                    >
-                        PAINEL
-                        {location.pathname === '/dashboard' && (
-                            <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                        {user?.is_admin && (
+                            <Link
+                                to="/dashboard"
+                                onClick={() => setMenu(false)}
+                                className="hover:scale-105 transition-all duration-300 font-bold py-2"
+                            >
+                                PAINEL
+                                {location.pathname === '/dashboard' && (
+                                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                                )}
+                            </Link>
                         )}
-                    </Link>
-                )}
 
-                {user?.is_admin && (
-                    <div className="flex flex-col gap-4 mt-2 bg-white/10 rounded-2xl p-6 mx-4">
-                        <div className="text-[#FCAD0B] font-bold text-lg mb-2">CADASTROS</div>
+                        {user?.is_admin && (
+                            <div className="flex flex-col gap-4 mt-2 bg-white/10 rounded-2xl p-6 mx-4">
+                                <div className="text-[#FCAD0B] font-bold text-lg mb-2">CADASTROS</div>
 
-                        <Link
-                            to="/cadastro-notificacao"
-                            onClick={() => setMenu(false)}
-                            className="text-base hover:scale-105 transition-all duration-300 font-bold text-gray-200 bg-white/5 rounded-xl py-3 px-4 hover:bg-[#FCAD0B] hover:text-[#052759]"
-                        >
-                            Cadastrar Notificação
-                        </Link>
+                                <Link
+                                    to="/cadastro-notificacao"
+                                    onClick={() => setMenu(false)}
+                                    className="text-base hover:scale-105 transition-all duration-300 font-bold text-gray-200 bg-white/5 rounded-xl py-3 px-4 hover:bg-[#FCAD0B] hover:text-[#052759]"
+                                >
+                                    Cadastrar Notificação
+                                </Link>
 
-                        <Link
-                            to="/cadastro-feira-de-adocao"
-                            onClick={() => setMenu(false)}
-                            className="text-base hover:scale-105 transition-all duration-300 font-bold text-gray-200 bg-white/5 rounded-xl py-3 px-4 hover:bg-[#FCAD0B] hover:text-[#052759]"
-                        >
-                            Cadastrar Feira de Adoção
-                        </Link>
-                    </div>
+                                <Link
+                                    to="/cadastro-feira-de-adocao"
+                                    onClick={() => setMenu(false)}
+                                    className="text-base hover:scale-105 transition-all duration-300 font-bold text-gray-200 bg-white/5 rounded-xl py-3 px-4 hover:bg-[#FCAD0B] hover:text-[#052759]"
+                                >
+                                    Cadastrar Feira de Adoção
+                                </Link>
+                            </div>
+                        )}
+                    </>
                 )}
 
                 {/* Sessão mobile */}
