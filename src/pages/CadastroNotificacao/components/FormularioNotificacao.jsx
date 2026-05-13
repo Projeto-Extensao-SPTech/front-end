@@ -5,6 +5,7 @@ export default function FormularioNotificacao({
     form,
     feiras,
     onChange,
+    valorDataInput,
 }) {
     return (
         <div className="space-y-6">
@@ -40,12 +41,12 @@ export default function FormularioNotificacao({
                     <FaCalendarAlt className="text-lg" />
                 </span>
                 <input
-                    id="data-evento"
+                    type="date"
                     name="data"
-                    placeholder="Data do Evento:"
-                    className="w-full pr-3 py-3 text-sm text-[#052759] focus:outline-none placeholder-[#052759] font-medium pl-3 bg-white cursor-pointer"
-                    value={form.data}
+                    className="w-full pr-3 py-3 text-sm text-[#052759] focus:outline-none font-medium pl-3 bg-white cursor-pointer"
+                    value={valorDataInput}
                     onChange={onChange}
+                    required
                 />
             </div>
 

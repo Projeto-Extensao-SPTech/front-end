@@ -1,7 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import flatpickr from "flatpickr";
-import "flatpickr/dist/flatpickr.min.css";
-import { Portuguese } from "flatpickr/dist/l10n/pt.js";
 import { buscarFeiras, cadastrarNotificacao } from "../services/notificacaoService";
 import { formatFeira, calcularDatasAgendadas } from "../utils/dateFormatter";
 
@@ -39,31 +36,41 @@ export default function useCadastroNotificacao(alert) {
             setFeiras([]);
             setForm((prev) => ({ ...prev, id_feira: "" }));
         }
-    }, [form.tipo, carregarFeiras]);
+    }, [form.tipo]);
 
-    useEffect(() => {
-        const calendario = flatpickr("#data-evento", {
-            locale: Portuguese,
-            dateFormat: "d/m/Y",
-            minDate: "today",
-            disableMobile: true,
-            onChange: (datas) => {
-                const dataFormatada =
-                    datas.length > 0 ? flatpickr.formatDate(datas[0], "d/m/Y") : "";
-                setForm((prev) => ({ ...prev, data: dataFormatada }));
-            },
-        });
+    const converterInputDateParaBackend = (dataISO) => {
+        if (!dataISO) return "";
+        const partes = dataISO.split("-");
+        if (partes.length === 3) {
+            return `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
+        return dataISO;
+    };
 
-        return () => calendario.destroy();
-    }, []);
+    const converterBackendParaInputDate = (dataBR) => {
+        if (!dataBR) return "";
+        const partes = dataBR.split("/");
+        if (partes.length === 3) {
+            return `${partes[2]}-${partes[1]}-${partes[0]}`;
+        }
+        return dataBR;
+    };
 
     const atualizarForm = (e) => {
         const { name, value } = e.target;
 
-        setForm((prev) => ({
-            ...prev,
-            [name]: name === "id_feira" ? Number(value) : value,
-        }));
+        if (name === "data") {
+            const dataBackend = converterInputDateParaBackend(value);
+            setForm((prev) => ({
+                ...prev,
+                data: dataBackend,
+            }));
+        } else {
+            setForm((prev) => ({
+                ...prev,
+                [name]: name === "id_feira" ? Number(value) : value,
+            }));
+        }
     };
 
     const atualizarNotificacao = (id, campo, valor) => {
@@ -94,6 +101,8 @@ export default function useCadastroNotificacao(alert) {
     };
 
     const datasAgendadas = calcularDatasAgendadas(form.data, notificacoes);
+    
+    const valorDataInput = converterBackendParaInputDate(form.data);
 
     return {
         form,
@@ -105,5 +114,6 @@ export default function useCadastroNotificacao(alert) {
         adicionarNotificacao,
         removerNotificacao,
         enviarFormulario,
+        valorDataInput,
     };
 }

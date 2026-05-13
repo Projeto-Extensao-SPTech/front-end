@@ -1,10 +1,20 @@
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAlertUtils } from "../../hooks/useAlertUtils";
 import useCadastroNotificacao from "./hooks/useCadastroNotificacao";
 import FormularioNotificacao from "./components/FormularioNotificacao";
 import AgendadorNotificacoes from "./components/AgendadorNotificacoes";
 
 export default function CadastroNotificacao() {
+    const location = useLocation();
     const alert = useAlertUtils();
+
+    useEffect(() => {
+        console.log('✅ CadastroNotificacao MONTADO');
+        return () => {
+            console.log('❌ CadastroNotificacao DESMONTADO');
+        };
+    }, []);
 
     const {
         form,
@@ -16,6 +26,7 @@ export default function CadastroNotificacao() {
         adicionarNotificacao,
         removerNotificacao,
         enviarFormulario,
+        valorDataInput,
     } = useCadastroNotificacao(alert);
 
     return (
@@ -39,6 +50,7 @@ export default function CadastroNotificacao() {
                         form={form}
                         feiras={feiras}
                         onChange={atualizarForm}
+                        valorDataInput={valorDataInput}
                     />
 
                     <AgendadorNotificacoes
