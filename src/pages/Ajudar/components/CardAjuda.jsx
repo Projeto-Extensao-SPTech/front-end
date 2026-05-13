@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+
 export default function CardAjuda({
     cardRef,
     cardVisible,
@@ -9,6 +11,17 @@ export default function CardAjuda({
     onSaibaMais,
     accentColor = "#052759",
 }) {
+    const navigate = useNavigate();
+
+    const handleSaibaMais = () => {
+        const userDataString = sessionStorage.getItem("USER_DATA");
+        if (!userDataString) {
+            navigate('/auth?mode=login');
+            return;
+        }
+        onSaibaMais();
+    };
+
     return (
         <div
             ref={cardRef}
@@ -44,7 +57,7 @@ export default function CardAjuda({
                 </p>
 
                 <button
-                    onClick={onSaibaMais}
+                    onClick={handleSaibaMais}
                     className="mt-1.5 text-white border-none outline-none rounded-[11px] py-3 w-full text-[13px] font-semibold cursor-pointer flex items-center justify-center gap-1.5"
                     style={{ background: accentColor }}
                 >

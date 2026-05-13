@@ -45,7 +45,6 @@ export default function Participar() {
     return (
         <div className="relative bg-gradient-to-br from-[#052759] via-[#0d3a7a] to-[#052759] py-16 lg:py-24 overflow-hidden">
             
-            {/* BACKGROUND */}
             <div className="absolute inset-0 overflow-hidden opacity-10">
                 <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#FCAD0B] rounded-full blur-3xl"></div>
                 <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-white rounded-full blur-3xl"></div>
@@ -53,7 +52,6 @@ export default function Participar() {
 
             <div className="max-w-7xl mx-auto px-4 lg:px-8 relative z-10">
 
-                {/* CARDS */}
                 <div ref={cardsRef} className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                     {cards.map((card, index) => (
                         <div
@@ -87,7 +85,6 @@ export default function Participar() {
                     ))}
                 </div>
 
-                {/* HEADER */}
                 <div 
                     ref={headerRef}
                     className={`text-center mb-8 lg:mb-12 transition-all duration-700 ${
@@ -108,7 +105,6 @@ export default function Participar() {
                     </p>
                 </div>
 
-                {/* CTA (CORRIGIDO) */}
                 <div 
                     ref={ctaRef}
                     className={`relative bg-gradient-to-r from-white via-white to-gray-50 rounded-2xl p-6 lg:p-8 shadow-xl transition-all duration-700 ${
@@ -119,10 +115,9 @@ export default function Participar() {
                 >
                     <div className="flex flex-col lg:flex-row items-center gap-6">
 
-                        {/* TEXTO */}
                         <div className="w-full lg:w-1/2 text-center lg:text-left">
                             <h2 className="text-2xl lg:text-3xl font-black text-[#052759] mb-3 leading-tight">
-                                Pronto para fazer a diferença?
+                                Pronto para fazer a diferença como Voluntário?
                             </h2>
 
                             <p className="text-gray-700 text-base mb-6 leading-relaxed">
@@ -132,12 +127,11 @@ export default function Participar() {
 
                             <Link to="/voluntariados">
                                 <Button className="px-6 py-3 bg-[#FCAD0B] hover:bg-[#052759] text-sm">
-                                    Quero participar!
+                                    Quero ser Voluntário!
                                 </Button>
                             </Link>
                         </div>
 
-                        {/* IMAGEM */}
                         <div className="w-full lg:w-1/2 flex justify-center lg:justify-end">
                             <img 
                                 src="/img-adotar.png" 

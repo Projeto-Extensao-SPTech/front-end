@@ -65,19 +65,38 @@ export default function Navbar({ variant = 'blue' }) {
                 </div>
 
                 <nav className="hidden lg:flex flex-row items-center gap-14 h-full text-[14px] font-bold tracking-tightest leading-tight">
-                    {!user && (
+
+                    {!user && location.pathname === '/' && (
                         <Link
                             to="/"
                             className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
                         >
                             SOBRE
-                            {location.pathname === '/' && (
-                                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
-                            )}
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
                         </Link>
                     )}
 
-                    {location.pathname !== '/auth' && (
+                    {!user && location.pathname === '/ajudar' && (
+                        <Link
+                            to="/ajudar"
+                            className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
+                        >
+                            AJUDAR
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                        </Link>
+                    )}
+
+                    {!user && location.pathname === '/voluntariados' && (
+                        <Link
+                            to="/voluntariados"
+                            className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
+                        >
+                            VOLUNTARIADO
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                        </Link>
+                    )}
+
+                    {location.pathname !== '/auth' && location.pathname !== '/' && location.pathname !== '/ajudar' && location.pathname !== '/voluntariados' && (
                         <>
                             <Link
                                 to="/feiras-de-adocao"
@@ -135,7 +154,7 @@ export default function Navbar({ variant = 'blue' }) {
                                     </div>
 
                                     {cadastrosOpen && (
-                                        <div className="absolute top-full left-1/2 transform -translate-x-1/2  w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 animate-in fade-in-0 zoom-in-95">
+                                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 animate-in fade-in-0 zoom-in-95">
                                             <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-t border-l border-gray-100"></div>
 
                                             <Link
@@ -208,7 +227,6 @@ export default function Navbar({ variant = 'blue' }) {
                                     Sair
                                 </button>
                             </div>
-
                         </div>
                     ) : (
                         <>
@@ -246,21 +264,40 @@ export default function Navbar({ variant = 'blue' }) {
                 className={`${menu ? 'translate-x-0' : '-translate-x-full'
                     } lg:hidden flex flex-col absolute bg-gradient-to-b from-[#052759] to-[#0a3a8a] text-white left-0 top-full font-bold text-xl text-center pt-8 pb-8 gap-6 w-full h-fit transition-transform duration-300 z-50 shadow-2xl`}
             >
-
-                {!user && (
+                {!user && location.pathname === '/' && (
                     <Link
                         to="/"
                         onClick={() => setMenu(false)}
                         className="hover:scale-105 transition-all duration-300 font-bold relative py-2"
                     >
                         SOBRE
-                        {location.pathname === '/' && (
-                            <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
-                        )}
+                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
                     </Link>
                 )}
 
-                {location.pathname !== '/auth' && (
+                {!user && location.pathname === '/ajudar' && (
+                    <Link
+                        to="/ajudar"
+                        onClick={() => setMenu(false)}
+                        className="hover:scale-105 transition-all duration-300 font-bold relative py-2"
+                    >
+                        AJUDAR
+                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                    </Link>
+                )}
+
+                {!user && location.pathname === '/voluntariados' && (
+                    <Link
+                        to="/voluntariados"
+                        onClick={() => setMenu(false)}
+                        className="hover:scale-105 transition-all duration-300 font-bold relative py-2"
+                    >
+                        VOLUNTARIADO
+                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
+                    </Link>
+                )}
+
+                {location.pathname !== '/auth' && location.pathname !== '/' && location.pathname !== '/ajudar' && location.pathname !== '/voluntariados' && (
                     <>
                         <Link
                             to="/feiras-de-adocao"
@@ -367,7 +404,6 @@ export default function Navbar({ variant = 'blue' }) {
                                         Sair
                                     </button>
                                 </div>
-
                             </div>
                         </div>
                     ) : (
@@ -388,7 +424,6 @@ export default function Navbar({ variant = 'blue' }) {
                         </>
                     )}
                 </div>
-
             </div>
         </div>
     );

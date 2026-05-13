@@ -39,11 +39,11 @@ export default function BemVindos() {
 
                         <div className="mt-4 lg:mt-1">
 
-                            <Link to="/voluntariados">
+                            <Link to="/ajudar">
                                 <Button
                                     className="shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#FCAD0B] hover:bg-[#052759] hover:[#052759] text-sm mx-auto"
                                 >
-                                    Quero ser voluntário
+                                    Quero ajudar o abrigo
                                 </Button>
                             </Link>
                         </div>

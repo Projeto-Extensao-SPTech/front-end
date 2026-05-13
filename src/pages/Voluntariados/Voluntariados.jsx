@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useVoluntariados } from "./hooks/useVoluntariados";
 import { useScrollReveal } from "./hooks/useScrollReveal";
 import VoluntariadoHeader from "./components/VoluntariadoHeader";
@@ -5,13 +7,29 @@ import VoluntariadoForm from "./components/VoluntariadoForm";
 import VoluntariadoSidebar from "./components/VoluntariadoSidebar";
 
 export default function Voluntariados() {
+    const navigate = useNavigate();
     const { formData, errors, handleChange, handleSubmit } = useVoluntariados();
 
     const [headerRef, headerVisible] = useScrollReveal(0.1);
     const [formRef, formVisible] = useScrollReveal(0.1);
 
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            const userDataString = sessionStorage.getItem("USER_DATA");
+            if (!userDataString) {
+                navigate('/auth?mode=login');
+            }
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#F5F5F5] to-[#E8E8E8]">
+        <div className="relative min-h-screen bg-gradient-to-br from-[#F5F5F5] to-[#E8E8E8]">
             <VoluntariadoHeader headerRef={headerRef} headerVisible={headerVisible} />
 
             <div className="max-w-6xl mx-auto px-4 py-8">
