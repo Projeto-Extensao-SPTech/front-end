@@ -1,149 +1,90 @@
-import Button from "../../../components/ui/Button";
-import { useAlertUtils } from "../../../hooks/useAlertUtils";
-import { registrarInteresse } from "../services/feiraService";
+import { MapPin, Clock, Calendar } from "lucide-react";
 import { formatHour, formatDate } from "../utils/dateFormatter";
-import { MapPin } from "lucide-react";
 
 export default function CardFeira({
     feira,
     isSelected,
-    onClick,
     jaTemInteresse,
-    onRegistrarInteresse,
+    onClick,
 }) {
-    const alert = useAlertUtils();
-
-    async function fairInterest() {
-        const result = await registrarInteresse(
-            feira.id,
-            feira.address.street,
-            alert
-        );
-
-        if (result.success) {
-            onRegistrarInteresse();
-        }
-    }
-
     return (
         <div
+            role="button"
+            tabIndex={0}
+            aria-pressed={isSelected}
+            aria-label={`Feira de adoção em ${feira.address.street}, ${formatDate(
+                feira.fair_date
+            )}`}
             onClick={onClick}
-            className={`min-w-[320px] lg:min-w-0 bg-white rounded-2xl p-6 shadow-2xl cursor-pointer transform transition-all duration-500 relative
-                ${isSelected
-                    ? "scale-105 ring-2 ring-[#FCAD0B] shadow-[0_8px_30px_rgba(252,173,11,0.3)]"
-                    : "hover:scale-105 ring-2 ring-transparent"
+            onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onClick();
                 }
-                shadow-[inset_0_8px_30px_0_rgba(0,0,0,0.4)]
-            `}
-            style={{ height: "380px" }}
+            }}
+            className={`group min-w-[300px] lg:min-w-0 bg-white rounded-2xl p-5 cursor-pointer
+                flex flex-col outline-none transform transition-all duration-300 relative
+                focus-visible:ring-[3px] focus-visible:ring-[#FFD166]
+                ${isSelected
+                    ? "ring-[3px] ring-[#FCAD0B] shadow-[0_12px_40px_rgba(252,173,11,0.35)]"
+                    : "ring-1 ring-black/5 shadow-xl hover:-translate-y-1 hover:shadow-2xl"
+                }`}
         >
-            <Button
-                className={`absolute -top-2 -right-4 text-sm font-bold z-20 transition-all duration-300
-                    ${jaTemInteresse
-                        ? "bg-green-500 text-white cursor-default"
-                        : "bg-[#FCAD0B] text-[#052759] hover:bg-[#FFD166]"
-                    }
-                `}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    if (!jaTemInteresse) {
-                        fairInterest();
-                    }
-                }}
-                disabled={jaTemInteresse}
-            >
-                {jaTemInteresse ? "✓ Interesse registrado!" : "Tenho interesse"}
-            </Button>
+            {isSelected && (
+                <div
+                    aria-hidden="true"
+                    className="hidden lg:block absolute top-1/2 -translate-y-1/2 -right-[17px] w-0 h-0
+                        border-t-[14px] border-b-[14px] border-l-[17px]
+                        border-t-transparent border-b-transparent border-l-[#FCAD0B]"
+                    style={{ filter: "drop-shadow(2px 0 2px rgba(0,0,0,0.15))" }}
+                />
+            )}
 
-            <div
-                className={`absolute -bottom-9 left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full transition-all duration-300 flex items-center justify-center
-                    ${isSelected ? "bg-[#FCAD0B] scale-110" : "bg-white/40"}
-                `}
-            >
-                {isSelected && <div className="w-2.5 h-2.5 bg-white rounded-full"></div>}
-            </div>
+            {jaTemInteresse && (
+                <span className="absolute top-3 right-3 bg-green-500 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow">
+                    ✓ Interesse
+                </span>
+            )}
 
-            <div className="flex items-center gap-2 mb-4">
-                <div className="bg-[#FCAD0B] rounded-md p-2">
-                    <svg
-                        className="w-5 h-5 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                    </svg>
+            <div className="flex items-center gap-2 mb-4 pr-20">
+                <div className="bg-[#FCAD0B] rounded-lg p-2">
+                    <Calendar className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-[#052759] font-bold text-xl">
+                <span className="text-[#052759] font-bold text-lg leading-tight">
                     {formatDate(feira.fair_date)}
                 </span>
             </div>
 
-            <div className="space-y-3 mb-4">
-                <div className="bg-gradient-to-r from-[#FCAD0B]/10 to-transparent rounded-lg p-3 border-l-4 border-[#FCAD0B]">
-                    <div className="flex items-center gap-2">
-                        <div className="bg-[#FCAD0B] rounded-md p-1.5">
-                            <svg
-                                className="w-4 h-4 text-white"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                            </svg>
-                        </div>
-                        <div className="flex-1">
-                            <p className="text-[#052759]/50 text-[10px] font-semibold uppercase tracking-wide">
-                                Horário
-                            </p>
-                            <h3 className="font-bold text-[#052759] text-xl leading-tight">
-                                {formatHour(feira.fair_hour)}
-                            </h3>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-[#052759]/5 to-[#052759]/10 rounded-lg p-3 border border-[#052759]/10">
-                    <div className="flex items-start gap-2">
-                        <div className="bg-[#052759] rounded-md p-1.5 mt-0.5">
-                            <MapPin className="w-4 h-4 text-white" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-[#052759]/50 text-[10px] font-semibold uppercase tracking-wide mb-1">
-                                Localização
-                            </p>
-                            <div className="space-y-1">
-                                <p className="text-[#052759] text-sm font-bold leading-tight break-words">
-                                    {feira.address.street}
-                                </p>
-                                <div className="flex items-center gap-1.5">
-                                    <div className="w-4 h-0.5 bg-gradient-to-r from-[#FCAD0B] to-transparent rounded-full"></div>
-                                    <p className="text-[#052759]/70 text-xs font-semibold">
-                                        Nº {feira.address.number}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div className="flex items-center gap-2 mb-2 text-[#052759]">
+                <Clock className="w-4 h-4 text-[#FCAD0B] shrink-0" />
+                <span className="text-sm font-semibold">
+                    {formatHour(feira.fair_hour)}
+                </span>
             </div>
 
-            <div className="absolute bottom-0 left-0">
+            <div className="flex items-start gap-2 mb-4 text-[#052759]">
+                <MapPin className="w-4 h-4 text-[#FCAD0B] mt-0.5 shrink-0" />
+                <span className="text-sm font-semibold leading-snug break-words">
+                    {feira.address.street}, Nº {feira.address.number}
+                </span>
+            </div>
+
+            <div className="rounded-xl overflow-hidden mb-4 bg-[#052759]/5">
                 <img
                     src={feira.card_image}
-                    alt="pet"
-                    className="w-32 h-32 object-cover rounded-r-xl"
+                    alt=""
+                    className="w-full h-28 object-cover"
                 />
+            </div>
+
+            <div
+                className={`mt-auto flex items-center justify-center gap-1.5 text-xs font-bold rounded-lg py-2 transition-colors
+                    ${isSelected
+                        ? "bg-[#FCAD0B] text-[#052759]"
+                        : "bg-[#052759]/5 text-[#052759]/60 group-hover:bg-[#052759]/10"
+                    }`}
+            >
+                {isSelected ? "Feira selecionada" : "Ver pets e localização"}
             </div>
         </div>
     );

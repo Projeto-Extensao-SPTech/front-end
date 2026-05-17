@@ -1,14 +1,12 @@
-export default function Paginacao({
-    totalPaginas,
-    paginaAtual,
-    mudarPagina,
-}) {
+export default function Paginacao({ totalPaginas, paginaAtual, mudarPagina }) {
     return (
         <>
             {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((pagina) => (
                 <button
                     key={pagina}
                     onClick={() => mudarPagina(pagina)}
+                    aria-current={paginaAtual === pagina ? "page" : undefined}
+                    aria-label={`Ir para a página ${pagina}`}
                     className={`text-xl font-light transition-all duration-500 ${paginaAtual === pagina
                             ? "text-white scale-125 drop-shadow-lg"
                             : "text-white/30 hover:text-white/60"

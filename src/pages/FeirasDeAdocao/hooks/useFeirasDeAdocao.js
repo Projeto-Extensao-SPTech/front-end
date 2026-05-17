@@ -18,7 +18,7 @@ export default function useFeirasDeAdocao() {
         async function loadFairs() {
             try {
                 const response = await getFairs(
-                    paginaAtual <= 1 ? 0 : (paginaAtual - 1),
+                    paginaAtual <= 1 ? 0 : paginaAtual - 1,
                     ITENS_POR_PAGINA,
                     "fairDate"
                 );
@@ -55,19 +55,11 @@ export default function useFeirasDeAdocao() {
     const jaDemonstrouInteresse = (feiraId) =>
         feirasInteressadas.includes(feiraId);
 
-    const selecionarFeira = (index) => setFeiraSelecionada(index);
+    const selecionarFeira = (feira) => setFeiraSelecionada(feira);
 
     const mudarPagina = (pagina) => {
         setPaginaAtual(pagina);
     };
-
-    function getSelectText() {
-        if (feiras.length === 0) {
-            return "Nenhuma feira de adoção disponível no momento.";
-        } else {
-            return "Veja abaixo os pets disponíveis na feira selecionada:";
-        }
-    }
 
     return {
         feiraSelecionada,
@@ -77,7 +69,6 @@ export default function useFeirasDeAdocao() {
         mudarPagina,
         marcarComoInteressada,
         jaDemonstrouInteresse,
-        getSelectText,
-        paginasTotais
+        paginasTotais,
     };
 }
