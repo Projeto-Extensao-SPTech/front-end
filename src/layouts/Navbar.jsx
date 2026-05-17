@@ -70,16 +70,6 @@ export default function Navbar({ variant = 'blue' }) {
 
                 <nav className="hidden lg:flex flex-row items-center gap-8 h-full text-[14px] font-bold tracking-tightest leading-tight">
 
-                    {!user && location.pathname === '/' && (
-                        <Link
-                            to="/"
-                            className={`cursor-pointer relative pb-2 hover:scale-105 transition-all duration-300 ease-in-out ${s.textColor} ${s.hoverColor} font-bold`}
-                        >
-                            SOBRE
-                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FCAD0B] to-[#FFD166] rounded-full"></div>
-                        </Link>
-                    )}
-
                     {!user && location.pathname === '/ajudar' && (
                         <Link
                             to="/ajudar"
@@ -304,9 +294,6 @@ export default function Navbar({ variant = 'blue' }) {
                 className={`${menu ? 'translate-x-0' : '-translate-x-full'
                     } lg:hidden flex flex-col absolute bg-gradient-to-b from-[#052759] to-[#0a3a8a] text-white left-0 top-full font-bold text-xl text-center pt-8 pb-8 gap-4 w-full h-fit transition-transform duration-300 z-50 shadow-2xl`}
             >
-                {!user && location.pathname === '/' && (
-                    <Link to="/" onClick={() => setMenu(false)} className="hover:scale-105 transition-all duration-300 font-bold relative py-2">SOBRE</Link>
-                )}
                 {!user && location.pathname === '/ajudar' && (
                     <Link to="/ajudar" onClick={() => setMenu(false)} className="hover:scale-105 transition-all duration-300 font-bold relative py-2">AJUDAR</Link>
                 )}

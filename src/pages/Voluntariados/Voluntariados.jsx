@@ -32,7 +32,7 @@ export default function Voluntariados() {
         <div className="relative min-h-screen bg-gradient-to-br from-[#F5F5F5] to-[#E8E8E8]">
             <VoluntariadoHeader headerRef={headerRef} headerVisible={headerVisible} />
 
-            <div className="max-w-6xl mx-auto px-4 py-8">
+            <div className="max-w-6xl mx-auto px-4 pt-8 pb-2">
                 <div
                     ref={formRef}
                     className={`bg-[#052759] rounded-xl shadow-2xl overflow-hidden transition-all duration-700 ${

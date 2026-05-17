@@ -30,7 +30,7 @@ export default function CadastroNotificacao() {
     } = useCadastroNotificacao(alert);
 
     return (
-        <div className="min-h-screen bg-[#F0F0F0] flex flex-col items-center py-8">
+        <div className="min-h-screen bg-[#F0F0F0] flex flex-col items-center py-8 pt-14">
             <div className="text-center mb-8">
                 <h1 className="text-2xl font-black text-[#052759] mb-2">
                     Cadastrar Notificação

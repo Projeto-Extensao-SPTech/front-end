@@ -10,8 +10,9 @@ export async function getFairs(page, size, sortBy) {
             card_image: randomImage(),
         }));
         return {
-            data: data, 
-            totalPages: response.data.total_pages
+            data: data,
+            totalPages: response.data.total_pages,
+            totalElements: response.data.total_elements,
         };
     } catch (error) {
         console.error("Erro ao buscar feiras de adoção:", error);

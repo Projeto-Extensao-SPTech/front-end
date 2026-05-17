@@ -2,7 +2,7 @@ export default function FeirasHeader() {
     return (
         <div>
             <h1
-                className="text-3xl lg:text-4xl text-white leading-tight"
+                className="text-2xl lg:text-3xl text-white leading-tight"
                 style={{ fontFamily: "Poppins, sans-serif" }}
             >
                 <span className="font-light">NAVEGUE PELAS</span>

@@ -34,35 +34,35 @@ export default function CardAjuda({
             }}
         >
             <div
-                className="h-[120px] flex items-center justify-center shrink-0"
+                className="h-[140px] flex items-center justify-center shrink-0"
                 style={{ background: `linear-gradient(135deg, ${bgInicio}, ${bgFim})` }}
             >
                 {icone}
             </div>
 
-            <div className="flex-1 flex flex-col gap-2.5 p-5 pb-6">
+            <div className="flex-1 flex flex-col gap-3 p-6 pb-7">
 
                 <div className="flex items-start gap-2">
                     <div
-                        className="w-2 h-2 rounded-full shrink-0 mt-1"
+                        className="w-2.5 h-2.5 rounded-full shrink-0 mt-1"
                         style={{ background: accentColor }}
                     />
-                    <h3 className="font-bold text-[#052759] text-[15px] leading-snug m-0">
+                    <h3 className="font-bold text-[#052759] text-[17px] leading-snug m-0">
                         {titulo}
                     </h3>
                 </div>
 
-                <p className="text-gray-400 text-[13px] leading-relaxed flex-1 m-0">
+                <p className="text-gray-400 text-[14px] leading-relaxed flex-1 m-0">
                     {descricao}
                 </p>
 
                 <button
                     onClick={handleSaibaMais}
-                    className="mt-1.5 text-white border-none outline-none rounded-[11px] py-3 w-full text-[13px] font-semibold cursor-pointer flex items-center justify-center gap-1.5"
+                    className="mt-1.5 text-white border-none outline-none rounded-[11px] py-3.5 w-full text-[14px] font-semibold cursor-pointer flex items-center justify-center gap-1.5"
                     style={{ background: accentColor }}
                 >
                     Saiba mais
-                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                     </svg>
                 </button>

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Navbar from './layouts/Navbar';
+import Footer from './layouts/Footer';
 import Home from './pages/Home';
 import Auth from './pages/Auth/Auth';
 import Voluntariados from './pages/Voluntariados/Voluntariados';
@@ -15,6 +16,7 @@ import RouteGuard from './components/RouteGuard';
 function AppContent() {
     const location = useLocation();
     const isAuthPage = location.pathname === '/auth';
+    const isNoFooterPage = ['/doacao-livre', '/patrocinadores'].includes(location.pathname);
     const [user, setUser] = useState(null);
 
     useEffect(() => {
@@ -46,10 +48,10 @@ function AppContent() {
                 <Navbar variant={isAuthPage ? "white" : "blue"} />
             </div>
 
-            <div className={location.pathname === '/patrocinadores' ? "h-[calc(100vh-96px)] overflow-hidden" : ""}>
+            <div className={location.pathname === '/patrocinadores' ? "h-[calc(100vh-96px)] overflow-hidden" : "pb-24 bg-[#052759]"}>
                 <Routes>
                     <Route path="/auth" element={<Auth />} />
-                    
+
                     <Route path="/" element={<RouteGuard user={user}><Home /></RouteGuard>} />
                     <Route path="/voluntariados" element={<RouteGuard user={user}><Voluntariados /></RouteGuard>} />
                     <Route path="/patrocinadores" element={<RouteGuard user={user}><Patrocinadores /></RouteGuard>} />
@@ -60,6 +62,8 @@ function AppContent() {
                     <Route path="/cadastro-notificacao" element={<RouteGuard user={user}><CadastroNotificacao /></RouteGuard>} />
                 </Routes>
             </div>
+
+            {!isAuthPage && !isNoFooterPage && <Footer />}
         </>
     );
 }

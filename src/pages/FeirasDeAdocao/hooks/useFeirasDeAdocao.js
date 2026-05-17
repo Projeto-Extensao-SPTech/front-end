@@ -6,6 +6,7 @@ export default function useFeirasDeAdocao() {
 
     const [feiraSelecionada, setFeiraSelecionada] = useState({});
     const [paginasTotais, setPaginasTotais] = useState(0);
+    const [totalFeiras, setTotalFeiras] = useState(0);
     const [paginaAtual, setPaginaAtual] = useState(1);
     const [feiras, setFeiras] = useState([]);
 
@@ -27,11 +28,15 @@ export default function useFeirasDeAdocao() {
                     setFeiraSelecionada({});
                     setFeiras([]);
                     setPaginasTotais(0);
+                    setTotalFeiras(0);
                     return;
                 }
 
                 setFeiras(response.data);
                 setPaginasTotais(response.totalPages);
+                setTotalFeiras(
+                    response.totalElements ?? response.totalPages * ITENS_POR_PAGINA
+                );
                 setFeiraSelecionada(response.data[0]);
             } catch (error) {
                 console.error("Erro ao carregar feiras:", error);
@@ -40,6 +45,20 @@ export default function useFeirasDeAdocao() {
 
         loadFairs();
     }, [paginaAtual]);
+
+    const feiraIndex = feiras.findIndex((f) => f.id === feiraSelecionada?.id);
+
+    const proximaFeira = () => {
+        if (feiraIndex < feiras.length - 1) {
+            setFeiraSelecionada(feiras[feiraIndex + 1]);
+        }
+    };
+
+    const feiraAnterior = () => {
+        if (feiraIndex > 0) {
+            setFeiraSelecionada(feiras[feiraIndex - 1]);
+        }
+    };
 
     const marcarComoInteressada = (feiraId) => {
         if (!feirasInteressadas.includes(feiraId)) {
@@ -63,9 +82,13 @@ export default function useFeirasDeAdocao() {
 
     return {
         feiraSelecionada,
+        feiraIndex,
         paginaAtual,
         feiras,
+        totalFeiras,
         selecionarFeira,
+        proximaFeira,
+        feiraAnterior,
         mudarPagina,
         marcarComoInteressada,
         jaDemonstrouInteresse,

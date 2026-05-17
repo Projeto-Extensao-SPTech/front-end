@@ -22,9 +22,9 @@ export default function FormularioCadastroFeira({
     onSubmit,
 }) {
     return (
-        <form onSubmit={onSubmit} className="grid lg:grid-cols-2 gap-8">
+        <form onSubmit={onSubmit} className="grid lg:grid-cols-2 gap-6">
 
-            <div className="space-y-6">
+            <div className="space-y-4">
 
                 <div className="w-full">
                     <div
@@ -101,7 +101,7 @@ export default function FormularioCadastroFeira({
                 </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
 
                 <InputComIcone
                     icon={FaMapMarkerAlt}

@@ -14,7 +14,7 @@ export default function SecaoPix({ pixRef, pixVisible }) {
     return (
         <div
             ref={pixRef}
-            className="rounded-[20px] overflow-hidden flex flex-col justify-between p-7"
+            className="rounded-[20px] overflow-hidden flex flex-col justify-between p-8"
             style={{
                 opacity: pixVisible ? 1 : 0,
                 transform: pixVisible ? "translateY(0)" : "translateY(2rem)",
@@ -25,44 +25,44 @@ export default function SecaoPix({ pixRef, pixVisible }) {
             }}
         >
             <div>
-                <p className="text-[11px] uppercase tracking-widest font-medium mb-1.5"
+                <p className="text-[12px] uppercase tracking-widest font-medium mb-2"
                     style={{ color: "rgba(255,255,255,0.4)" }}>
                     Doe via PIX
                 </p>
-                <p className="text-white text-base font-semibold leading-snug">
+                <p className="text-white text-lg font-semibold leading-snug">
                     Ajude com qualquer valor
                 </p>
             </div>
 
-            <div className="text-center py-6">
+            <div className="text-center py-7">
                 <div className="flex items-start justify-center gap-1">
-                    <span className="text-[14px] font-semibold mt-2" style={{ color: "#fbbf24" }}>R$</span>
-                    <span className="text-[56px] font-extrabold leading-none" style={{ color: "#fbbf24" }}>50</span>
+                    <span className="text-[16px] font-semibold mt-2.5" style={{ color: "#fbbf24" }}>R$</span>
+                    <span className="text-[64px] font-extrabold leading-none" style={{ color: "#fbbf24" }}>50</span>
                 </div>
-                <p className="text-[11px] mt-2" style={{ color: "rgba(255,255,255,0.28)" }}>
+                <p className="text-[12px] mt-2" style={{ color: "rgba(255,255,255,0.28)" }}>
                     sugerido · ≈ 1 saco de ração para ~15 cães
                 </p>
             </div>
 
             <div>
-                <p className="text-[10px] uppercase tracking-[0.08em] font-medium mb-2"
+                <p className="text-[11px] uppercase tracking-[0.08em] font-medium mb-2.5"
                     style={{ color: "rgba(255,255,255,0.35)" }}>
                     Chave PIX
                 </p>
                 <div
-                    className="flex items-center gap-2 rounded-xl px-3 py-2.5"
+                    className="flex items-center gap-2 rounded-xl px-3.5 py-3"
                     style={{
                         background: "rgba(0,0,0,0.25)",
                         border: "1px solid rgba(255,255,255,0.06)",
                     }}
                 >
-                    <code className="flex-1 text-[11px] font-mono truncate"
+                    <code className="flex-1 text-[12px] font-mono truncate"
                         style={{ color: "rgba(255,255,255,0.6)" }}>
                         {PIX_KEY}
                     </code>
                     <button
                         onClick={handleCopyPix}
-                        className="shrink-0 text-[11px] font-semibold px-3 py-1.5 rounded-lg border-none outline-none cursor-pointer transition-all duration-300"
+                        className="shrink-0 text-[12px] font-semibold px-3.5 py-1.5 rounded-lg border-none outline-none cursor-pointer transition-all duration-300"
                         style={{
                             background: copied ? "#22c55e" : "#fbbf24",
                             color: copied ? "#fff" : "#78350f",
