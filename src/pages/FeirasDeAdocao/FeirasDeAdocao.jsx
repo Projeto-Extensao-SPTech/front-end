@@ -137,7 +137,7 @@ export default function FeirasDeAdocao() {
                                                 key={feira.id}
                                                 feira={feira}
                                                 isSelected={feiraSelecionada?.id === feira.id}
-                                                jaTemInteresse={jaDemonstrouInteresse(feira.id)}
+                                                jaTemInteresse={jaDemonstrouInteresse(feira)}
                                                 onClick={() => selecionarFeira(feira)}
                                             />
                                         ))}
@@ -155,11 +155,9 @@ export default function FeirasDeAdocao() {
                                     <FeiraDetalhes
                                         feira={feiraSelecionada}
                                         jaTemInteresse={jaDemonstrouInteresse(
-                                            feiraSelecionada.id
+                                            feiraSelecionada
                                         )}
-                                        onRegistrarInteresse={() =>
-                                            marcarComoInteressada(feiraSelecionada.id)
-                                        }
+                                        onRegistrarInteresse={marcarComoInteressada}
                                     />
                                 </div>
                             )}

@@ -35,7 +35,7 @@ export function CardVerificarCodigo({ onSubmit }) {
         <div className="bg-white rounded-2xl shadow-xl p-8 pt-12 max-w-md w-full text-center z-10 overflow-hidden">
             
             <h2 className="text-2xl font-bold text-[#052759] mb-4">Insira o código enviado</h2>
-            <p className="text-gray-600 mb-8 px-4">Enviamos um código de 4 dígitos para o seu WhatsApp.</p>
+            <p className="text-gray-600 mb-8 px-4">Enviamos um código de 4 dígitos para o seu e-mail.</p>
 
             <form className="px-4" onSubmit={handleSubmit}>
                 <div className="flex justify-center gap-4 mb-8">

@@ -22,12 +22,12 @@ export async function getFairs(page, size, sortBy) {
 
 export async function registrarInteresse(feiraId, enderecoFeira, alert) {
     try {
-        const response = await api.patch(`/fairs/${feiraId}`);
+        const response = await api.patch(`/fairs/${feiraId}/interest`);
         handleHttpFeedback(alert, response, {
             successTitle: "Interesse registrado!",
             successMessage: `Agradecemos seu interesse na feira de adoção em ${enderecoFeira}.`,
         });
-        return { success: true };
+        return { success: true, data: response.data };
     } catch (error) {
         handleHttpFeedback(alert, error.response, {
             errorTitle: "Erro ao registrar interesse",

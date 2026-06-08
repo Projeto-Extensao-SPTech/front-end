@@ -35,7 +35,7 @@ export default function FeiraDetalhes({
             alert
         );
         if (result.success) {
-            onRegistrarInteresse();
+            onRegistrarInteresse(result.data);
         }
     }
 

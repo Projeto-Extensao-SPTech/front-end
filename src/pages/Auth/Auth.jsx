@@ -33,6 +33,7 @@ export default function Auth() {
         atualizarSenha,
         voltarAoLogin,
         iniciarRecuperacao,
+        emailRecuperacao,
     } = useRecuperacaoSenha();
 
     const handleVoltarAoLogin = () => {
@@ -112,13 +113,13 @@ export default function Auth() {
                         <>
                             {etapaRecuperarSenha === 1 && (
                                 <CardRecuperarSenha
-                                    telefone={formData.telefone}
-                                    onTelefoneChange={(val) =>
-                                        handleInputMaskedChange({
-                                            target: { name: "telefone", value: val },
+                                    email={formData.email}
+                                    onEmailChange={(val) =>
+                                        handleInputChange({
+                                            target: { name: "email", value: val },
                                         })
                                     }
-                                    onSubmit={() => enviarCodigo(formData.telefone)}
+                                    onSubmit={() => enviarCodigo(formData.email)}
                                 />
                             )}
                             {etapaRecuperarSenha === 2 && (
@@ -127,7 +128,7 @@ export default function Auth() {
                             {etapaRecuperarSenha === 3 && (
                                 <CardNovaSenha
                                     onSubmit={(novaSenha) =>
-                                        atualizarSenha(formData.telefone, novaSenha)
+                                        atualizarSenha(emailRecuperacao, novaSenha)
                                     }
                                 />
                             )}

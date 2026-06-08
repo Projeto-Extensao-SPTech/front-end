@@ -4,94 +4,99 @@ import { api } from "../../../api/apiUserService";
 
 export function useRecuperacaoSenha() {
     const alertUtils = useAlertUtils();
+
     const [etapaRecuperarSenha, setEtapaRecuperarSenha] = useState(0);
-    const [codigoVerificacao, setCodigoVerificacao] = useState("");
+    const [emailRecuperacao, setEmailRecuperacao] = useState("");
+    const [codigoDigitado, setCodigoDigitado] = useState("");
 
-    const enviarCodigo = async (telefone) => {
-        const codigo = Math.floor(1000 + Math.random() * 9000).toString();
-        setCodigoVerificacao(codigo);
-        const telefoneLimpo = telefone.replace(/\D/g, "");
-        const numeroFormatado = `55${telefoneLimpo}`;
-
+    const enviarCodigo = async (email) => {
         try {
-            const telefoneCadastrado = await api.get(
-                `/users/exists-by-phone/${telefoneLimpo}`
+            const { data: emailCadastrado } = await api.get(
+                `/users/exists-by-mail/${encodeURIComponent(email)}`
             );
-            if (!telefoneCadastrado) {
+
+            if (!emailCadastrado) {
                 alertUtils.warn(
-                    "Telefone não encontrado",
-                    "Esse telefone não pertence a nenhum usuário cadastrado"
+                    "Email não encontrado",
+                    "Esse email não pertence a nenhum usuário cadastrado"
                 );
                 return;
             }
-            console.log("Telefone encontrado");
         } catch (error) {
-            console.log("Erro ao verificar o telefone: ", error.message);
+            console.error("Erro ao verificar email:", error);
+
             alertUtils.error(
                 "Não foi possível continuar",
                 "Tente novamente mais tarde."
             );
+
             return;
         }
 
-        const requestBody = {
-            number: numeroFormatado,
-            text: `Abrigo Dog Feliz: Seu código de verificação é: ${codigo}`,
-        };
-
         try {
-            const response = await fetch(
-                "http://localhost:7000/messages/sendText/api-manager",
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(requestBody),
-                }
+            await api.post(
+                `/users/send-code/${encodeURIComponent(email)}`
             );
 
-            if (response.ok) {
-                setEtapaRecuperarSenha(2);
-            } else {
-                const errorText = await response.text();
-                alertUtils.error({ text: `Erro ao enviar mensagem: ${errorText}` });
-            }
-        } catch {
-            alertUtils.error({
-                text: "Erro ao enviar mensagem. Tente novamente mais tarde.",
-            });
+            setEmailRecuperacao(email);
+            setEtapaRecuperarSenha(2);
+
+            alertUtils.success(
+                "Código enviado",
+                "Verifique sua caixa de entrada."
+            );
+        } catch (error) {
+            console.error("Erro ao enviar código:", error);
+
+            alertUtils.error(
+                "Não foi possível enviar o código",
+                "Tente novamente mais tarde."
+            );
         }
     };
 
-    const verificarCodigo = (codigoDigitado) => {
-        if (codigoDigitado === codigoVerificacao) {
-            setCodigoVerificacao("");
+    const verificarCodigo = async (codigo) => {
+        try {
+            await api.post("/users/validate-code", {
+                mail: emailRecuperacao,
+                code: codigo,
+            });
+
+            setCodigoDigitado(codigo);
             setEtapaRecuperarSenha(3);
-        } else {
-            alertUtils.warn({
-                text: "Código de verificação inválido. Tente novamente.",
-            });
+        } catch (error) {
+            console.error("Erro ao validar código:", error);
+
+            alertUtils.error(
+                "Código inválido",
+                "Verifique o código informado e tente novamente."
+            );
         }
     };
 
-    const atualizarSenha = async (telefone, novaSenha) => {
+    const atualizarSenha = async (email, novaSenha) => {
         try {
             await api.patch("/users/update-password", {
-                phone: telefone.replace(/\D/g, ""),
+                mail: email,
                 password: novaSenha,
+                code: codigoDigitado,
             });
+
             setEtapaRecuperarSenha(4);
         } catch (error) {
-            console.error("Erro ao atualizar a senha: " + error.message);
+            console.error("Erro ao atualizar senha:", error);
+
             alertUtils.error(
-                "Não foi possível continuar",
-                "Tente novamente mais tarde."
+                "Não foi possível alterar a senha",
+                "Verifique os dados informados."
             );
-            return;
         }
     };
 
     const voltarAoLogin = () => {
         setEtapaRecuperarSenha(0);
+        setEmailRecuperacao("");
+        setCodigoDigitado("");
     };
 
     const iniciarRecuperacao = () => {
@@ -105,5 +110,6 @@ export function useRecuperacaoSenha() {
         atualizarSenha,
         voltarAoLogin,
         iniciarRecuperacao,
+        emailRecuperacao,
     };
 }

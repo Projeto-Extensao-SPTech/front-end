@@ -10,10 +10,20 @@ export default function useFeirasDeAdocao() {
     const [paginaAtual, setPaginaAtual] = useState(1);
     const [feiras, setFeiras] = useState([]);
 
-    const [feirasInteressadas, setFeirasInteressadas] = useState(() => {
-        const salvo = localStorage.getItem("feiras_interesse_usuario");
-        return salvo ? JSON.parse(salvo) : [];
-    });
+    const atualizarFeiraNaLista = (feiraAtualizada) => {
+        setFeiras((prev) =>
+            prev.map((feira) =>
+                feira.id === feiraAtualizada.id
+                    ? { ...feira, ...feiraAtualizada }
+                    : feira
+            )
+        );
+        setFeiraSelecionada((prev) =>
+            prev?.id === feiraAtualizada.id
+                ? { ...prev, ...feiraAtualizada }
+                : prev
+        );
+    };
 
     useEffect(() => {
         async function loadFairs() {
@@ -60,19 +70,14 @@ export default function useFeirasDeAdocao() {
         }
     };
 
-    const marcarComoInteressada = (feiraId) => {
-        if (!feirasInteressadas.includes(feiraId)) {
-            const novasFeiras = [...feirasInteressadas, feiraId];
-            setFeirasInteressadas(novasFeiras);
-            localStorage.setItem(
-                "feiras_interesse_usuario",
-                JSON.stringify(novasFeiras)
-            );
+    const marcarComoInteressada = (feiraAtualizada) => {
+        if (feiraAtualizada) {
+            atualizarFeiraNaLista(feiraAtualizada);
         }
     };
 
-    const jaDemonstrouInteresse = (feiraId) =>
-        feirasInteressadas.includes(feiraId);
+    const jaDemonstrouInteresse = (feira) =>
+        Boolean(feira?.user_has_interest);
 
     const selecionarFeira = (feira) => setFeiraSelecionada(feira);
 
