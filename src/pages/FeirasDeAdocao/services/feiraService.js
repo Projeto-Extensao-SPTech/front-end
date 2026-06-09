@@ -37,3 +37,21 @@ export async function registrarInteresse(feiraId, enderecoFeira, alert) {
         return { success: false };
     }
 }
+
+export async function deletarFeira(feiraId, alert) {
+    try {
+        const response = await api.delete(`/fairs/${feiraId}`);
+        handleHttpFeedback(alert, response, {
+            successTitle: "Feira deletada!",
+            successMessage: "A feira foi removida com sucesso.",
+        });
+        return { success: true };
+    } catch (error) {
+        handleHttpFeedback(alert, error.response, {
+            errorTitle: "Erro ao deletar feira",
+            errorMessage:
+                "Não foi possível excluir a feira. Tente novamente mais tarde.",
+        });
+        return { success: false };
+    }
+}

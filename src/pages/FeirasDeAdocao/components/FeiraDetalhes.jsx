@@ -1,8 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Calendar, Clock, MapPin, Navigation, PawPrint } from "lucide-react";
 import Button from "../../../components/ui/Button";
 import { useAlertUtils } from "../../../hooks/useAlertUtils";
-import { registrarInteresse } from "../services/feiraService";
+import { registrarInteresse, deletarFeira } from "../services/feiraService";
 import { formatHour, formatDate } from "../utils/dateFormatter";
 import CardPet from "./CardPet";
 
@@ -10,8 +10,19 @@ export default function FeiraDetalhes({
     feira,
     jaTemInteresse,
     onRegistrarInteresse,
+    onExcluirFeira,
 }) {
     const alert = useAlertUtils();
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const userDataString = sessionStorage.getItem("USER_DATA");
+    let isAdmin = false;
+    try {
+        const userData = userDataString ? JSON.parse(userDataString) : null;
+        isAdmin = userData?.is_admin === 1 || userData?.is_admin === true;
+    } catch (error) {
+        isAdmin = false;
+    }
 
     const endereco = useMemo(() => {
         if (!feira?.address) return "";
@@ -39,6 +50,20 @@ export default function FeiraDetalhes({
         }
     }
 
+    async function handleDelete() {
+        if (!window.confirm("Tem certeza que deseja excluir esta feira?")) {
+            return;
+        }
+
+        setIsDeleting(true);
+        const result = await deletarFeira(feira.id, alert);
+        setIsDeleting(false);
+
+        if (result.success && onExcluirFeira) {
+            onExcluirFeira(feira.id);
+        }
+    }
+
     return (
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
             <div className="bg-[#052759] px-5 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -61,19 +86,31 @@ export default function FeiraDetalhes({
                     </div>
                 </div>
 
-                <Button
-                    onClick={() => !jaTemInteresse && handleInteresse()}
-                    disabled={jaTemInteresse}
-                    className={`text-sm font-bold whitespace-nowrap transition-all duration-300
-                        ${jaTemInteresse
-                            ? "bg-green-500 text-white cursor-default"
-                            : "bg-[#FCAD0B] text-[#052759] hover:bg-[#FFD166]"
-                        }`}
-                >
-                    {jaTemInteresse
-                        ? "✓ Interesse registrado"
-                        : "Tenho interesse nesta feira"}
-                </Button>
+                <div className="flex flex-wrap items-center gap-3">
+                    <Button
+                        onClick={() => !jaTemInteresse && handleInteresse()}
+                        disabled={jaTemInteresse}
+                        className={`text-sm font-bold whitespace-nowrap transition-all duration-300
+                            ${jaTemInteresse
+                                ? "bg-green-500 text-white cursor-default"
+                                : "bg-[#FCAD0B] text-[#052759] hover:bg-[#FFD166]"
+                            }`}
+                    >
+                        {jaTemInteresse
+                            ? "✓ Interesse registrado"
+                            : "Tenho interesse nesta feira"}
+                    </Button>
+
+                    {isAdmin && (
+                        <Button
+                            onClick={handleDelete}
+                            disabled={isDeleting}
+                            className="text-sm font-bold whitespace-nowrap bg-red-500 text-white hover:bg-red-400 transition-all duration-300"
+                        >
+                            {isDeleting ? "Excluindo..." : "Excluir feira"}
+                        </Button>
+                    )}
+                </div>
             </div>
 
             <div className="grid lg:grid-cols-2">

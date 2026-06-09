@@ -25,7 +25,7 @@ export async function cadastrarFeira(formData, alert) {
     };
 
     formDataToSend.append(
-        "fair",
+        "fairRequest",
         new Blob([JSON.stringify(fairData)], { type: "application/json" })
     );
 

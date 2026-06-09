@@ -158,6 +158,7 @@ export default function FeirasDeAdocao() {
                                             feiraSelecionada
                                         )}
                                         onRegistrarInteresse={marcarComoInteressada}
+                                        onExcluirFeira={removerFeiraDaLista}
                                     />
                                 </div>
                             )}

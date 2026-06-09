@@ -76,6 +76,26 @@ export default function useFeirasDeAdocao() {
         }
     };
 
+    const removerFeiraDaLista = (feiraId) => {
+        setFeiras((prevFeiras) => {
+            const nextFeiras = prevFeiras.filter((feira) => feira.id !== feiraId);
+            if (nextFeiras.length === 0) {
+                setFeiraSelecionada({});
+                setTotalFeiras(0);
+                return [];
+            }
+
+            if (feiraSelecionada?.id === feiraId) {
+                const removedIndex = prevFeiras.findIndex((feira) => feira.id === feiraId);
+                const nextIndex = Math.min(removedIndex, nextFeiras.length - 1);
+                setFeiraSelecionada(nextFeiras[nextIndex]);
+            }
+
+            return nextFeiras;
+        });
+        setTotalFeiras((prev) => Math.max(prev - 1, 0));
+    };
+
     const jaDemonstrouInteresse = (feira) =>
         Boolean(feira?.user_has_interest);
 
