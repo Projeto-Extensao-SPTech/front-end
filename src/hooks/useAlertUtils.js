@@ -4,6 +4,13 @@ import { useNavigate } from "react-router-dom"
 export function useAlertUtils() {
   const navigate = useNavigate()
 
+  const baseSwalOptions = {
+    background: '#EFEFEF',
+    confirmButtonColor: '#052759',
+    cancelButtonColor: '#6B7280',
+    iconColor: '#052759',
+  }
+
   return {
     loading: (
       title = "Carregando...",
@@ -20,6 +27,24 @@ export function useAlertUtils() {
       })
     },
 
+    confirm: async (
+      title = "Confirmação",
+      text = "",
+      confirmButtonText = "Confirmar",
+      cancelButtonText = "Cancelar",
+      icon = "warning"
+    ) => {
+      return await Swal.fire({
+        title,
+        text,
+        icon,
+        showCancelButton: true,
+        confirmButtonText,
+        cancelButtonText,
+        ...baseSwalOptions,
+      })
+    },
+
     success: async (
       title = "Sucesso!",
       text = "Operação concluída!"
@@ -28,8 +53,8 @@ export function useAlertUtils() {
         title,
         text,
         icon: "success",
-        confirmButtonColor: "#052759",
         confirmButtonText: "OK",
+        ...baseSwalOptions,
       })
     },
 
@@ -41,8 +66,8 @@ export function useAlertUtils() {
         title,
         text,
         icon: "error",
-        confirmButtonColor: "#d33",
         confirmButtonText: "Tentar novamente",
+        ...baseSwalOptions,
       })
     },
 
@@ -54,8 +79,8 @@ export function useAlertUtils() {
         title,
         text,
         icon: "warning",
-        confirmButtonColor: "#d33",
         confirmButtonText: "Entendi",
+        ...baseSwalOptions,
       })
     },
 
@@ -67,8 +92,8 @@ export function useAlertUtils() {
         title,
         text,
         icon: "warning",
-        confirmButtonColor: "#d33",
         confirmButtonText: "Ir para o login",
+        ...baseSwalOptions,
       }).then((result) => {
         if (result.isConfirmed) {
           navigate("/auth?mode=login")

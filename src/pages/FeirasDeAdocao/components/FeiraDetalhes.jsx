@@ -51,9 +51,15 @@ export default function FeiraDetalhes({
     }
 
     async function handleDelete() {
-        if (!window.confirm("Tem certeza que deseja excluir esta feira?")) {
-            return;
-        }
+        const confirmation = await alert.confirm(
+            "Tem certeza que deseja excluir esta feira?",
+            "Esta ação não pode ser desfeita.",
+            "Sim, excluir",
+            "Cancelar",
+            "warning"
+        );
+
+        if (!confirmation.isConfirmed) return;
 
         setIsDeleting(true);
         const result = await deletarFeira(feira.id, alert);
