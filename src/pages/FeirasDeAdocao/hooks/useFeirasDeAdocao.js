@@ -118,5 +118,6 @@ export default function useFeirasDeAdocao() {
         marcarComoInteressada,
         jaDemonstrouInteresse,
         paginasTotais,
+        removerFeiraDaLista,
     };
 }

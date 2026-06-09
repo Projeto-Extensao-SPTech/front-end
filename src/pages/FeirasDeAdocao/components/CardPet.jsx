@@ -1,5 +1,5 @@
 export default function CardPet({ image, index }) {
-    const imageUrl = `http://localhost:7000/fairs/images/${image}`;
+    const imageUrl = `http://abrigodogfeliz.qzz.io:80/api/fairs/images?key=${encodeURIComponent(image)}`;
 
     return (
         <div

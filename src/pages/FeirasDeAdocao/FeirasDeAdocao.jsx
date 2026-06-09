@@ -5,6 +5,7 @@ import Paginacao from "./components/Paginacao";
 import CardFeira from "./components/CardFeira";
 import FeiraDetalhes from "./components/FeiraDetalhes";
 
+
 export default function FeirasDeAdocao() {
     const {
         feiraSelecionada,
@@ -19,6 +20,7 @@ export default function FeirasDeAdocao() {
         marcarComoInteressada,
         jaDemonstrouInteresse,
         paginasTotais,
+        removerFeiraDaLista,
     } = useFeirasDeAdocao();
 
     const temFeiras = feiras.length > 0;

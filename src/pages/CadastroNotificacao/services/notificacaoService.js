@@ -28,11 +28,11 @@ export async function cadastrarNotificacao(formData, notificacoes, alert) {
     alert.loading("Aguarde", "Estamos cadastrando a sua notificação...");
 
     const dados = {
-        notification_type: formData.tipo,
+        type: formData.tipo,
         event_date: formatDate(formData.data, "/", "-"),
         message: formData.mensagem,
         fair_id: formData.id_feira,
-        recurrence: notificacoes.map((it) => Number(it.quantidade)),
+        recurrences: notificacoes.map((it) => Number(it.quantidade)),
     };
 
     try {

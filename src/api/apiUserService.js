@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "http://localhost:8081",
+  baseURL: "http://abrigodogfeliz.qzz.io:80/api/"
 });
 
 export function setHeaderParam(param, value) {

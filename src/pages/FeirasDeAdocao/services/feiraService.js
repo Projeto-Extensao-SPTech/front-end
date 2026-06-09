@@ -5,7 +5,7 @@ import { randomImage } from "../utils/imageUtils";
 export async function getFairs(page, size, sortBy) {
     try {
         const response = await api.get(`/fairs/future?page=${page}&size=${size}&sortBy=${sortBy}`);
-        const data = response.data.content.map((feira) => ({
+        const data = response.data.data.map((feira) => ({
             ...feira,
             card_image: randomImage(),
         }));
