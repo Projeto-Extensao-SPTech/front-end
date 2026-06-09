@@ -28,19 +28,19 @@ export async function cadastrarNotificacao(formData, notificacoes, alert) {
     alert.loading("Aguarde", "Estamos cadastrando a sua notificação...");
 
     const dados = {
-        type: formData.tipo,
+        notification_type: formData.tipo,
         event_date: formatDate(formData.data, "/", "-"),
         message: formData.mensagem,
         fair_id: formData.id_feira,
-        recurrences: notificacoes.map((it) => Number(it.quantidade)),
+        recurrence: notificacoes.map((it) => Number(it.quantidade)),
     };
 
     try {
-        const result = await api.post("/notifications", dados);
+        const result = await api.post("/notifications/schedule", dados);
         console.log("Resultado: ", result);
 
         handleHttpFeedback(alert, result, {
-            successTitle: "Notificação criada!",
+            successTitle: "Notificação agendada!",
             successMessage:
                 "A notificação está sendo processada. Ela será criada e enviada em breve!!",
         });
