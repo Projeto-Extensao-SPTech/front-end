@@ -16,6 +16,7 @@ export function useAuth() {
     const [cadastroStep, setCadastroStep] = useState(1);
     const [eyeOpen, setEyeOpen] = useState(false);
     const [tipoPessoa, setTipoPessoa] = useState("PF");
+    const [aceiteLGPD, setAceiteLGPD] = useState(false);
 
     const [formData, setFormData] = useState({
         nome: "",
@@ -42,7 +43,6 @@ export function useAuth() {
             const buscaEndereco = async () => {
                 try {
                     const data = await buscarCep(cepLimpo);
-
                     setFormData((prev) => ({
                         ...prev,
                         rua: data.logradouro,
@@ -58,12 +58,10 @@ export function useAuth() {
                     }));
                 }
             };
-
             buscaEndereco();
         }
     }, [formData.cep]);
 
-    // Reset ao mudar modo
     useEffect(() => {
         setIsLogin(initialMode === "login");
         setCadastroStep(1);
@@ -116,12 +114,19 @@ export function useAuth() {
                 alertUtils.error(`Erro no campo ${erro.campo}`, erro.mensagem);
                 return;
             }
-
             setCadastroStep(2);
             return;
         }
 
         if (!isLogin && cadastroStep === 2) {
+            if (!aceiteLGPD) {
+                alertUtils.error(
+                    "Consentimento necessário",
+                    "Você precisa aceitar a Política de Privacidade (LGPD) para concluir o cadastro."
+                );
+                return;
+            }
+
             const erro = validarCampos(formData, tipoPessoa);
             if (erro) {
                 alertUtils.error(`Erro no campo ${erro.campo}`, erro.mensagem);
@@ -149,6 +154,7 @@ export function useAuth() {
         setIsLogin(mode === "login");
         setCadastroStep(1);
         setTipoPessoa("PF");
+        setAceiteLGPD(false);
         setFormData({
             nome: "",
             email: "",
@@ -181,6 +187,8 @@ export function useAuth() {
         setEyeOpen,
         tipoPessoa,
         formData,
+        aceiteLGPD,
+        setAceiteLGPD,
         handleInputChange,
         handleInputMaskedChange,
         handleSubmit,

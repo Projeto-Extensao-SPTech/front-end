@@ -19,6 +19,8 @@ export default function Auth() {
         setEyeOpen,
         tipoPessoa,
         formData,
+        aceiteLGPD,
+        setAceiteLGPD,
         handleInputChange,
         handleInputMaskedChange,
         handleSubmit,
@@ -106,6 +108,8 @@ export default function Auth() {
                                     onChange={handleInputChange}
                                     onMaskedChange={handleInputMaskedChange}
                                     onSubmit={handleSubmit}
+                                    aceiteLGPD={aceiteLGPD}
+                                    onAceiteLGPDChange={setAceiteLGPD}
                                 />
                             )}
                         </>
