@@ -1,0 +1,58 @@
+name: Frontend CI - MAIN
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      VITE_API_URL: ${{ vars.VITE_API_URL || 'http://localhost:7000' }}
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      # O build do front-end será executado dentro do Dockerfile (consistente com backend)
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Calcular short SHA
+        id: vars
+        run: echo "short_sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Login no Docker Hub - main
+        if: github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # develop: só build local da imagem (valida Dockerfile), sem push
+      - name: Build da imagem (sem push) - develop
+        if: github.ref == 'refs/heads/develop'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          build-args: |
+            VITE_API_URL=${{ env.VITE_API_URL }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/abrigo-dog-feliz-frontend:dev-${{ steps.vars.outputs.short_sha }}
+
+      # main: push da imagem versionada
+      - name: Build e Push - main
+        if: github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          build-args: |
+            VITE_API_URL=${{ env.VITE_API_URL }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/abrigo-dog-feliz-frontend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/abrigo-dog-feliz-frontend:sha-${{ steps.vars.outputs.short_sha }}
